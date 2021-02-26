@@ -1,0 +1,44 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+from base_GUI import *
+from databasemanager import *
+
+
+
+class GUI_wrapper(Ui_MainWindow):
+    UserSettings.global_settings().loading_data_missing_channel_type = 'error'
+    UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
+ 
+    root = 'C:\\db\\toyDB'
+    db = Database(root)
+    datasets = db.dataset_names
+    ds = db.load_dataset('ds1')
+    dataset_name = "null"
+    def update_GUI(self):
+        subject_names = self.ds.subject_names
+        annotations = ['annotation1','annotation2', 'annotation3', 'annotation4']
+        events = ['event1','event2']
+        recordings = []
+        subjects = self.ds.subjects
+        for rec in subjects[1].recordings:
+            recordings.append(rec.name)
+        self.subject_list.clear()
+        self.recordings_list.clear()
+        self.annotations_list.clear()
+        self.events_list.clear()
+        self.subject_list.addItems(subject_names)
+        self.recordings_list.addItems(recordings)
+        self.annotations_list.addItems(annotations)
+        self.events_list.addItems(events)
+        self.label_11.setText(self.dataset_name)
+
+    def load_dataset(self):
+        for name in self.db.dataset_names:
+            if name == self.dataset_name:
+                self.ds = self.db.load_dataset(name)
+            self.update_GUI()
+
+    def doubleclick(self, item):
+        self.dataset_name = item.text()
+        self.myOtherWindow.hide()
+        self.load_dataset()
+
