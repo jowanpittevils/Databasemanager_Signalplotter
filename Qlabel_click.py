@@ -1,6 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QCursor
 
+from open_datasets_GUI import *
+
 
 class Qlabel_click(QtWidgets.QLabel):
     clicked=QtCore.pyqtSignal()
@@ -10,4 +12,4 @@ class Qlabel_click(QtWidgets.QLabel):
 
     def mousePressEvent(self, ev):
         self.clicked.emit()
-        print('testttt')
+        open_datasets(self)

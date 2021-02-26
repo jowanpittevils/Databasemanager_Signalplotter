@@ -275,6 +275,11 @@
                  <height>50</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <underline>false</underline>
+                </font>
+               </property>
                <property name="sizeAdjustPolicy">
                 <enum>QAbstractScrollArea::AdjustIgnored</enum>
                </property>
