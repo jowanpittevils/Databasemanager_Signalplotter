@@ -26,7 +26,7 @@ class UI_dataset(object):
         sizePolicy.setHeightForWidth(self.listWidget.sizePolicy().hasHeightForWidth())
         self.listWidget.setSizePolicy(sizePolicy)
         self.listWidget.setMinimumSize(QtCore.QSize(1, 1))
-        self.listWidget.setObjectName("listWidget")
+        self.listWidget.setObjectName("dataset_list")
         self.horizontalLayout.addWidget(self.listWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
