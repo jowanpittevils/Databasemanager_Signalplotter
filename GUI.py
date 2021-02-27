@@ -6,12 +6,6 @@ from GUI_wrapper import *
 import sys
 import numpy as np
 from databasemanager import *
-
-
-#%%
-root = 'C:\\db\\toyDB'
-#%%
-
 #%%
 
 app = QtWidgets.QApplication(sys.argv)

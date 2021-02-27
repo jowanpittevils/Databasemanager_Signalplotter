@@ -11,11 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class UI_dataset(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(429, 160)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class Ui_dataset(object):
+    def setupUi(self, dataset):
+        dataset.setObjectName("dataset")
+        dataset.resize(189, 176)
+        self.centralwidget = QtWidgets.QWidget(dataset)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -28,28 +28,28 @@ class UI_dataset(object):
         self.listWidget.setMinimumSize(QtCore.QSize(1, 1))
         self.listWidget.setObjectName("listWidget")
         self.horizontalLayout.addWidget(self.listWidget)
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 429, 21))
+        dataset.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(dataset)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 189, 21))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        dataset.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(dataset)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        dataset.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(dataset)
+        QtCore.QMetaObject.connectSlotsByName(dataset)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, dataset):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Dataset_selector"))
+        dataset.setWindowTitle(_translate("dataset", "Dataset_selector"))
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    dataset = QtWidgets.QMainWindow()
+    ui = Ui_dataset()
+    ui.setupUi(dataset)
+    dataset.show()
     sys.exit(app.exec_())

@@ -14,6 +14,13 @@ class GUI_wrapper(Ui_MainWindow):
     datasets = db.dataset_names
     ds = db.load_dataset('ds1')
     dataset_name = ""
+    
+
+    def clear_GUI(self):
+        self.subject_list.clear()
+        self.recordings_list.clear()
+        self.annotations_list.clear()
+        self.events_list.clear()
 
     def update_GUI(self):
         subject_names = self.ds.subject_names
@@ -23,10 +30,7 @@ class GUI_wrapper(Ui_MainWindow):
         subjects = self.ds.subjects
         for rec in subjects[1].recordings:
             recordings.append(rec.name)
-        self.subject_list.clear()
-        self.recordings_list.clear()
-        self.annotations_list.clear()
-        self.events_list.clear()
+        self.clear_GUI()
         self.subject_list.addItems(subject_names)
         self.recordings_list.addItems(recordings)
         self.annotations_list.addItems(annotations)
@@ -34,10 +38,8 @@ class GUI_wrapper(Ui_MainWindow):
         self.label_11.setText(self.dataset_name)
 
     def load_dataset(self):
-        for name in self.db.dataset_names:
-            if name == self.dataset_name:
-                self.ds = self.db.load_dataset(name)
-            self.update_GUI()
+        self.ds = self.db.load_dataset(self.dataset_name)
+        self.update_GUI()
 
     def doubleclick_dataset(self, item):
         self.dataset_name = item.text()
@@ -46,7 +48,7 @@ class GUI_wrapper(Ui_MainWindow):
 
     def get_dataset(self):
         self.myOtherWindow = QtWidgets.QMainWindow()
-        self.ui2 = UI_dataset()
+        self.ui2 = Ui_dataset()
         self.ui2.setupUi(self.myOtherWindow)
         self.ui2.listWidget.addItems(self.datasets)
         self.myOtherWindow.show()

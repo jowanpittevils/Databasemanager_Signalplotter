@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>dataset</class>
+ <widget class="QMainWindow" name="dataset">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>429</width>
-    <height>160</height>
+    <width>189</width>
+    <height>176</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>429</width>
+     <width>189</width>
      <height>21</height>
     </rect>
    </property>
