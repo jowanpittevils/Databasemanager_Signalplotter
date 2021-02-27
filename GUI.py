@@ -2,10 +2,10 @@
 #%reload_ext autoreload
 #%autoreload 2
 #%%
-from GUI_wrapper import *
+from GUI_wrapper import GUI_wrapper
+from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import numpy as np
-from databasemanager import *
 #%%
 
 app = QtWidgets.QApplication(sys.argv)

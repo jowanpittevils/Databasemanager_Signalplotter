@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from base_GUI import *
+from base_GUI import Ui_MainWindow
 from databasemanager import *
-from dataset_selector import *
+from dataset_selector import Ui_dataset
 
 
 class GUI_wrapper(Ui_MainWindow):
