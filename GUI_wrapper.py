@@ -5,6 +5,7 @@ from dataset_selector import *
 
 
 class GUI_wrapper(Ui_MainWindow):
+
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
  
@@ -12,7 +13,8 @@ class GUI_wrapper(Ui_MainWindow):
     db = Database(root)
     datasets = db.dataset_names
     ds = db.load_dataset('ds1')
-    dataset_name = "null"
+    dataset_name = ""
+
     def update_GUI(self):
         subject_names = self.ds.subject_names
         annotations = ['annotation1','annotation2', 'annotation3', 'annotation4']

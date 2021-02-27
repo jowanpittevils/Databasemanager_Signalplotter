@@ -6,7 +6,6 @@ from GUI_wrapper import *
 import sys
 import numpy as np
 from databasemanager import *
-from open_datasets_GUI import *
 
 
 #%%
