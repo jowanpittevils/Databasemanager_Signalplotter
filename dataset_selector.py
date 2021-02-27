@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class UI_dataset(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(399, 177)
+        MainWindow.resize(429, 160)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -30,7 +30,7 @@ class UI_dataset(object):
         self.horizontalLayout.addWidget(self.listWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 399, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 429, 21))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -42,7 +42,7 @@ class UI_dataset(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Database_selector"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Dataset_selector"))
 
 
 if __name__ == "__main__":

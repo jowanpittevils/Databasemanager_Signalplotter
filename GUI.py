@@ -20,9 +20,9 @@ MainWindow = QtWidgets.QMainWindow()
 ui = GUI_wrapper()
 
 ui.setupUi(MainWindow)
-ui.Dataset_label.clicked.connect(lambda: get_dataset(ui))
+ui.Dataset_label.clicked.connect(lambda: ui.get_dataset())
 
 MainWindow.show()
-get_dataset(ui)
+ui.get_dataset()
 sys.exit(app.exec_())
 # %%
