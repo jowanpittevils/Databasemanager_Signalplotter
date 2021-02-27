@@ -35,7 +35,7 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="Qlabel_click" name="Dataset_label">
+         <widget class="QLabel_Clickable" name="Dataset_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
             <horstretch>0</horstretch>
@@ -232,12 +232,17 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit">
+                <widget class="lineEdit_autocomplete" name="lineEdit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <underline>false</underline>
+                  </font>
                  </property>
                 </widget>
                </item>
@@ -635,9 +640,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Qlabel_click</class>
+   <class>lineEdit_autocomplete</class>
+   <extends>QLineEdit</extends>
+   <header>additional_qtclasses.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QLabel_Clickable</class>
    <extends>QLabel</extends>
-   <header>Qlabel_click.h</header>
+   <header>additional_qtclasses.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -35,7 +35,10 @@ class GUI_wrapper(Ui_MainWindow):
         self.recordings_list.addItems(recordings)
         self.annotations_list.addItems(annotations)
         self.events_list.addItems(events)
+
         self.label_11.setText(self.dataset_name)
+
+        self.lineEdit.start(subject_names)
 
     def load_dataset(self):
         self.ds = self.db.load_dataset(self.dataset_name)
@@ -53,5 +56,7 @@ class GUI_wrapper(Ui_MainWindow):
         self.ui2.listWidget.addItems(self.datasets)
         self.myOtherWindow.show()
         self.ui2.listWidget.itemDoubleClicked.connect(self.doubleclick_dataset)
+
+    
 
 

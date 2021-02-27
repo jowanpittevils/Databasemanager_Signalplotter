@@ -30,7 +30,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.Dataset_label = Qlabel_click(self.centralwidget)
+        self.Dataset_label = QLabel_Clickable(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -116,12 +116,15 @@ class Ui_MainWindow(object):
         self.label_10.setFont(font)
         self.label_10.setObjectName("label_10")
         self.horizontalLayout_5.addWidget(self.label_10)
-        self.lineEdit = QtWidgets.QLineEdit(self.groupBox_3)
+        self.lineEdit = lineEdit_autocomplete(self.groupBox_3)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
         self.lineEdit.setSizePolicy(sizePolicy)
+        font = QtGui.QFont()
+        font.setUnderline(False)
+        self.lineEdit.setFont(font)
         self.lineEdit.setObjectName("lineEdit")
         self.horizontalLayout_5.addWidget(self.lineEdit)
         self.verticalLayout.addLayout(self.horizontalLayout_5)
@@ -327,7 +330,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(_translate("MainWindow", "Events"))
         self.label_8.setText(_translate("MainWindow", "Find:"))
         self.pushButton_8.setText(_translate("MainWindow", "Temporal"))
-from Qlabel_click import Qlabel_click
+from additional_qtclasses import QLabel_Clickable, lineEdit_autocomplete
 
 
 if __name__ == "__main__":
