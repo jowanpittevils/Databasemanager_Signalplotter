@@ -21,6 +21,8 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     ds = db.load_dataset('all')
     dataset_name = ""
 
+    matching_subjects = []
+
     
     def __init__(self):
         super(gui_init, self).__init__()
@@ -28,7 +30,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.ui.setupUi(self)
         self.ui.Dataset_label.clicked.connect(self.get_dataset)
         self.ui.lineEdit.textChanged.connect(self.update_subject_list)
-        self.ui.subject_list.itemDoubleClicked.connect(self.update_recording_list)
+        self.ui.subject_list.currentItemChanged.connect(self.update_recording_list)
         #self.ui.recordings_list.itemDoubleClicked.connect(self.update_annotation_list)
         #self.ui.annotations_list.itemDoubleClicked.connect(self.update_event_list)
     
@@ -49,7 +51,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
             for rec in subjects[i].recordings:
                 recordings.append(rec.name)
         self.clear_GUI()
-        self.ui.subject_list.addItems(subject_names)
+        self.ui.subject_list.addItems(self.matching_subjects)
         self.ui.recordings_list.addItems(recordings)
         self.ui.annotations_list.addItems(annotations)
         self.ui.events_list.addItems(events)
@@ -57,19 +59,20 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.ui.lineEdit.start(subject_names)
 
     def update_subject_list(self):
-        print(self.ui.lineEdit.text())
-        print('updating...')
+        self.matching_subjects = [s for s in self.ds.subject_names if self.ui.lineEdit.text() in s]
+        self.update_GUI()
 
 
     def update_recording_list(self, item):
-        print(item.text())
-        subject = item.text()
-        index = self.ds.subject_names.index(subject)
-        recordings = []
-        for i in range(len(self.ds.subjects[index])):
-            recordings.append(str(self.ds.subjects[index].recordings[i]))
-        self.ui.recordings_list.clear()
-        self.ui.recordings_list.addItems(self.ds.subjects[index].recordings)
+        if item is not None:
+            print(item.text())
+            subject = item.text()
+            index = self.ds.subject_names.index(subject)
+            recordings = []
+            for i in range(len(self.ds.subjects[index])):
+                recordings.append(self.ds.subjects[index].recordings[i].name)
+            self.ui.recordings_list.clear()
+            self.ui.recordings_list.addItems(recordings)
 
 
     # def update_annotation_list(self, item):
@@ -86,6 +89,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     
     def load_dataset(self):
         self.ds = self.db.load_dataset(self.dataset_name)
+        self.matching_subjects = [subject for subject in self.ds.subject_names if self.ui.lineEdit.text() in subject]
         self.update_GUI()
 
     def doubleclick_dataset(self, item):
@@ -100,6 +104,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.ui2.listWidget.addItems(self.datasets)
         self.myOtherWindow.show()
         self.ui2.listWidget.itemDoubleClicked.connect(self.doubleclick_dataset)
+
         
 
 
