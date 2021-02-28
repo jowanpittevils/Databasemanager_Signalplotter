@@ -18,6 +18,6 @@ ui.lineEdit.textChanged.connect(lambda: ui.update_subject_list())
 
 
 MainWindow.show()
-ui.get_dataset()
+#ui.get_dataset()
 sys.exit(app.exec_())
 # %%
