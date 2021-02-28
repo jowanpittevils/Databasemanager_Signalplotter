@@ -35,10 +35,12 @@ class GUI_wrapper(Ui_MainWindow):
         self.recordings_list.addItems(recordings)
         self.annotations_list.addItems(annotations)
         self.events_list.addItems(events)
-
         self.label_11.setText(self.dataset_name)
-
         self.lineEdit.start(subject_names)
+
+    def update_subject_list(self):
+        print(self.lineEdit.text())
+        print('updating...')
 
     def load_dataset(self):
         self.ds = self.db.load_dataset(self.dataset_name)

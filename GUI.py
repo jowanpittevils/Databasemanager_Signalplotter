@@ -14,6 +14,8 @@ ui = GUI_wrapper()
 
 ui.setupUi(MainWindow)
 ui.Dataset_label.clicked.connect(lambda: ui.get_dataset())
+ui.lineEdit.textChanged.connect(lambda: ui.update_subject_list())
+
 
 MainWindow.show()
 ui.get_dataset()

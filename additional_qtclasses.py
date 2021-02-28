@@ -13,6 +13,7 @@ class QLabel_Clickable(QtWidgets.QLabel):
 class lineEdit_autocomplete(QtWidgets.QLineEdit):
     model = QtCore.QStringListModel()
     completer = QtWidgets.QCompleter()
+
     def start(self, subject_names):
         self.model.setStringList(subject_names)
         self.completer.setModel(self.model)
