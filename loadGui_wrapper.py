@@ -8,6 +8,7 @@ from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from dataset_selector import Ui_dataset 
+from GUI_wrapper import GUI_wrapper
 
  
 
@@ -23,44 +24,39 @@ class loadGUI_wrapper(QtWidgets.QMainWindow,Ui_MainWindow):
                 self.ui.browse1.clicked.connect(self.browsefolder1)
                 self.ui.browse2.clicked.connect(self.browsefolder2)
 
-                self.ui.Load.clicked.connect(self.load_dataset)
+                self.ui.dataset_list.itemClicked.connect(self.get_ds)
 
-
-        def update_GUI(self):
-                db = Database(str(self.ui.ds_name))
-                datasets = db.dataset_names
-                self.ui.dataset_list.addItems(datasets)
+                #self.ui.Load.clicked.connect(self.load_dataset)
 
 
         def browsefolder1(self):
                 folder = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
                 self.ui.db_name.setText(folder)  
-                db = str(folder)
-                print(db) 
-                self.update_GUI()               
+                db = Database(folder)
+                datasets = db.dataset_names
+                self.ui.dataset_list.clear()
+                self.ui.dataset_list.addItems(datasets)
+                               
 
         def browsefolder2(self):
                 folder = QtWidgets.QFileDialog.getExistingDirectory(self,"Select Directory")
                 self.ui.ds_name.setText(folder)
-                self.update_GUI()
+                db = Database(folder)
+                datasets = db.dataset_names
+                self.ui.dataset_list.clear()
+                self.ui.dataset_list.addItems(datasets)
+
 
         def load_dataset(self):
-                self.update_GUI()
-                self.ds = self.db.load_dataset(self.dataset_name)
+                print(self.get_ds)
+                ds = self.ui.dataset_list
                 
+                
+                # self.ds = self.db.load_dataset(self.dataset_name)
+                
+        def get_ds(self, item):
+                print(item.text())
 
-        def doubleclick_dataset(self, item):
-                self.dataset_name = item.text()
-                self.myOtherWindow.hide()
-                self.load_dataset()
-
-        def get_dataset(self):
-                self.myOtherWindow = QtWidgets.QMainWindow()
-                self.ui2 = Ui_dataset()
-                self.ui2.setupUi(self.myOtherWindow)
-                self.ui2.listWidget.addItems(self.datasets)
-                self.myOtherWindow.show()
-                self.ui2.listWidget.itemDoubleClicked.connect(self.doubleclick_dataset)
 
 app = QtWidgets.QApplication(sys.argv)
 w = loadGUI_wrapper()

@@ -2,7 +2,7 @@
 #%reload_ext autoreload
 #%autoreload 2
 #%%
-from main_GUI import loadGUI_wrapper
+from loadGui_wrapper import loadGUI_wrapper
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import numpy as np

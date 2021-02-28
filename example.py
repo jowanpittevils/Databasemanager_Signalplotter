@@ -24,9 +24,10 @@ ds.summary()
 #%%
 
 rec = ds.subjects[0].recordings[0]
-print(rec.fs_output)
-x = rec.get_data(0, 10)
-print(x.shape)
+print(rec)
+# print(rec.fs_output)
+# x = rec.get_data(0, 10)
+# print(x.shape)
 
 events = rec.annotations[0].events
 #for e in events:
