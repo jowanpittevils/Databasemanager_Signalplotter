@@ -12,7 +12,7 @@ class GUI_wrapper(Ui_MainWindow):
     root = 'C:\\db\\toyDB'
     db = Database(root)
     datasets = db.dataset_names
-    ds = db.load_dataset('ds1')
+    ds = db.load_dataset('all')
     dataset_name = ""
     
 
@@ -28,8 +28,9 @@ class GUI_wrapper(Ui_MainWindow):
         events = ['event1','event2']
         recordings = []
         subjects = self.ds.subjects
-        for rec in subjects[1].recordings:
-            recordings.append(rec.name)
+        for i in range(len(subjects)):
+            for rec in subjects[i].recordings:
+                recordings.append(rec.name)
         self.clear_GUI()
         self.subject_list.addItems(subject_names)
         self.recordings_list.addItems(recordings)

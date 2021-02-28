@@ -16,6 +16,6 @@ ui.setupUi(MainWindow)
 ui.Dataset_label.clicked.connect(lambda: ui.get_dataset())
 
 MainWindow.show()
-ui.get_dataset()
+#ui.get_dataset()
 sys.exit(app.exec_())
 # %%
