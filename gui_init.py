@@ -26,6 +26,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     #annotation = []
     #event = []
     matching_subjects = []
+    
 
     
     def __init__(self):
@@ -122,7 +123,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
 
 
-# app = QtWidgets.QApplication(sys.argv)
-# w = gui_init()
-# w.show()
-# sys.exit(app.exec_())
+app = QtWidgets.QApplication(sys.argv)
+w = gui_init()
+w.show()
+sys.exit(app.exec_())
