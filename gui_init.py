@@ -8,7 +8,8 @@ from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from dataset_selector import Ui_dataset 
-from GUI_wrapper import GUI_wrapper
+
+
 
 class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     
@@ -20,7 +21,10 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     datasets = db.dataset_names
     ds = db.load_dataset('all')
     dataset_name = ""
-
+    #subject = []
+    #recording = []
+    #annotation = []
+    #event = []
     matching_subjects = []
 
     
@@ -65,9 +69,8 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
     def update_recording_list(self, item):
         if item is not None:
-            print(item.text())
-            subject = item.text()
-            index = self.ds.subject_names.index(subject)
+            sub = item.text()
+            index = self.ds.subject_names.index(sub)
             recordings = []
             for i in range(len(self.ds.subjects[index])):
                 recordings.append(self.ds.subjects[index].recordings[i].name)
@@ -77,8 +80,11 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
     # def update_annotation_list(self, item):
     #     recording = item.text()
-    #     index = self.ds.subjects.recordings.index(recording)
+    #     index = self.subject.recordings.index(recording)
+    #     self.recording = self.subject.recordings[index]
+    #     annotations = []
     #     self.ui.annotations_list.clear()
+    #     for i in range
     #     self.ui.annotations_list.addItems()
     
     # def update_event_list(self,item):
@@ -116,7 +122,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
 
 
-app = QtWidgets.QApplication(sys.argv)
-w = gui_init()
-w.show()
-sys.exit(app.exec_())
+# app = QtWidgets.QApplication(sys.argv)
+# w = gui_init()
+# w.show()
+# sys.exit(app.exec_())

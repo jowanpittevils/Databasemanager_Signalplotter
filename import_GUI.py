@@ -11,11 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1569, 1012)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class Ui_LoadWindow(object):
+    def setupUi(self, LoadWindow):
+        LoadWindow.setObjectName("LoadWindow")
+        LoadWindow.resize(1569, 1012)
+        self.centralwidget = QtWidgets.QWidget(LoadWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.db_name = QtWidgets.QLineEdit(self.centralwidget)
         self.db_name.setGeometry(QtCore.QRect(190, 30, 1111, 41))
@@ -44,41 +44,34 @@ class Ui_MainWindow(object):
         self.Load = QtWidgets.QPushButton(self.centralwidget)
         self.Load.setGeometry(QtCore.QRect(210, 190, 168, 51))
         self.Load.setObjectName("Load")
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        LoadWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(LoadWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1569, 43))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        LoadWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(LoadWindow)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        LoadWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(LoadWindow)
+        QtCore.QMetaObject.connectSlotsByName(LoadWindow)
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, LoadWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        LoadWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.db_root.setText(_translate("MainWindow", "Database root:"))
         self.ds_root.setText(_translate("MainWindow", "Dataset folder:"))
         self.browse1.setText(_translate("MainWindow", "Browse"))
         self.browse2.setText(_translate("MainWindow", "Browse"))
         self.datasets.setText(_translate("MainWindow", "Datasets:"))
         self.Load.setText(_translate("MainWindow", "Load"))
-
-        # self.browse1.clicked.connect(self.browsefiles)
-        # self.browse2.clicked.connect(self.browsefiles)
-    
-    # def browsefiles(self):
-    #             fname = QtWidgets.QFileDialog.getExistingDirectory(self,"Open a folder","C:/",QtWidgets.QFileDialog.ShowDirsOnly)
-    #             self.db_name.setText(fname) 
-
+ 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = Ui_LoadWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())

@@ -3,30 +3,32 @@
 #%autoreload 2
 #%%
 from PyQt5 import QtCore, QtGui, QtWidgets
-from import_GUI import Ui_MainWindow
+from import_GUI import Ui_LoadWindow
 from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from dataset_selector import Ui_dataset 
-from GUI_wrapper import GUI_wrapper
+from gui_init import *
 
  
 
-class loadGUI_wrapper(QtWidgets.QMainWindow,Ui_MainWindow):
+class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
         
 
         def __init__(self):
-                super(loadGUI_wrapper, self).__init__()
-                self.ui = Ui_MainWindow()
+                super(loadGUI_init, self).__init__()
+                self.ui = Ui_LoadWindow()
                 self.ui.setupUi(self)
+
+                self.ui1 = gui_init()
 
                 self.ui.browse1.clicked.connect(self.browsefolder1)
                 self.ui.browse2.clicked.connect(self.browsefolder2)
 
                 self.ui.dataset_list.itemClicked.connect(self.get_ds)
 
-                #self.ui.Load.clicked.connect(self.load_dataset)
+                self.ui.Load.clicked.connect(self.load_dataset)
 
 
         def browsefolder1(self):
@@ -47,18 +49,19 @@ class loadGUI_wrapper(QtWidgets.QMainWindow,Ui_MainWindow):
                 self.ui.dataset_list.addItems(datasets)
 
 
-        def load_dataset(self):
-                print(self.get_ds)
-                ds = self.ui.dataset_list
-                
-                
-                # self.ds = self.db.load_dataset(self.dataset_name)
-                
+        def load_dataset(self): 
+                self.ui1.root = self.ui.db_name.text()
+                self.ui1.db = Database(self.ui1.root)
+                self.ui1.ds = self.ui1.db.load_dataset(self.ui1.ds)
+                self.ui1.matching_subjects = [subject for subject in self.ui1.ds.subject_names if self.ui1.ui.lineEdit.text() in subject]
+                self.ui1.update_GUI()
+                self.ui1.show()
+
         def get_ds(self, item):
-                print(item.text())
+                self.ui1.ds = item.text()
 
 
 app = QtWidgets.QApplication(sys.argv)
-w = loadGUI_wrapper()
+w = loadGUI_init()
 w.show()
 sys.exit(app.exec_())
