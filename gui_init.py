@@ -21,9 +21,9 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     datasets = db.dataset_names
     ds = db.load_dataset('all')
     dataset_name = ""
-    #subject = []
-    #recording = []
-    #annotation = []
+    subject = []
+    recording = []
+    annotation = []
     #event = []
     matching_subjects = []
     
@@ -36,8 +36,8 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.ui.Dataset_label.clicked.connect(self.get_dataset)
         self.ui.lineEdit.textChanged.connect(self.update_subject_list)
         self.ui.subject_list.currentItemChanged.connect(self.update_recording_list)
-        #self.ui.recordings_list.itemDoubleClicked.connect(self.update_annotation_list)
-        #self.ui.annotations_list.itemDoubleClicked.connect(self.update_event_list)
+        self.ui.recordings_list.itemClicked.connect(self.update_annotation_list)
+        self.ui.annotations_list.itemClicked.connect(self.update_event_list)
     
 
     def clear_GUI(self):
@@ -48,18 +48,18 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
     def update_GUI(self):
         subject_names = self.ds.subject_names
-        annotations = ['annotation1','annotation2', 'annotation3', 'annotation4']
-        events = ['event1','event2']
+        #annotations = ['annotation1','annotation2', 'annotation3', 'annotation4']
+        #events = ['event1','event2']
         recordings = []
         subjects = self.ds.subjects
-        for i in range(len(subjects)):
-            for rec in subjects[i].recordings:
-                recordings.append(rec.name)
+        # for i in range(len(subjects)):
+        #     for rec in subjects[i].recordings:
+        #         recordings.append(rec.name)
         self.clear_GUI()
         self.ui.subject_list.addItems(self.matching_subjects)
-        self.ui.recordings_list.addItems(recordings)
-        self.ui.annotations_list.addItems(annotations)
-        self.ui.events_list.addItems(events)
+        #self.ui.recordings_list.addItems(recordings)
+        #self.ui.annotations_list.addItems(annotations)
+        #self.ui.events_list.addItems(events)
         self.ui.label_11.setText(self.dataset_name)
         self.ui.lineEdit.start(subject_names)
 
@@ -70,29 +70,40 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
     def update_recording_list(self, item):
         if item is not None:
-            sub = item.text()
-            index = self.ds.subject_names.index(sub)
+            subject = item.text()
+            index = self.ds.subject_names.index(subject)
+            self.subject = self.ds.subjects[index]
             recordings = []
-            for i in range(len(self.ds.subjects[index])):
-                recordings.append(self.ds.subjects[index].recordings[i].name)
+            for i in range(len(self.subject)):
+                recordings.append(self.subject.recordings[i].name)
             self.ui.recordings_list.clear()
+            self.ui.annotations_list.clear()
+            self.ui.events_list.clear()
             self.ui.recordings_list.addItems(recordings)
 
 
-    # def update_annotation_list(self, item):
-    #     recording = item.text()
-    #     index = self.subject.recordings.index(recording)
-    #     self.recording = self.subject.recordings[index]
-    #     annotations = []
-    #     self.ui.annotations_list.clear()
-    #     for i in range
-    #     self.ui.annotations_list.addItems()
+    def update_annotation_list(self, item):
+        recording = item.text()
+        for i in range(len(self.subject.recordings)):
+            if recording == self.subject.recordings[i].name:
+                self.recording = self.subject.recordings[i]
+        annotations = []
+        for annotation in self.recording.annotations:
+            annotations.append(annotation.name)
+        self.ui.annotations_list.clear()
+        self.ui.events_list.clear()
+        self.ui.annotations_list.addItems(annotations)
     
-    # def update_event_list(self,item):
-    #     annotation = item.text()
-    #     index = self.ds.subjects.recordings.annotations.index(annotation)
-    #     self.ui.events_list.clear()
-    #     self.ui.events_list.additems()
+    def update_event_list(self,item):
+        annotation = item.text()
+        for i in range(len(self.recording.annotations)):
+            if annotation == self.recording.annotations[i].name:
+                self.annotation = self.recording.annotations[i]
+        event_list = []
+        for events in self.annotation.events:
+            event_list.append(events.label)
+        self.ui.events_list.clear()
+        self.ui.events_list.addItems(event_list)
     
     def load_dataset(self):
         self.ds = self.db.load_dataset(self.dataset_name)
