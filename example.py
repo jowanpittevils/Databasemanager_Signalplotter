@@ -23,15 +23,16 @@ ds.add_operator(Resampler(100))
 ds.summary()
 #%%
 
-rec = ds.subjects[0].recordings[0]
+rec = ds.subjects[2].recordings[1]
 print(rec)
 # print(rec.fs_output)
 # x = rec.get_data(0, 10)
 # print(x.shape)
 
-events = rec.annotations[0].events
-#for e in events:
+events = rec.annotations[0].events[0]
+# for e in events:
 #    if(e.has_overlap_range())
 print(events)
+print(events.label)
 
 # %%
