@@ -16,7 +16,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
  
-    root = 'C:\\db\\toyDB'
+    root = ''
     db = Database(root)
     datasets = db.dataset_names
     ds = db.load_dataset('all')
