@@ -77,27 +77,31 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
 
     def update_annotation_list(self, item):
-        recording = item.text()
-        for i in range(len(self.subject.recordings)):
-            if recording == self.subject.recordings[i].name:
-                self.recording = self.subject.recordings[i]
-        annotations = []
-        for annotation in self.recording.annotations:
-            annotations.append(annotation.name)
-        self.ui.annotations_list.clear()
-        self.ui.events_list.clear()
-        self.ui.annotations_list.addItems(annotations)
+        if item is not None:
+
+            recording = item.text()
+            for i in range(len(self.subject.recordings)):
+                if recording == self.subject.recordings[i].name:
+                    self.recording = self.subject.recordings[i]
+            annotations = []
+            for annotation in self.recording.annotations:
+                annotations.append(annotation.name)
+            self.ui.annotations_list.clear()
+            self.ui.events_list.clear()
+            self.ui.annotations_list.addItems(annotations)
     
     def update_event_list(self,item):
-        annotation = item.text()
-        for i in range(len(self.recording.annotations)):
-            if annotation == self.recording.annotations[i].name:
-                self.annotation = self.recording.annotations[i]
-        event_list = []
-        for events in self.annotation.events:
-            event_list.append(events.label)
-        self.ui.events_list.clear()
-        self.ui.events_list.addItems(event_list)
+        if item is not None:
+
+            annotation = item.text()
+            for i in range(len(self.recording.annotations)):
+                if annotation == self.recording.annotations[i].name:
+                    self.annotation = self.recording.annotations[i]
+            event_list = []
+            for events in self.annotation.events:
+                event_list.append(events.label)
+            self.ui.events_list.clear()
+            self.ui.events_list.addItems(event_list)
     
     def load_dataset(self):
         self.ds = self.db.load_dataset(self.dataset_name)
@@ -127,8 +131,12 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
 
 
-
-app = QtWidgets.QApplication(sys.argv)
-w = gui_init()
-w.show()
-sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    w = gui_init()
+    w.root = 'C:\\db\\toyDB'
+    w.db = Database(w.root)
+    w.datasets = w.db.dataset_names
+    w.ds = w.db.load_dataset('all')
+    w.show()
+    sys.exit(app.exec_())
