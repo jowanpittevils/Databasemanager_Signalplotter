@@ -27,6 +27,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     #event = []
     matching_subjects = []
     
+    
 
     
     def __init__(self):
@@ -48,13 +49,6 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
 
     def update_GUI(self):
         subject_names = self.ds.subject_names
-        #annotations = ['annotation1','annotation2', 'annotation3', 'annotation4']
-        #events = ['event1','event2']
-        recordings = []
-        subjects = self.ds.subjects
-        # for i in range(len(subjects)):
-        #     for rec in subjects[i].recordings:
-        #         recordings.append(rec.name)
         self.clear_GUI()
         self.ui.subject_list.addItems(self.matching_subjects)
         #self.ui.recordings_list.addItems(recordings)
