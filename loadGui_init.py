@@ -32,26 +32,24 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
 
         def browsefolder1(self):
-                folder = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
-                self.ui.db_name.setText(folder)  
-                db = Database(folder)
-                datasets = db.dataset_names
+                self.ui1.root = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
+                self.ui.db_name.setText(self.ui1.root)  
+                self.ui1.db = Database(self.ui1.root)
+                self.ui1.datasets = self.ui1.db.dataset_names
                 self.ui.dataset_list.clear()
-                self.ui.dataset_list.addItems(datasets)
+                self.ui.dataset_list.addItems(self.ui1.datasets)
                                
 
         def browsefolder2(self):
-                folder = QtWidgets.QFileDialog.getExistingDirectory(self,"Select Directory")
-                self.ui.ds_name.setText(folder)
-                db = Database(folder)
-                datasets = db.dataset_names
+                self.ui1.root = QtWidgets.QFileDialog.getExistingDirectory(self,"Select Directory")
+                self.ui.ds_name.setText(self.ui1.root)
+                self.ui1.db = Database(self.ui1.root)
+                self.ui1.datasets = self.ui1.db.dataset_names
                 self.ui.dataset_list.clear()
-                self.ui.dataset_list.addItems(datasets)
+                self.ui.dataset_list.addItems(self.ui1.datasets)
 
 
         def load_dataset(self): 
-                self.ui1.root = self.ui.db_name.text()
-                self.ui1.db = Database(self.ui1.root)
                 self.ui1.ds = self.ui1.db.load_dataset(self.ui1.ds)
                 self.ui1.matching_subjects = [subject for subject in self.ui1.ds.subject_names if self.ui1.ui.lineEdit.text() in subject]
                 self.ui1.update_GUI()
