@@ -99,7 +99,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
                     self.annotation = self.recording.annotations[i]
             event_list = []
             for events in self.annotation.events:
-                event_list.append(events.label)
+                event_list.append(events.label + " " + str(int(events.start)) + "-" + str(int(events.end)))
             self.ui.events_list.clear()
             self.ui.events_list.addItems(event_list)
     
