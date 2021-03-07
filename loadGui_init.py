@@ -3,11 +3,11 @@
 #%autoreload 2
 #%%
 from PyQt5 import QtCore, QtGui, QtWidgets
-from import_GUI import Ui_LoadWindow
+from qt_designer.import_GUI import Ui_LoadWindow
 from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
-from dataset_selector import Ui_dataset 
+from qt_designer.dataset_selector import Ui_dataset 
 from gui_init import *
 
  
