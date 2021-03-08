@@ -3,11 +3,11 @@
 #%autoreload 2
 #%%
 from PyQt5 import QtCore, QtGui, QtWidgets
-from base_GUI import Ui_MainWindow
+from qt_designer.base_GUI import Ui_MainWindow
 from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
-from dataset_selector import Ui_dataset 
+from qt_designer.dataset_selector import Ui_dataset 
 
 
 
@@ -99,7 +99,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
                     self.annotation = self.recording.annotations[i]
             event_list = []
             for events in self.annotation.events:
-                event_list.append(events.label)
+                event_list.append(events.label + " " + str(int(events.start)) + "-" + str(int(events.end)))
             self.ui.events_list.clear()
             self.ui.events_list.addItems(event_list)
     
