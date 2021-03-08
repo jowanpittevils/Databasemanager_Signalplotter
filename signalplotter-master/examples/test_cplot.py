@@ -3,7 +3,7 @@
 #%autoreload 2
 
 import numpy as np
-from signalplotter import cplot
+from signalplotter import cplot, iplot
 
 
 fs = 250

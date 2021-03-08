@@ -1,5 +1,5 @@
 #%%
-from signalplotter import iplot, gplot
+from signalplotter import iplot, gplot, cplot
 import numpy as np
 
 x = np.random.randn(100,8,30*250)/5

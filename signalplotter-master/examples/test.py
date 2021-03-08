@@ -59,6 +59,7 @@ fav=gplot(x,title=title, sens=0.1)
 fav
 
 #%% plotting with channel names
+print(x.shape)
 fav=gplot(x, y=y,title=title, fs=fs, channel_names=chn)
 fav
 
