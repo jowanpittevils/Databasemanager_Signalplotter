@@ -184,7 +184,7 @@ class Ui_MainWindow(object):
         self.label_9.setMaximumSize(QtCore.QSize(16777215, 19))
         self.label_9.setObjectName("label_9")
         self.horizontalLayout_7.addWidget(self.label_9)
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.groupBox_4)
+        self.lineEdit_2 = lineEdit_autocomplete2(self.groupBox_4)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -330,7 +330,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(_translate("MainWindow", "Events"))
         self.label_8.setText(_translate("MainWindow", "Find:"))
         self.pushButton_8.setText(_translate("MainWindow", "Temporal"))
-from additional_qtclasses import QLabel_Clickable, lineEdit_autocomplete
+from qt_designer.additional_qtclasses import QLabel_Clickable, lineEdit_autocomplete, lineEdit_autocomplete2
 
 
 if __name__ == "__main__":

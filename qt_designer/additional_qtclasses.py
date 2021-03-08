@@ -18,3 +18,12 @@ class lineEdit_autocomplete(QtWidgets.QLineEdit):
         self.model.setStringList(subject_names)
         self.completer.setModel(self.model)
         self.setCompleter(self.completer)
+
+class lineEdit_autocomplete2(QtWidgets.QLineEdit):
+    model = QtCore.QStringListModel()
+    completer = QtWidgets.QCompleter()
+
+    def start(self, subject_names):
+        self.model.setStringList(subject_names)
+        self.completer.setModel(self.model)
+        self.setCompleter(self.completer)
