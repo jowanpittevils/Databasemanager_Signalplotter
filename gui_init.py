@@ -25,7 +25,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     selected_subject = []
     
     selected_recording = []
-    annotation = []
+    selected_annotation = []
 
     selected_subject_recordings = []
 
@@ -64,7 +64,6 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.clear_GUI()
         self.ui.subject_list.addItems(self.matching_subjects)
         self.ui.recordings_list.addItems(self.matching_recordings)
-        #self.ui.recordings_list.addItems(recordings)
         #self.ui.annotations_list.addItems(annotations)
         #self.ui.events_list.addItems(events)
         self.ui.label_11.setText(self.dataset_name)
@@ -115,9 +114,9 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
             annotation = item.text()
             for i in range(len(self.selected_recording.annotations)):
                 if annotation == self.selected_recording.annotations[i].name:
-                    self.annotation = self.selected_recording.annotations[i]
+                    self.selected_annotation = self.selected_recording.annotations[i]
             event_list = []
-            for events in self.annotation.events:
+            for events in self.selected_annotation.events:
                 event_list.append(events.label + " " + str(int(events.start)) + "-" + str(int(events.end)))
             self.ui.events_list.clear()
             self.ui.events_list.addItems(event_list)
@@ -126,6 +125,10 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.ds = self.db.load_dataset(self.dataset_name)
         self.matching_subjects = [subject for subject in self.ds.subject_names if self.ui.lineEdit.text() in subject]
         self.selected_subject = self.ds.subjects[0]
+        self.selected_recording = self.ds.subjects[0].recordings[0]
+        self.get_recording_names()
+        self.matching_recordings = [r for r in self.selected_subject_recordings if self.ui.lineEdit_2.text() in r]
+
         self.update_GUI()
 
     def doubleclick_dataset(self, item):
