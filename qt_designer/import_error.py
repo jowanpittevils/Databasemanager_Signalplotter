@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'import_error.ui'
+# import_error implementation generated from reading ui file '.\error1.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -14,25 +14,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_import_error(object):
     def setupUi(self, import_error):
         import_error.setObjectName("import_error")
-        import_error.resize(377, 363)
-        self.centralwidget = QtWidgets.QWidget(import_error)
-        self.centralwidget.setObjectName("centralwidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
+        import_error.resize(342, 244)
+        import_error.setMinimumSize(QtCore.QSize(237, 102))
+        self.widget = QtWidgets.QWidget(import_error)
+        self.widget.setGeometry(QtCore.QRect(30, 70, 279, 95))
+        self.widget.setObjectName("widget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.widget)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label = QtWidgets.QLabel(self.widget)
+        self.label.setMinimumSize(QtCore.QSize(277, 29))
         self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
-        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.verticalLayout.addWidget(self.label, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.pushButton = QtWidgets.QPushButton(self.widget)
         self.pushButton.setObjectName("pushButton")
         self.verticalLayout.addWidget(self.pushButton)
-        import_error.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(import_error)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 377, 43))
-        self.menubar.setObjectName("menubar")
-        import_error.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(import_error)
-        self.statusbar.setObjectName("statusbar")
-        import_error.setStatusBar(self.statusbar)
 
         self.retranslateUi(import_error)
         QtCore.QMetaObject.connectSlotsByName(import_error)
@@ -40,9 +36,8 @@ class Ui_import_error(object):
     def retranslateUi(self, import_error):
         _translate = QtCore.QCoreApplication.translate
         import_error.setWindowTitle(_translate("import_error", "import_error"))
-        self.label.setText(_translate("import_error", "No folder found "))
-        self.pushButton.setText(_translate("import_error", "browse"))
-
+        self.label.setText(_translate("import_error", "No \'Datasets\' folder found"))
+        self.pushButton.setText(_translate("import_error", "Browse"))
 
 if __name__ == "__main__":
     import sys
