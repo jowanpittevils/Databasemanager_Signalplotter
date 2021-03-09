@@ -3,7 +3,7 @@
 #%autoreload 2
 #%%
 import numpy as np
-from signalplotter import cplot, gplot, iplot
+#from signalplotter import cplot, gplot, iplot
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qt_designer.base_GUI import Ui_MainWindow
 from PyQt5.uic import loadUi
@@ -19,6 +19,8 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
  
     root = ''
+    data_root = None
+    ds_root = None
     db = Database(root)
     datasets = db.dataset_names
     ds = db.load_dataset('all')
