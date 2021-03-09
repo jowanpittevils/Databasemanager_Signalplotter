@@ -51,6 +51,17 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.ui.annotations_list.currentItemChanged.connect(self.update_event_list)
         self.ui.recordings_list.itemDoubleClicked.connect(self.openRecording)
         self.chns = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
+    
+    def load_database(self):
+        self.datasets = self.db.dataset_names
+        self.ds = self.db.load_dataset('all')
+        self.dataset_name = ""
+        self.selected_subject = []   
+        self.selected_recording = []
+        self.selected_annotation = []
+        self.selected_subject_recordings = []
+        self.matching_subjects = []
+        self.matching_recordings = []
 
     def openRecording(self, item):
         self.get_recording_names()
@@ -149,7 +160,6 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         self.selected_recording = self.ds.subjects[0].recordings[0]
         self.get_recording_names()
         self.matching_recordings = [r for r in self.selected_subject_recordings if self.ui.lineEdit_2.text() in r]
-
         self.update_GUI()
 
     def doubleclick_dataset(self, item):
