@@ -36,11 +36,11 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
         def browsefolder1(self):
                 self.ui1.root = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Database folder")        
                 if path.exists(self.ui1.root + '/Data') == False:
-                        self.import_error()   
+                        self.import_error() 
                 if path.exists(self.ui1.root + '/Datasets') == False:
                         self.ui1.data_root = self.ui1.root + '/Data'
                         self.ui.db_name.setText(self.ui1.root)
-                        self.import_error() 
+                        self.import_error()
                 else:
                         self.ui.db_name.setText(self.ui1.root)  
                         self.ui1.db = Database(self.ui1.root) 
@@ -62,9 +62,9 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
         def load_dataset(self): 
                 self.ui1.ds = self.ui1.db.load_dataset(self.ui1.ds)
+                self.ui1.dataset_name = self.ui1.ds.name
                 self.ui1.matching_subjects = [subject for subject in self.ui1.ds.subject_names if self.ui1.ui.lineEdit.text() in subject]
                 self.ui1.update_GUI()
-                #self.ui1.label_11.setText(self.get_ds)
                 self.ui1.show()
 
         def get_ds(self, item):
@@ -72,16 +72,21 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
 
         def import_error(self):
-                self.myOtherWindow = QtWidgets.QMainWindow()
+                self.errorWindow = QtWidgets.QMainWindow()
                 self.ui2 = Ui_import_error()
-                self.ui2.setupUi(self.myOtherWindow)
+                self.ui2.setupUi(self.errorWindow)
+                self.errorWindow.show()
                 if path.exists(self.ui1.root + '/Data') == False:
                         self.ui2.label.setText("No 'Data' folder found")
                         self.ui2.pushButton.clicked.connect(self.browsefolder1)
+                        self.ui2.pushButton.clicked.connect(self.errorWindow.close)
                 else:
                         self.ui2.label.setText("No 'Datasets' folder found")
-                        self.ui2.pushButton.clicked.connect(self.browsefolder2)            
-                self.myOtherWindow.show()
+                        self.ui2.pushButton.clicked.connect(self.browsefolder2)
+                        self.ui2.pushButton.clicked.connect(self.errorWindow.close)         
+
+                
+
                 
  
  
@@ -90,4 +95,5 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 app = QtWidgets.QApplication(sys.argv)
 w = loadGUI_init()
 w.show()
+w.ui.Load.clicked.connect(w.close)
 sys.exit(app.exec_())
