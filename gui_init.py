@@ -4,16 +4,21 @@
 #%%
 import numpy as np
 #from signalplotter import cplot, gplot, iplot
+
+
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qt_designer.base_GUI import Ui_MainWindow
+
+from PyQt5.QtWidgets import QMainWindow 
+
+from qt_designer.base_GUI import base_UI
 from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from qt_designer.dataset_selector import Ui_dataset 
+from signalplotter.qt.plotter_ui import plotter_ui
 
 
-
-class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
+class gui_init(QMainWindow,base_UI):
     
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
@@ -41,7 +46,7 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
     
     def __init__(self):
         super(gui_init, self).__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = base_UI()
         self.ui.setupUi(self)
         self.ui.Dataset_label.clicked.connect(self.get_dataset)
         self.ui.lineEdit.textChanged.connect(self.search_subject_list)
@@ -68,14 +73,14 @@ class gui_init(QtWidgets.QMainWindow,Ui_MainWindow):
         recording_name = item.text()
         index = self.selected_subject_recordings.index(recording_name)
         doubleclicked_recording = self.selected_subject.recordings[index]
-        data = doubleclicked_recording.get_data()
+        data = doubleclicked_recording.get_data(0,10)
 
-        fs = 250
-        win = 10
-        CH = 6
-        samples = 2000
-        x = np.random.randn(samples,CH,win*fs)/5 
-        #gplot(x)
+        self.data = data[None, :, :]
+        self.MainWindow = QtWidgets.QMainWindow()
+        print(self.data.shape)
+        self.plotter = plotter_ui(MainWindow=self.MainWindow, x=self.data)
+        self.MainWindow.show()
+
 
     
 
