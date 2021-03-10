@@ -1,6 +1,6 @@
 #%%
-#%reload_ext autoreload
-#%autoreload 2
+%reload_ext autoreload
+%autoreload 2
 
 import numpy as np
 from signalplotter import iplot, gplot
@@ -34,6 +34,7 @@ iplot(x[0,],fs)
 iplot(x[0,],fs,channel_names=chn)
 
 #%% simple plot 
+print(x.shape)
 gplot(x)
 
 #%% holded

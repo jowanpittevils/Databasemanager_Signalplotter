@@ -3,6 +3,8 @@
 #%autoreload 2
 #%%
 import numpy as np
+import math
+import numbers
 #from signalplotter import cplot, gplot, iplot
 
 
@@ -16,6 +18,7 @@ from databasemanager import *
 import sys
 from qt_designer.dataset_selector import Ui_dataset 
 from signalplotter.qt.plotter_ui import plotter_ui
+from signalplotter.plotter import plotter_countainer
 
 
 class gui_init(QMainWindow,base_UI):
@@ -30,7 +33,6 @@ class gui_init(QMainWindow,base_UI):
     datasets = db.dataset_names
     ds = db.load_dataset('all')
     dataset_name = ""
-
     selected_subject = []
     
     selected_recording = []
@@ -69,17 +71,75 @@ class gui_init(QMainWindow,base_UI):
         self.matching_recordings = []
 
     def openRecording(self, item):
+
+
+        def prepare_x(x, window, fs, channel_first):
+            if(type(x) == list):
+                xx = []
+                for i in range(len(x)):
+                    xx.append(prepare_x(x[i], window, fs, channel_first))
+                return xx
+
+            assert(isinstance(x, np.ndarray))
+            if(x.ndim == 1):
+                x = np.expand_dims(x,1)
+                channel_first = False
+            assert(x.ndim == 2)
+            if(not channel_first):
+                x = x.transpose()
+                channel_first = True
+
+            window_sample = window * fs
+            CH = x.shape[0]
+            T = x.shape[1]
+            Nceil = math.ceil(T/window_sample)
+            z = np.zeros((CH, Nceil*window_sample - T))
+            x = np.concatenate((x,z),1)
+            T = x.shape[1]
+            assert((T%window_sample)==0)
+            xx = np.reshape(x, (CH, int(T/window_sample), window_sample))
+            xx = xx.transpose((1,0,2))
+            return xx
+    
         self.get_recording_names()
         recording_name = item.text()
         index = self.selected_subject_recordings.index(recording_name)
         doubleclicked_recording = self.selected_subject.recordings[index]
-        data = doubleclicked_recording.get_data(0,10)
+        
+        data = doubleclicked_recording.get_data()
+        window = 10
+        y=None
+        title=None
+        fs=250
+        sens=None
+        channel_names=None
+        callback=None
+        channel_first:bool = True
+        verbose:bool = True
+        segments = prepare_x(data, window, fs, channel_first)
 
-        self.data = data[None, :, :]
-        self.MainWindow = QtWidgets.QMainWindow()
-        print(self.data.shape)
-        self.plotter = plotter_ui(MainWindow=self.MainWindow, x=self.data)
-        self.MainWindow.show()
+        if(type(segments) != list):
+            segments=[segments]
+        N = len(segments)
+        if(type(title) != list):
+            title=[title] * N
+        if(type(fs) != list):
+            fs=[fs] * N
+        if(type(sens) != list):
+            sens=[sens] * N
+        if(type(callback) != list):
+            callback=[callback] * N
+        if(channel_names is None):
+            channel_names = [None] * N
+        elif(type(channel_names[0]) != list):
+            channel_names = [channel_names] * N
+
+        self.plotter = plotter_countainer()
+
+        N = len(segments)
+        for i in range(N):
+            self.plotter.add(segments[i],y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
+        appind = app.exec_()
 
 
     
@@ -179,6 +239,7 @@ class gui_init(QMainWindow,base_UI):
         self.ui2.listWidget.addItems(self.datasets)
         self.myOtherWindow.show()
         self.ui2.listWidget.itemDoubleClicked.connect(self.doubleclick_dataset)
+
 
         
 
