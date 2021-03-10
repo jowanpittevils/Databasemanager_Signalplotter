@@ -30,7 +30,10 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
                 self.ui.dataset_list.itemClicked.connect(self.get_ds)
 
-                self.ui.Load.clicked.connect(self.load_dataset)
+                self.ui.load.clicked.connect(self.load_dataset)
+                self.ui.load.clicked.connect(self.close)
+
+                self.show()
 
 
         def browsefolder1(self):
@@ -94,6 +97,4 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
 app = QtWidgets.QApplication(sys.argv)
 w = loadGUI_init()
-w.show()
-w.ui.Load.clicked.connect(w.close)
 sys.exit(app.exec_())
