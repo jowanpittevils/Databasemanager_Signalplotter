@@ -215,8 +215,6 @@ def gplot(x, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None
     __ApplyStyle(app)
     __ApplyIcon(app)
 
-    print(x.shape)
-
     countainer = plotter_countainer()
     if(type(x) != list):
         x=[x]
