@@ -6,7 +6,7 @@ import numpy as np
 import math
 import numbers
 #from signalplotter import cplot, gplot, iplot
-
+import matplotlib.pyplot as plt
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -57,6 +57,7 @@ class gui_init(QMainWindow,base_UI):
         self.ui.recordings_list.currentItemChanged.connect(self.update_annotation_list)
         self.ui.annotations_list.currentItemChanged.connect(self.update_event_list)
         self.ui.recordings_list.itemDoubleClicked.connect(self.openRecording)
+        self.ui.pushButton_8.clicked.connect(self.openTemporal)
         self.chns = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
     
     def load_database(self):
@@ -142,7 +143,26 @@ class gui_init(QMainWindow,base_UI):
         appind = app.exec_()
 
 
-    
+    def openTemporal(self):
+        subjects = self.matching_subjects
+
+
+        plt.rcdefaults()
+        fig, ax = plt.subplots()
+        y_pos = np.arange(len(subjects))
+
+        event = 3 
+        recording = 7
+
+        ax.barh(y_pos, event, xerr=recording)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(subjects)
+        ax.invert_yaxis()
+        ax.set_title('Temporal Profile')
+
+        plt.show()
+
+        
 
     def clear_GUI(self):
         self.ui.subject_list.clear()
@@ -160,7 +180,7 @@ class gui_init(QMainWindow,base_UI):
         subject_names = self.ds.subject_names
         self.clear_GUI()
         self.ui.subject_list.addItems(self.matching_subjects)
-        self.ui.recordings_list.addItems(self.matching_recordings)
+        #self.ui.recordings_list.addItems(self.matching_recordings)
         #self.ui.annotations_list.addItems(annotations)
         #self.ui.events_list.addItems(events)
         self.ui.label_11.setText(self.dataset_name)
@@ -242,6 +262,13 @@ class gui_init(QMainWindow,base_UI):
 
 
         
+# root = 'C:\\db\\toyDB'
+# db = Database(root)
+# datasets = db.dataset_names
+# ds = db.load_dataset('ds1')
+# print(ds.subjects[0].recordings[0].duration_sec)
+# print(ds.subjects[0].recordings[0].duration_str)
+
 
 
 
