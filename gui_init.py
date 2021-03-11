@@ -90,20 +90,18 @@ class gui_init(QMainWindow,base_UI):
 
     def openTemporal(self):
         subjects = self.matching_subjects
+        data = {}
+        for  sub in ds.subjects:
+            sum = 0
+            for rec in sub.recordings:
+                sum += rec.duration_sec
+                data[sub.name] = sum
+        print(data)
+        values = list(data.values())
+        names = list(data.keys())
 
-
-        plt.rcdefaults()
         fig, ax = plt.subplots()
-        y_pos = np.arange(len(subjects))
-
-        event = 3 
-        recording = 7
-
-        ax.barh(y_pos, event, xerr=recording)
-        ax.set_yticks(y_pos)
-        ax.set_yticklabels(subjects)
-        ax.invert_yaxis()
-        ax.set_title('Temporal Profile')
+        ax.barh(names, values)
 
         plt.show()
 
@@ -308,6 +306,18 @@ class gui_init(QMainWindow,base_UI):
 
 
         return self.countainer.getFavorites()
+
+
+root = 'C:\\db\\toyDB'
+db = Database(root)
+datasets = db.dataset_names
+ds = db.load_dataset('ds1')
+print(ds.subjects[0].recordings[0].duration_sec)
+print(ds.subjects[0].recordings[0].duration_str)
+
+print(type(ds.subjects[0].recordings[0].duration_sec))
+print(type(ds.subjects[0].recordings[0].duration_str))
+
 
 
 

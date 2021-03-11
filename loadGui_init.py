@@ -84,19 +84,19 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
                 self.ui2 = Ui_import_error()
                 self.ui2.setupUi(self.errorWindow)
                 self.errorWindow.show()
-                if path.exists(self.ui1.root) == False:
-                        print("yeet")
-                        self.ui2.label.setText("Select database folder first")
-                        self.ui2.pushButton.clicked.connect(self.browsefolder1)
-                        self.ui2.pushButton.clicked.connect(self.errorWindow.close)
                 if path.exists(self.ui1.root + '/Data') == False:
-                        print('lel')
-                        self.ui2.label.setText("No 'Data' folder found")
-                        self.ui.db_name.clear()
-                        self.ui.ds_name.clear()
-                        self.ui.dataset_list.clear()
-                        self.ui2.pushButton.clicked.connect(self.browsefolder1)
-                        self.ui2.pushButton.clicked.connect(self.errorWindow.close)
+                        if path.exists(self.ui1.root) == False:
+                                self.ui2.label.setText("Select database folder first")
+                                self.ui2.pushButton.clicked.connect(self.browsefolder1)
+                                self.ui2.pushButton.clicked.connect(self.errorWindow.close)
+                
+                        else:
+                                self.ui2.label.setText("No 'Data' folder found")
+                                self.ui.db_name.clear()
+                                self.ui.ds_name.clear()
+                                self.ui.dataset_list.clear()
+                                self.ui2.pushButton.clicked.connect(self.browsefolder1)
+                                self.ui2.pushButton.clicked.connect(self.errorWindow.close)
                 else:
                         self.ui2.label.setText("No 'Datasets' folder found")
                         self.ui.ds_name.clear()
