@@ -46,6 +46,7 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
                         self.import_error()
                 else:
                         self.ui.db_name.setText(self.ui1.root)  
+                        self.ui.ds_name.setText(self.ui1.root + '/Datasets')
                         self.ui1.db = Database(self.ui1.root) 
                         self.ui1.datasets = self.ui1.db.dataset_names
                         self.ui.dataset_list.clear()
@@ -54,13 +55,17 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
         def browsefolder2(self):
                 self.ui1.ds_root = QtWidgets.QFileDialog.getExistingDirectory(self,"select 'datasets' folder")
-                self.ui.ds_name.setText(self.ui1.ds_root)
-                self.ui1.db = Database(None, self.ui1.data_root, self.ui1.ds_root)
-                self.ui1.datasets = self.ui1.db.dataset_names
-                if len(self.ui1.datasets) == 0:
+                if self.ui1.root == '':
                         self.import_error()
-                self.ui.dataset_list.clear()
-                self.ui.dataset_list.addItems(self.ui1.datasets)
+                else:
+                        self.ui1.db = Database(None, self.ui1.data_root, self.ui1.ds_root)
+                        self.ui1.datasets = self.ui1.db.dataset_names
+                        if len(self.ui1.datasets) == 0:
+                                self.import_error()
+                        else:
+                                self.ui.ds_name.setText(self.ui1.ds_root)
+                                self.ui.dataset_list.clear()
+                                self.ui.dataset_list.addItems(self.ui1.datasets)
 
 
         def load_dataset(self): 
@@ -79,12 +84,23 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
                 self.ui2 = Ui_import_error()
                 self.ui2.setupUi(self.errorWindow)
                 self.errorWindow.show()
+                if path.exists(self.ui1.root) == False:
+                        print("yeet")
+                        self.ui2.label.setText("Select database folder first")
+                        self.ui2.pushButton.clicked.connect(self.browsefolder1)
+                        self.ui2.pushButton.clicked.connect(self.errorWindow.close)
                 if path.exists(self.ui1.root + '/Data') == False:
+                        print('lel')
                         self.ui2.label.setText("No 'Data' folder found")
+                        self.ui.db_name.clear()
+                        self.ui.ds_name.clear()
+                        self.ui.dataset_list.clear()
                         self.ui2.pushButton.clicked.connect(self.browsefolder1)
                         self.ui2.pushButton.clicked.connect(self.errorWindow.close)
                 else:
                         self.ui2.label.setText("No 'Datasets' folder found")
+                        self.ui.ds_name.clear()
+                        self.ui.dataset_list.clear()
                         self.ui2.pushButton.clicked.connect(self.browsefolder2)
                         self.ui2.pushButton.clicked.connect(self.errorWindow.close)         
 
