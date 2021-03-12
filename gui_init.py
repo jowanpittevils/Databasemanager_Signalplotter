@@ -80,7 +80,7 @@ class gui_init(QMainWindow,base_UI):
         title=None
         fs=250
         sens=None
-        channel_names=None
+        channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
         channel_first:bool = True
         verbose:bool = True
