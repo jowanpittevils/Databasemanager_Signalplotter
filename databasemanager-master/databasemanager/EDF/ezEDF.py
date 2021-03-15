@@ -26,7 +26,7 @@ class edf(object):
 
     @property
     def start_of_recording(self):
-        return datetime.utcfromtimestamp(self.mne_raw.info['meas_date'][0])
+        return datetime.timestamp(self.mne_raw.info['meas_date'])
 
 
     def __init__(self, filepath, channels=None, fs_type='similar', missing_channel=None):

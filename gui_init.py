@@ -27,7 +27,6 @@ class gui_init(QMainWindow,base_UI):
     ds_root = None
     db = Database(root)
     datasets = db.dataset_names
-    ds = db.load_dataset('all')
     dataset_name = ""
     selected_subject = []
     
@@ -89,21 +88,31 @@ class gui_init(QMainWindow,base_UI):
 
 
     def openTemporal(self):
-        subjects = self.matching_subjects
+        subjects = self.ds.subjects
+        fig, ax = plt.subplots(len(subjects))
+        for  idx, sub in enumerate(subjects):
+            ax[idx].axhline(y=0, color="blue", linestyle="--")
+            for rec in sub.recordings:
+                start = rec.start_of_recording
+                stop = rec.duration_sec + start
+                print(start)
+                print(stop)
+                point1 = [start, 0]
+                point2 = [stop, 0]
+    
+                x_values = [point1[0], point2[0]]
+                y_values = [point1[1], point2[1]]
 
+                ax[idx].plot(x_values, y_values,linewidth=10)
+            #ax[idx].axis('off')
+            ax[idx].spines["top"].set_visible(False)
+            ax[idx].spines["right"].set_visible(False)
+            ax[idx].spines["bottom"].set_visible(False)
+            ax[idx].spines["left"].set_visible(False)
+            ax[idx].set_yticks([])
+            ax[idx].set_xticks([])
+            ax[idx].set_ylabel(self.ds.subject_names[idx],rotation=0, labelpad=30)
 
-        plt.rcdefaults()
-        fig, ax = plt.subplots()
-        y_pos = np.arange(len(subjects))
-
-        event = 3 
-        recording = 7
-
-        ax.barh(y_pos, event, xerr=recording)
-        ax.set_yticks(y_pos)
-        ax.set_yticklabels(subjects)
-        ax.invert_yaxis()
-        ax.set_title('Temporal Profile')
 
         plt.show()
 
@@ -308,6 +317,8 @@ class gui_init(QMainWindow,base_UI):
 
 
         return self.countainer.getFavorites()
+
+
 
 
 

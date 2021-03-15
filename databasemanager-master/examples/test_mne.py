@@ -1,6 +1,7 @@
 #%%
 import mne
 root = r'C:\db\toyDB'
+p = r'C:\db\toyDB\Data\tr_ar_492\tr_ar_492_r4.edf'
 
 temp_mne_raw = mne.io.read_raw_edf(p, exclude=('I'), preload=False)
 #print(temp_mne_raw.info)

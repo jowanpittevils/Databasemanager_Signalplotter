@@ -8,8 +8,8 @@ root = r'C:\db\toyDB'
 db = Database(root)
 db.summary()
 #%%
-ds_tr = db.load_dataset('preterm_nina_train_13')
-ds_ts = db.load_dataset('preterm_nina_test_13')
+ds_tr = db.load_dataset('ds1')
+ds_ts = db.load_dataset('ds2')
 ds_tr.summary()
 ds_ts.summary()
 

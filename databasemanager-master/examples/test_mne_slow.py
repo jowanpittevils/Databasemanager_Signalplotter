@@ -1,8 +1,8 @@
 
 #%%
 import mne
-p = 'C:\\MyFiles\\MyDatabases\\tt_csharper.edf'
-p2 = 'C:\\MyFiles\\MyDatabases\\tt2.edf'
+p = r'C:\db\toyDB\Data\tr_ar_492\tr_ar_492_r4.edf'
+
 
 r = mne.io.read_raw_edf(p, stim_channel=None, preload=False)
 r.ch_names
