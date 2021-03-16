@@ -16,6 +16,7 @@ import sys
 from qt_designer.dataset_selector import Ui_dataset 
 from signalplotter.qt.plotter_ui import plotter_ui
 from signalplotter.plotter import plotter_countainer
+from datetime import datetime
 
 
 class gui_init(QMainWindow,base_UI):
@@ -103,7 +104,7 @@ class gui_init(QMainWindow,base_UI):
             subplots[idx].axhline(y=0, color="blue", linestyle="--")
 
             for rec in sub.recordings:
-                start = rec.start_of_recording
+                start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
                 point1 = [start, 0]
                 point2 = [stop, 0]
@@ -112,6 +113,8 @@ class gui_init(QMainWindow,base_UI):
                 y_values = [point1[1], point2[1]]
 
                 subplots[idx].plot(x_values, y_values,linewidth=10)
+
+
             #ax[idx].axis('off')
             subplots[idx].axes.set_ylim([-1,1])
             subplots[idx].spines["top"].set_visible(False)
