@@ -17,7 +17,7 @@ from qt_designer.dataset_selector import Ui_dataset
 from signalplotter.qt.plotter_ui import plotter_ui
 from signalplotter.plotter import plotter_countainer
 from datetime import datetime
-
+from cycler import cycler
 
 class gui_init(QMainWindow,base_UI):
     
@@ -39,8 +39,8 @@ class gui_init(QMainWindow,base_UI):
 
     matching_subjects = []
     matching_recordings = []
-    
-    
+    clicked_subject = None
+    clicked_recording = None
 
     
     def __init__(self):
@@ -71,6 +71,32 @@ class gui_init(QMainWindow,base_UI):
         self.matching_subjects = []
         self.matching_recordings = []
 
+
+    def openRecording_temporal(self, timestamp):
+        self.clicked_recording = None
+        self.get_recording_names_temporal()
+        for rec in self.clicked_subject.recordings:
+            start = datetime.timestamp(rec.start_of_recording)
+            stop = rec.duration_sec + start
+            if((timestamp > start) and (timestamp < stop)):
+                self.clicked_recording = rec
+                break
+        if(self.clicked_recording is not None):
+            data = self.clicked_recording.get_data()
+        
+            window = 10
+            y=None
+            title=None
+            fs=250
+            sens=None
+            channel_names=UserSettings.global_settings().loading_data_channels
+            callback=None
+            channel_first:bool = True
+            verbose:bool = True
+
+            self.cplot(data, window, title,fs,sens,channel_names, callback, channel_first, verbose)
+    
+
     def openRecording(self, item):
     
         self.get_recording_names()
@@ -92,28 +118,47 @@ class gui_init(QMainWindow,base_UI):
         self.cplot(data, window, title,fs,sens,channel_names, callback, channel_first, verbose)
 
 
+
+
     def openTemporal(self):
+        def temporal_click(event):
+            if event.inaxes is not None:
+                print(event.xdata)
+                print(event.inaxes.get_ylabel())
+                index = self.ds.subject_names.index(event.inaxes.get_ylabel())
+                self.clicked_subject = self.ds.subjects[index]
+                self.openRecording_temporal(event.xdata)
+
         subjects = self.ds.subjects
         self.ui3 = Ui_TemporalView()
         self.ui3.setupUi(self.temporalwindow)
         self.temporalwindow.show()
+        cid = self.ui3.TemporalPlot.canvas.mpl_connect('button_press_event', temporal_click)
 
         subplots = {}
-
         for  idx, sub in enumerate(subjects):
             subplots[idx] = self.ui3.TemporalPlot.canvas.add(cols = 1)
             subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
 
+            #plotting the recordings
+            custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
+            subplots[idx].set_prop_cycle(custom_cycler)
             for rec in sub.recordings:
                 start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
 
                 subplots[idx].plot([start, stop], [0, 0],linewidth=10)
+
+            #plotting the events
+            custom_cycler = (cycler(color=['darkorange','gold']))
+            subplots[idx].set_prop_cycle(custom_cycler)
+            for rec in sub.recordings:
                 for ann in rec.annotations:
                     for event in ann.events:
-                        ev_start = event.start + start
-                        ev_stop = event.stop + start
-                        subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=5)
+                        if(event.label != 'bckg'):
+                            ev_start = event.start + start
+                            ev_stop = event.stop + start
+                            subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15)
                         
 
 
@@ -134,6 +179,11 @@ class gui_init(QMainWindow,base_UI):
         self.ui.recordings_list.clear()
         self.ui.annotations_list.clear()
         self.ui.events_list.clear()
+
+    def get_recording_names_temporal(self):
+        self.clicked_subject_recordings = []
+        for r in self.clicked_subject.recordings:
+            self.clicked_subject_recordings.append(r.name)
 
     def get_recording_names(self):
         self.selected_subject_recordings = []
