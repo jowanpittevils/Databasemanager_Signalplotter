@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TemporalView(object):
     def setupUi(self, TemporalView):
         TemporalView.setObjectName("TemporalView")
-        TemporalView.resize(569, 391)
+        TemporalView.resize(886, 449)
         self.centralwidget = QtWidgets.QWidget(TemporalView)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -56,7 +56,7 @@ class Ui_TemporalView(object):
         self.verticalLayout_4.addWidget(self.TemporalPlot)
         TemporalView.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(TemporalView)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 569, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 886, 21))
         self.menubar.setObjectName("menubar")
         TemporalView.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(TemporalView)

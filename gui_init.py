@@ -47,6 +47,7 @@ class gui_init(QMainWindow,base_UI):
         plt.ion()
         super(gui_init, self).__init__()
         self.myOtherWindow = QtWidgets.QMainWindow()
+        self.temporalwindow = QtWidgets.QMainWindow()
         self.ui = base_UI()
         self.ui.setupUi(self)
         self.ui.Dataset_label.clicked.connect(self.get_dataset)
@@ -94,25 +95,26 @@ class gui_init(QMainWindow,base_UI):
     def openTemporal(self):
         subjects = self.ds.subjects
         self.ui3 = Ui_TemporalView()
-        self.ui3.setupUi(self.myOtherWindow)
-        self.myOtherWindow.show()
+        self.ui3.setupUi(self.temporalwindow)
+        self.temporalwindow.show()
 
         subplots = {}
 
         for  idx, sub in enumerate(subjects):
             subplots[idx] = self.ui3.TemporalPlot.canvas.add(cols = 1)
-            subplots[idx].axhline(y=0, color="blue", linestyle="--")
+            subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
 
             for rec in sub.recordings:
                 start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
-                point1 = [start, 0]
-                point2 = [stop, 0]
-    
-                x_values = [point1[0], point2[0]]
-                y_values = [point1[1], point2[1]]
 
-                subplots[idx].plot(x_values, y_values,linewidth=10)
+                subplots[idx].plot([start, stop], [0, 0],linewidth=10)
+                for ann in rec.annotations:
+                    for event in ann.events:
+                        ev_start = event.start + start
+                        ev_stop = event.stop + start
+                        subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=5)
+                        
 
 
             #ax[idx].axis('off')
