@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow 
 from qt_designer.base_GUI import base_UI
+from qt_designer.temporal_view import Ui_TemporalView
 from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
@@ -42,7 +43,9 @@ class gui_init(QMainWindow,base_UI):
 
     
     def __init__(self):
+        plt.ion()
         super(gui_init, self).__init__()
+        self.myOtherWindow = QtWidgets.QMainWindow()
         self.ui = base_UI()
         self.ui.setupUi(self)
         self.ui.Dataset_label.clicked.connect(self.get_dataset)
@@ -89,35 +92,38 @@ class gui_init(QMainWindow,base_UI):
 
     def openTemporal(self):
         subjects = self.ds.subjects
-        fig, ax = plt.subplots(len(subjects))
+        self.ui3 = Ui_TemporalView()
+        self.ui3.setupUi(self.myOtherWindow)
+        self.myOtherWindow.show()
+
+        subplots = {}
+
         for  idx, sub in enumerate(subjects):
-            ax[idx].axhline(y=0, color="blue", linestyle="--")
+            subplots[idx] = self.ui3.TemporalPlot.canvas.add(cols = 1)
+            subplots[idx].axhline(y=0, color="blue", linestyle="--")
+
             for rec in sub.recordings:
                 start = rec.start_of_recording
                 stop = rec.duration_sec + start
-                print(start)
-                print(stop)
                 point1 = [start, 0]
                 point2 = [stop, 0]
     
                 x_values = [point1[0], point2[0]]
                 y_values = [point1[1], point2[1]]
 
-                ax[idx].plot(x_values, y_values,linewidth=10)
+                subplots[idx].plot(x_values, y_values,linewidth=10)
             #ax[idx].axis('off')
-            ax[idx].spines["top"].set_visible(False)
-            ax[idx].spines["right"].set_visible(False)
-            ax[idx].spines["bottom"].set_visible(False)
-            ax[idx].spines["left"].set_visible(False)
-            ax[idx].set_yticks([])
-            ax[idx].set_xticks([])
-            ax[idx].set_ylabel(self.ds.subject_names[idx],rotation=0, labelpad=30)
-
-
-        plt.show()
-
+            subplots[idx].axes.set_ylim([-1,1])
+            subplots[idx].spines["top"].set_visible(False)
+            subplots[idx].spines["right"].set_visible(False)
+            subplots[idx].spines["bottom"].set_visible(False)
+            subplots[idx].spines["left"].set_visible(False)
+            subplots[idx].set_yticks([])
+            subplots[idx].set_xticks([])
+            subplots[idx].set_ylabel(self.ds.subject_names[idx],rotation='horizontal', ha='right',va="center")
         
-
+ 
+    
     def clear_GUI(self):
         self.ui.subject_list.clear()
         self.ui.recordings_list.clear()
@@ -204,7 +210,6 @@ class gui_init(QMainWindow,base_UI):
         self.load_dataset()
 
     def get_dataset(self):
-        self.myOtherWindow = QtWidgets.QMainWindow()
         self.ui2 = Ui_dataset()
         self.ui2.setupUi(self.myOtherWindow)
         self.ui2.listWidget.addItems(self.datasets)
@@ -328,6 +333,5 @@ if __name__ == "__main__":
     w.root = 'C:\\db\\toyDB'
     w.db = Database(w.root)
     w.datasets = w.db.dataset_names
-    w.ds = w.db.load_dataset('all')
     w.show()
     sys.exit(app.exec_())
