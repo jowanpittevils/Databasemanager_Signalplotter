@@ -42,6 +42,8 @@ class gui_init(QMainWindow,base_UI):
     clicked_subject = None
     clicked_recording = None
 
+    event_plots = {}
+
     
     def __init__(self):
         plt.ion()
@@ -119,59 +121,76 @@ class gui_init(QMainWindow,base_UI):
 
 
 
-
-    def openTemporal(self):
-        def temporal_click(event):
-            if event.inaxes is not None:
-                print(event.xdata)
-                print(event.inaxes.get_ylabel())
-                index = self.ds.subject_names.index(event.inaxes.get_ylabel())
-                self.clicked_subject = self.ds.subjects[index]
-                self.openRecording_temporal(event.xdata)
-
+    def drawTemporal(self):
         subjects = self.ds.subjects
-        self.ui3 = Ui_TemporalView()
-        self.ui3.setupUi(self.temporalwindow)
-        self.temporalwindow.show()
-        cid = self.ui3.TemporalPlot.canvas.mpl_connect('button_press_event', temporal_click)
-
-        subplots = {}
+        self.subplots = {}
+        i = 0
         for  idx, sub in enumerate(subjects):
-            subplots[idx] = self.ui3.TemporalPlot.canvas.add(cols = 1)
-            subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
+            self.subplots[idx] = self.ui3.TemporalPlot.canvas.add(cols = 1)
+            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
 
             #plotting the recordings
             custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
-            subplots[idx].set_prop_cycle(custom_cycler)
+            self.subplots[idx].set_prop_cycle(custom_cycler)
             for rec in sub.recordings:
                 start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
 
-                subplots[idx].plot([start, stop], [0, 0],linewidth=10)
+                self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)
 
             #plotting the events
             custom_cycler = (cycler(color=['darkorange','gold']))
-            subplots[idx].set_prop_cycle(custom_cycler)
+            self.subplots[idx].set_prop_cycle(custom_cycler)
             for rec in sub.recordings:
                 for ann in rec.annotations:
                     for event in ann.events:
                         if(event.label != 'bckg'):
                             ev_start = event.start + start
                             ev_stop = event.stop + start
-                            subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15)
+                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15)
+                            i = i + 1
+                            
                         
-
-
             #ax[idx].axis('off')
-            subplots[idx].axes.set_ylim([-1,1])
-            subplots[idx].spines["top"].set_visible(False)
-            subplots[idx].spines["right"].set_visible(False)
-            subplots[idx].spines["bottom"].set_visible(False)
-            subplots[idx].spines["left"].set_visible(False)
-            subplots[idx].set_yticks([])
-            subplots[idx].set_xticks([])
-            subplots[idx].set_ylabel(self.ds.subject_names[idx],rotation='horizontal', ha='right',va="center")
+            self.subplots[idx].axes.set_ylim([-1,1])
+            self.subplots[idx].spines["top"].set_visible(False)
+            self.subplots[idx].spines["right"].set_visible(False)
+            self.subplots[idx].spines["bottom"].set_visible(False)
+            self.subplots[idx].spines["left"].set_visible(False)
+            self.subplots[idx].set_yticks([])
+            self.subplots[idx].set_xticks([])
+            self.subplots[idx].set_ylabel(self.ds.subject_names[idx],rotation='horizontal', ha='right',va="center")
         
+
+    def event_checked(self, is_checked):
+        if is_checked:
+            None
+        else:
+            for i in range(len(self.event_plots)):
+                print(self.event_plots[i][0])
+                print(i)
+                self.event_plots[i].pop(0).remove()
+                self.event_plots[i]
+        self.temporalwindow.show()
+
+
+
+
+
+    def openTemporal(self):
+        def temporal_click(event):
+            if event.inaxes is not None:
+                index = self.ds.subject_names.index(event.inaxes.get_ylabel())
+                self.clicked_subject = self.ds.subjects[index]
+                self.openRecording_temporal(event.xdata)
+
+        self.ui3 = Ui_TemporalView()
+        self.ui3.setupUi(self.temporalwindow)
+        self.ui3.EventsCheckbox.setChecked(True)
+        self.drawTemporal()
+        self.ui3.TemporalPlot.canvas.mpl_connect('button_press_event', temporal_click)
+        self.ui3.EventsCheckbox.toggled.connect(self.event_checked)
+        self.temporalwindow.show()
  
     
     def clear_GUI(self):
