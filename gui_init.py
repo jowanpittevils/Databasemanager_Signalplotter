@@ -122,10 +122,9 @@ class gui_init(QMainWindow,base_UI):
 
 
     def drawTemporal(self):
-        subjects = self.ds.subjects
         self.subplots = {}
         i = 0
-        for  idx, sub in enumerate(subjects):
+        for  idx, sub in enumerate(self.ds.subjects):
             self.subplots[idx] = self.ui3.TemporalPlot.canvas.add(cols = 1)
             self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
 
@@ -142,12 +141,13 @@ class gui_init(QMainWindow,base_UI):
             custom_cycler = (cycler(color=['darkorange','gold']))
             self.subplots[idx].set_prop_cycle(custom_cycler)
             for rec in sub.recordings:
+                start = datetime.timestamp(rec.start_of_recording)
                 for ann in rec.annotations:
                     for event in ann.events:
                         if(event.label != 'bckg'):
                             ev_start = event.start + start
                             ev_stop = event.stop + start
-                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15)
+                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
                             i = i + 1
                             
                         
@@ -164,14 +164,23 @@ class gui_init(QMainWindow,base_UI):
 
     def event_checked(self, is_checked):
         if is_checked:
-            None
+            i = 0
+            for  idx, sub in enumerate(self.ds.subjects):
+                custom_cycler = (cycler(color=['darkorange','gold']))
+                self.subplots[idx].set_prop_cycle(custom_cycler)
+                for rec in sub.recordings:
+                    start = datetime.timestamp(rec.start_of_recording)
+                    for ann in rec.annotations:
+                        for event in ann.events:
+                            if(event.label != 'bckg'):
+                                ev_start = event.start + start
+                                ev_stop = event.stop + start
+                                self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                                i = i + 1
         else:
             for i in range(len(self.event_plots)):
-                print(self.event_plots[i][0])
-                print(i)
                 self.event_plots[i].pop(0).remove()
-                self.event_plots[i]
-        self.temporalwindow.show()
+        self.ui3.TemporalPlot.canvas.draw_idle()
 
 
 
@@ -404,7 +413,7 @@ class gui_init(QMainWindow,base_UI):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = gui_init()
-    w.root = 'C:\\db\\toyDB'
+    w.root = 'A:\\db\\toyDB'
     w.db = Database(w.root)
     w.datasets = w.db.dataset_names
     w.show()
