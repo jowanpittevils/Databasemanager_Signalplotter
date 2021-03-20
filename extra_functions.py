@@ -20,7 +20,3 @@ def database_browser(Database):
     ui.show()
     app.exec_()
 
-
-
-
-

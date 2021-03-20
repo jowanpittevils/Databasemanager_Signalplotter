@@ -59,6 +59,13 @@
      </layout>
     </item>
     <item>
+     <widget class="QSlider" name="Slider">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="MplWidget" name="TemporalPlot" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
