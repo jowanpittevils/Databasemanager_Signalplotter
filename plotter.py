@@ -4,9 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import numbers
+from databasemanager import *
 
 
-def cplot(self, x=None, window=30, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True, lazy_plotting:bool = True):
+
+def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True, lazy_plotting:bool = True):
     '''
     It plots continious signals by spliting into smaller segments and calling gplot.
     It may add zeros to the end of signals for the last segment. 
@@ -17,6 +19,7 @@ def cplot(self, x=None, window=30, title=None,fs=1,sens=None,channel_names=None,
         -- window:      optional, the length of signal in seconds to be shown in each window frame.        
         --other inputs are as gplot
     '''
+    x = recording.get_data()
     def prepare_x(x, window, fs, channel_first):
         if(type(x) == list):
             xx = []
@@ -46,7 +49,13 @@ def cplot(self, x=None, window=30, title=None,fs=1,sens=None,channel_names=None,
 
     if(type(x) != list):
         x=[x]
-    x = prepare_x(x, window, fs, channel_first)
+    print(np.shape(x))
+                                                   # shape = 1, #channels, #time intervals
+    x = prepare_x(x, window, fs, channel_first)    # shape = 1, #segments, #channels, #time intervals per segment
+    print(np.shape(x))
+    print(np.shape([x[0]]))
+    x = [x[0][0:1]]
+    print(np.shape(x))
     return gplot(self, x=x, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
 
@@ -105,6 +114,8 @@ def gplot(self, x, y=None, title=None,fs=1,sens=None,channel_names=None, callbac
         channel_names = [channel_names] * N
 
     N = len(x)
+    print('N:')
+    print(N)
     for i in range(N):
         self.recording_plotter_container.add(x[i],y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
 

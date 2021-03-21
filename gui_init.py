@@ -87,7 +87,6 @@ class gui_init(QMainWindow,base_UI):
                 self.clicked_recording = rec
                 break
         if(self.clicked_recording is not None):
-            data = self.clicked_recording.get_data()
         
             window = 10
             y=None
@@ -99,7 +98,7 @@ class gui_init(QMainWindow,base_UI):
             channel_first:bool = True
             verbose:bool = True
 
-            cplot(self, data, window, title,fs,sens,channel_names, callback, channel_first, verbose)
+            cplot(self, self.clicked_recording, window, title,fs,sens,channel_names, callback, channel_first, verbose)
     
 
     def openRecording(self, item):
@@ -107,9 +106,7 @@ class gui_init(QMainWindow,base_UI):
         self.get_recording_names()
         recording_name = item.text()
         index = self.selected_subject_recordings.index(recording_name)
-        doubleclicked_recording = self.selected_subject.recordings[index]
-        data = doubleclicked_recording.get_data()
-    
+        doubleclicked_recording = self.selected_subject.recordings[index]    
         window = 10
         y=None
         title=None
@@ -121,7 +118,7 @@ class gui_init(QMainWindow,base_UI):
         verbose:bool = True
 
         
-        cplot(self,data, window, title,fs,sens,channel_names, callback, channel_first, verbose)
+        cplot(self,doubleclicked_recording, window, title,fs,sens,channel_names, callback, channel_first, verbose)
 
 
 
