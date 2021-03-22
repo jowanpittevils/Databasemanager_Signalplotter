@@ -18,11 +18,16 @@ from signalplotter.plotter import plotter_countainer
 from datetime import datetime
 from cycler import cycler
 from plotter import cplot
+from configparser import ConfigParser
 
 class gui_init(QtWidgets.QMainWindow,base_UI):
     
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
+
+
+    config = None
+
  
     root = ''
     data_root = None
@@ -288,7 +293,14 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         self.update_GUI()
 
     def doubleclick_dataset(self, item):
-        self.dataset_name = item.text()
+        print(item)
+        if not (isinstance(item, str)):
+            self.dataset_name = item.text()
+        else:
+             self.dataset_name = item
+        self.config.set('main', 'dataset', self.dataset_name)
+        with open('Config_gui.ini', 'w') as f:
+            self.config.write(f)
         self.myOtherWindow.hide()
         self.load_dataset()
 
@@ -309,8 +321,14 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = gui_init()
-    w.root = 'C:\\db\\toyDB'
+    w.config = ConfigParser()
+    w.config.read('Config_gui.ini')
+    if(w.config.get('main', 'root') is not None):
+        w.root = w.config.get('main', 'root')
     w.db = Database(w.root)
     w.datasets = w.db.dataset_names
+    if(w.config.get('main', 'dataset') is not None):
+        w.doubleclick_dataset(w.config.get('main', 'dataset'))
+
     w.show()
     sys.exit(app.exec_())
