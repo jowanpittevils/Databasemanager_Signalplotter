@@ -7,7 +7,6 @@ import math
 import numbers
 import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMainWindow 
 from qt_designer.base_GUI import base_UI
 from qt_designer.temporal_view import Ui_TemporalView
 from PyQt5.uic import loadUi
@@ -20,7 +19,7 @@ from datetime import datetime
 from cycler import cycler
 from plotter import cplot
 
-class gui_init(QMainWindow,base_UI):
+class gui_init(QtWidgets.QMainWindow,base_UI):
     
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
@@ -310,7 +309,7 @@ class gui_init(QMainWindow,base_UI):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = gui_init()
-    w.root = 'A:\\db\\toyDB'
+    w.root = 'C:\\db\\toyDB'
     w.db = Database(w.root)
     w.datasets = w.db.dataset_names
     w.show()

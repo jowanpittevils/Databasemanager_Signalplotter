@@ -19,7 +19,9 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
         -- window:      optional, the length of signal in seconds to be shown in each window frame.        
         --other inputs are as gplot
     '''
-    x = recording.get_data()
+    x = recording.get_data()[0:4]
+    print(x)
+    print(x[0])
     def prepare_x(x, window, fs, channel_first):
         if(type(x) == list):
             xx = []
@@ -28,6 +30,7 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
             return xx
 
         assert(isinstance(x, np.ndarray))
+        print(x.ndim)
         if(x.ndim == 1):
             x = np.expand_dims(x,1)
             channel_first = False
@@ -52,10 +55,10 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
     print(np.shape(x))
                                                    # shape = 1, #channels, #time intervals
     x = prepare_x(x, window, fs, channel_first)    # shape = 1, #segments, #channels, #time intervals per segment
-    print(np.shape(x))
-    print(np.shape([x[0]]))
-    x = [x[0][0:1]]
-    print(np.shape(x))
+    # print(np.shape(x))
+    # print(np.shape([x[0]]))
+    # x = [x[0][0:1]]
+    # print(np.shape(x))
     return gplot(self, x=x, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
 
