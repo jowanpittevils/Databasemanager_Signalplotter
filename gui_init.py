@@ -95,7 +95,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
             window = 10
             y=None
             title=None
-            fs=250
+            fs=int(doubleclicked_recording.fs)
             sens=None
             channel_names=UserSettings.global_settings().loading_data_channels
             callback=None
@@ -114,7 +114,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         window = 10
         y=None
         title=None
-        fs=250
+        fs=int(doubleclicked_recording.fs)
         sens=None
         channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
@@ -298,8 +298,8 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
             self.dataset_name = item.text()
         else:
              self.dataset_name = item
-        self.config.set('main', 'dataset', self.dataset_name)
-        with open('Config_gui.ini', 'w') as f:
+        self.config.set('database', 'dataset', self.dataset_name)
+        with open('config.ini', 'w') as f:
             self.config.write(f)
         self.myOtherWindow.hide()
         self.load_dataset()
@@ -322,13 +322,13 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = gui_init()
     w.config = ConfigParser()
-    w.config.read('Config_gui.ini')
-    if(w.config.get('main', 'root') is not None):
-        w.root = w.config.get('main', 'root')
+    w.config.read('config.ini')
+    if(w.config.get('database', 'root') is not None):
+        w.root = w.config.get('database', 'root')
     w.db = Database(w.root)
     w.datasets = w.db.dataset_names
-    if(w.config.get('main', 'dataset') is not None):
-        w.doubleclick_dataset(w.config.get('main', 'dataset'))
+    if(w.config.get('database', 'dataset') is not None):
+        w.doubleclick_dataset(w.config.get('database', 'dataset'))
 
     w.show()
     sys.exit(app.exec_())

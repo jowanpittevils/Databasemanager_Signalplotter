@@ -5,7 +5,7 @@ import numpy as np
 import math
 import numbers
 from databasemanager import *
-
+import os, psutil
 
 
 def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True, lazy_plotting:bool = True):
@@ -19,9 +19,7 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
         -- window:      optional, the length of signal in seconds to be shown in each window frame.        
         --other inputs are as gplot
     '''
-    x = recording.get_data()[0:4]
-    print(x)
-    print(x[0])
+    x = recording.get_data()
     def prepare_x(x, window, fs, channel_first):
         if(type(x) == list):
             xx = []
@@ -55,14 +53,12 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
     print(np.shape(x))
                                                    # shape = 1, #channels, #time intervals
     x = prepare_x(x, window, fs, channel_first)    # shape = 1, #segments, #channels, #time intervals per segment
-    # print(np.shape(x))
-    # print(np.shape([x[0]]))
-    # x = [x[0][0:1]]
-    # print(np.shape(x))
-    return gplot(self, x=x, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
+
+    print(np.shape(x))
+    return gplot(self, x=x,recording=recording,window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
 
-def gplot(self, x, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def gplot(self, x,recording,window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     gplot (graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     - inputs:
@@ -117,11 +113,11 @@ def gplot(self, x, y=None, title=None,fs=1,sens=None,channel_names=None, callbac
         channel_names = [channel_names] * N
 
     N = len(x)
-    print('N:')
-    print(N)
     for i in range(N):
-        self.recording_plotter_container.add(x[i],y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
+        self.recording_plotter_container.add(x[i],recording,window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
 
-
+    process = psutil.Process(os.getpid())
+    print('memory used:')
+    print(process.memory_info().rss)  
 
     return self.recording_plotter_container.getFavorites()
