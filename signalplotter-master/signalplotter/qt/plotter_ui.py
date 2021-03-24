@@ -39,6 +39,11 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
         self.channelFirst = channelFirst
+<<<<<<< HEAD
+=======
+        N = 5000000000000000000000           #self.x.shape[0]
+        #print("N:", N)
+>>>>>>> 7c06a8cdeb9db34af2f9384a9b1f94a82efec54e
         self.callback = callback
         if(self.channelFirst):
             self.T = int(self.recording.fs) * self.window
@@ -332,7 +337,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(self.verbose):                
             print('detaching...')
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, x=self.xx, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        plotter = plotter_ui(MainWindow=MainWindow, x=self.xx, recording=self.recording, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
         self.detachedWindows.append(plotter)
         MainWindow.show()
         MainWindow.resize(self.MainWindow.size())

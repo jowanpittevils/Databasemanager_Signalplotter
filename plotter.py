@@ -28,7 +28,6 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
             return xx
 
         assert(isinstance(x, np.ndarray))
-        print(x.ndim)
         if(x.ndim == 1):
             x = np.expand_dims(x,1)
             channel_first = False
@@ -50,11 +49,14 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
 
     if(type(x) != list):
         x=[x]
-    print(np.shape(x))
+    # print(np.shape(x))
+    # print(np.shape(x)[0])
                                                    # shape = 1, #channels, #time intervals
     x = prepare_x(x, window, fs, channel_first)    # shape = 1, #segments, #channels, #time intervals per segment
 
-    print(np.shape(x))
+    # print(np.shape(x))
+    # print(np.shape(x)[0])
+
     return gplot(self, x=x,recording=recording,window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
 
@@ -113,7 +115,10 @@ def gplot(self, x,recording,window, y=None, title=None,fs=1,sens=None,channel_na
         channel_names = [channel_names] * N
 
     N = len(x)
+    print(N)
     for i in range(N):
+        # print(x[i])
+        # print("----------------------")
         self.recording_plotter_container.add(x[i],recording,window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
 
     process = psutil.Process(os.getpid())
