@@ -95,7 +95,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
             window = 10
             y=None
             title=None
-            fs=int(doubleclicked_recording.fs)
+            fs=int(self.clicked_recording.fs)
             sens=None
             channel_names=UserSettings.global_settings().loading_data_channels
             callback=None
