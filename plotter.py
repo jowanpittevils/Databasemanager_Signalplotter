@@ -19,7 +19,7 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
         -- window:      optional, the length of signal in seconds to be shown in each window frame.        
         --other inputs are as gplot
     '''
-    x = recording.get_data()
+    #x = recording.get_data()
     def prepare_x(x, window, fs, channel_first):
         if(type(x) == list):
             xx = []
@@ -47,20 +47,18 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
         xx = xx.transpose((1,0,2))
         return xx
 
-    if(type(x) != list):
-        x=[x]
     # print(np.shape(x))
     # print(np.shape(x)[0])
                                                    # shape = 1, #channels, #time intervals
-    x = prepare_x(x, window, fs, channel_first)    # shape = 1, #segments, #channels, #time intervals per segment
+    #x = prepare_x(x, window, fs, channel_first)    # shape = 1, #segments, #channels, #time intervals per segment
 
     # print(np.shape(x))
     # print(np.shape(x)[0])
 
-    return gplot(self, x=x,recording=recording,window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
+    return gplot(self, recording=recording,window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
 
-def gplot(self, x,recording,window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def gplot(self, recording,window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     gplot (graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     - inputs:
@@ -98,9 +96,7 @@ def gplot(self, x,recording,window, y=None, title=None,fs=1,sens=None,channel_na
     '''
 
     self.recording_plotter_container = plotter_countainer()
-    if(type(x) != list):
-        x=[x]
-    N = len(x)
+    N = 1
     if(type(title) != list):
         title=[title] * N
     if(type(fs) != list):
@@ -114,12 +110,10 @@ def gplot(self, x,recording,window, y=None, title=None,fs=1,sens=None,channel_na
     elif(type(channel_names[0]) != list):
         channel_names = [channel_names] * N
 
-    N = len(x)
-    print(N)
     for i in range(N):
         # print(x[i])
         # print("----------------------")
-        self.recording_plotter_container.add(x[i],recording,window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
+        self.recording_plotter_container.add(recording,window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
 
     process = psutil.Process(os.getpid())
     print('memory used:')

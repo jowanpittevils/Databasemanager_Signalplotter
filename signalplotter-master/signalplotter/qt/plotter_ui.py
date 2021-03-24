@@ -14,36 +14,27 @@ class plotter_ui(QObject, Ui_MainWindow):
         return cls.__lastID
     
     IndexChanged = pyqtSignal(int, int)
-    def __init__(self, MainWindow, x,recording,window, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
+    def __init__(self, MainWindow, recording,window, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
         super().__init__()
         self.recording = recording
         self.window = window
         self.scale_factor = 1
-        if(type(x) == list):
-            self.xx = x
-            self.x = x[0]
-        else:
-            self.xx = [x]
-            self.x = x
+        #if(type(x) == list):
+        #    self.xx = x
+        #    self.x = x[0]
+        #else:
+        #    self.xx = [x]
+        #    self.x = x
         self.verbose = verbose
-        for tx in self.xx:
-            print("shape:",np.shape(tx))
         self.norm = plotter_ui.struct()
         self.norm.totalMaxX = 0.01
         self.norm.totalMinX = -0.01
-        print("max:",self.norm.totalMaxX)
-        print("min:",self.norm.totalMinX)
         
         self.ID = plotter_ui.__getNewID()
         self.FavoriteList=set()
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
         self.channelFirst = channelFirst
-<<<<<<< HEAD
-=======
-        N = 5000000000000000000000           #self.x.shape[0]
-        #print("N:", N)
->>>>>>> 7c06a8cdeb9db34af2f9384a9b1f94a82efec54e
         self.callback = callback
         if(self.channelFirst):
             self.T = int(self.recording.fs) * self.window
@@ -125,12 +116,12 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.Plot()
         if(triggeredSignals):
             self.IndexChanged.emit(self.ID, self.SampleIndex)
-        if(self.callback is not None):
-            if(len(self.xx)==1):
-                self.callback(self.x[self.SampleIndex,],self.SampleIndex)
-            else:
-                xx = [v[self.SampleIndex,] for v in self.xx]
-                self.callback(self.xx,self.SampleIndex)
+        #if(self.callback is not None):
+        #    if(len(self.xx)==1):
+        #        self.callback(self.x[self.SampleIndex,],self.SampleIndex)
+        #    else:
+        #        xx = [v[self.SampleIndex,] for v in self.xx]
+        #        self.callback(self.xx,self.SampleIndex)
         self.chbFavorite.blockSignals(True)
         self.chbFavorite.setChecked((self.SampleIndex in self.FavoriteList))
         self.chbFavorite.blockSignals(False)
@@ -176,7 +167,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.PlotLine(self.recording,self.window, self.SampleIndex)
             self.__UpdateChannelNames(self.ChannelNames, True)
         else:
-            self.PlotBar(self.xx,self.SampleIndex)
+            self.PlotBar(self.recording, self.SampleIndex)
             self.__UpdateChannelNames(self.ChannelNames, False)
             
     def PlotLine(self, recording,window, sampleIndex):
@@ -209,8 +200,16 @@ class plotter_ui(QObject, Ui_MainWindow):
         return str(strL[colorIndex])
     def GetPen(self, colorIndex=0):
         return pg.mkPen(self.GetColorString(colorIndex))
-    def PlotBar(self, xx, sampleIndex):
-        xx0 = [v[sampleIndex,] for v in xx]
+    def PlotBar(self,recording, sampleIndex):
+        
+        if(sampleIndex < self.N - 1):
+            xx0 = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
+        else:
+            xx0 = np.zeros(shape=(1,8,2500))
+            data = np.array([recording.get_data(start=sampleIndex*window)])
+            xx0[:,:data.shape[1],:data.shape[2]] = data
+
+        #xx0 = [v[sampleIndex,] for v in xx]
         xx = []
         for v in xx0:
             if((len(v.shape)==2) or (not self.channelFirst)):
@@ -337,7 +336,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(self.verbose):                
             print('detaching...')
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, x=self.xx, recording=self.recording, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
         self.detachedWindows.append(plotter)
         MainWindow.show()
         MainWindow.resize(self.MainWindow.size())
