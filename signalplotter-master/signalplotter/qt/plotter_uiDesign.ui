@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>801</width>
-    <height>720</height>
+    <width>933</width>
+    <height>906</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -78,6 +78,20 @@
         </property>
         <property name="text">
          <string>&lt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAmpUp">
+        <property name="text">
+         <string>Make larger</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAmpDown">
+        <property name="text">
+         <string>Make smaller</string>
         </property>
        </widget>
       </item>
@@ -205,7 +219,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>801</width>
+     <width>933</width>
      <height>21</height>
     </rect>
    </property>

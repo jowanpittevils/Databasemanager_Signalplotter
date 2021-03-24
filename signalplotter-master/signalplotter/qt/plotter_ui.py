@@ -4,6 +4,7 @@ import numpy as np
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5 import QtWidgets
 from databasemanager import *
+import math
 
 class plotter_ui(QObject, Ui_MainWindow):
     __lastID = 0
@@ -17,6 +18,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         super().__init__()
         self.recording = recording
         self.window = window
+        self.scale_factor = 1
         if(type(x) == list):
             self.xx = x
             self.x = x[0]
@@ -24,17 +26,19 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.xx = [x]
             self.x = x
         self.verbose = verbose
+        for tx in self.xx:
+            print("shape:",np.shape(tx))
         self.norm = plotter_ui.struct()
-        self.norm.totalMaxX = max([tx.max() for tx in self.xx])
-        self.norm.totalMinX = min([tx.min() for tx in self.xx])
+        self.norm.totalMaxX = 0.01
+        self.norm.totalMinX = -0.01
+        print("max:",self.norm.totalMaxX)
+        print("min:",self.norm.totalMinX)
         
         self.ID = plotter_ui.__getNewID()
         self.FavoriteList=set()
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
         self.channelFirst = channelFirst
-        N = self.x.shape[0]
-        print("N:", N)
         self.callback = callback
         if(self.channelFirst):
             self.T = int(self.recording.fs) * self.window
@@ -42,8 +46,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             self.T = int(self.recording.fs) * self.window
             self.CH = recording.number_of_channels
-        print("T:", self.T)
-        print("CH:", self.CH)
+        N = math.ceil(recording.duration_samp/self.T)
         self.__UpdateFs(fs)
         self.sens = sens
         self.__UpdateTitleText(title)
@@ -64,6 +67,13 @@ class plotter_ui(QObject, Ui_MainWindow):
             wintitle += ' - ' + title
         self.MainWindow.setWindowTitle(wintitle)
         
+    def __increase_amplitude(self):
+        self.scale_factor = self.scale_factor*0.5
+        self.Plot()
+
+    def __decrease_amplitude(self):
+        self.scale_factor = self.scale_factor*2
+        self.Plot()
         
     def __UpdateY(self, y):
         self.y = y
@@ -142,8 +152,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         
     def __iNormalize(self, x0, sens = None):
         if(sens is None):
-            M = max([v.max() for v in x0])
-            m = min([v.min() for v in x0])
+            M = self.scale_factor*max([v.max() for v in x0]) #Scale factor for changing amplitude
+            m = self.scale_factor*min([v.min() for v in x0])
         else:
             M = sens
             m = -sens
@@ -165,7 +175,12 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.__UpdateChannelNames(self.ChannelNames, False)
             
     def PlotLine(self, recording,window, sampleIndex):
-        xx = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
+        if(sampleIndex < self.N - 1):
+            xx = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
+        else:
+            xx = np.zeros(shape=(1,8,2500))
+            data = np.array([recording.get_data(start=sampleIndex*window)])
+            xx[:,:data.shape[1],:data.shape[2]] = data
         xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
         
@@ -233,6 +248,8 @@ class plotter_ui(QObject, Ui_MainWindow):
     
     def __AssignCallbacks(self):
         self.btnFirst.clicked.connect(self.__onbtnFirstClicked)
+        self.btnAmpUp.clicked.connect(self.__increase_amplitude)
+        self.btnAmpDown.clicked.connect(self.__decrease_amplitude)
         self.btnPreviousY.clicked.connect(self.__onbtnPreviousYClicked)
         self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
         self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
