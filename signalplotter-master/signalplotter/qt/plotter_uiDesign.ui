@@ -84,14 +84,14 @@
       <item>
        <widget class="QPushButton" name="btnAmpUp">
         <property name="text">
-         <string>Make larger</string>
+         <string>+</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnAmpDown">
         <property name="text">
-         <string>Make smaller</string>
+         <string>-</string>
         </property>
        </widget>
       </item>

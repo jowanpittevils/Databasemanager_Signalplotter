@@ -45,6 +45,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             else:
                 self.T = int(self.recording.fs) * self.window
                 self.CH = recording.number_of_channels
+            print(self.T)
             N = math.ceil(recording.duration_samp/self.T)
             self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
@@ -201,7 +202,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             if(sampleIndex < self.N - 1):
                 xx = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
             else:
-                xx = np.zeros(shape=(1,8,2500))
+                xx = np.zeros(shape=(1,self.CH,self.T))
                 data = np.array([recording.get_data(start=sampleIndex*window)])
                 xx[:,:data.shape[1],:data.shape[2]] = data
         else:
