@@ -8,7 +8,7 @@ from databasemanager import *
 import os, psutil
 
 
-def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True, lazy_plotting:bool = True):
+def cplot(self, recording, lazy_plot:bool, window=30, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True, lazy_plotting:bool = True):
     '''
     It plots continious signals by spliting into smaller segments and calling gplot.
     It may add zeros to the end of signals for the last segment. 
@@ -19,7 +19,6 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
         -- window:      optional, the length of signal in seconds to be shown in each window frame.        
         --other inputs are as gplot
     '''
-    #x = recording.get_data()
     def prepare_x(x, window, fs, channel_first):
         if(type(x) == list):
             xx = []
@@ -47,18 +46,18 @@ def cplot(self, recording, window=30, title=None,fs=1,sens=None,channel_names=No
         xx = xx.transpose((1,0,2))
         return xx
 
-    # print(np.shape(x))
-    # print(np.shape(x)[0])
-                                                   # shape = 1, #channels, #time intervals
-    #x = prepare_x(x, window, fs, channel_first)    # shape = 1, #segments, #channels, #time intervals per segment
 
-    # print(np.shape(x))
-    # print(np.shape(x)[0])
+    if lazy_plot == True:
+        return gplot(self, x=None, recording=recording, lazy_plot=lazy_plot, window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
+    else:
+        x = recording.get_data()
+        if(type(x) != list):
+            x=[x]
+        x = prepare_x(x,window,fs,channel_first)
+        return gplot(self, x=x, recording=recording, lazy_plot=lazy_plot, window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
+    
 
-    return gplot(self, recording=recording,window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
-
-
-def gplot(self, recording,window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def gplot(self, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     gplot (graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     - inputs:
@@ -110,11 +109,13 @@ def gplot(self, recording,window, y=None, title=None,fs=1,sens=None,channel_name
     elif(type(channel_names[0]) != list):
         channel_names = [channel_names] * N
 
-    for i in range(N):
-        # print(x[i])
-        # print("----------------------")
-        self.recording_plotter_container.add(recording,window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
-
+    if lazy_plot == True:
+        for i in range(N):
+            self.recording_plotter_container.add(x, recording, lazy_plot, window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
+    else:
+        for i in range(N):
+             self.recording_plotter_container.add(x[i], recording, lazy_plot, window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
+    
     process = psutil.Process(os.getpid())
     print('memory used:')
     print(process.memory_info().rss)  

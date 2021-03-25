@@ -102,7 +102,11 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
             channel_first:bool = True
             verbose:bool = True
 
-            cplot(self, self.clicked_recording, window, title,fs,sens,channel_names, callback, channel_first, verbose)
+
+            lazy_plot:bool = True
+
+
+            cplot(self, self.clicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
     
 
     def openRecording(self, item):
@@ -121,8 +125,11 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         channel_first:bool = True
         verbose:bool = True
 
+
+        lazy_plot:bool = True
+    
         
-        cplot(self,doubleclicked_recording, window, title,fs,sens,channel_names, callback, channel_first, verbose)
+        cplot(self,doubleclicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
 
 
 
