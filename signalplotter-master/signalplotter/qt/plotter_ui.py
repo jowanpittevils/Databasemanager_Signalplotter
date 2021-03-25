@@ -48,7 +48,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             N = math.ceil(recording.duration_samp/self.T)
             self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
-            self.Plot()
 
         else:
             if(type(x) == list):
@@ -68,8 +67,9 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.CH = self.x.shape[2]
             self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
-            self.Plot()
+        
 
+        self.Plot()
 
 
             

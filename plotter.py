@@ -54,6 +54,7 @@ def cplot(self, recording, lazy_plot:bool, window=30, title=None,fs=1,sens=None,
         if(type(x) != list):
             x=[x]
         x = prepare_x(x,window,fs,channel_first)
+
         return gplot(self, x=x, recording=recording, lazy_plot=lazy_plot, window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
     
 
@@ -95,24 +96,25 @@ def gplot(self, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1,se
     '''
 
     self.recording_plotter_container = plotter_countainer()
-    N = 1
-    if(type(title) != list):
-        title=[title] * N
-    if(type(fs) != list):
-        fs=[fs] * N
-    if(type(sens) != list):
-        sens=[sens] * N
-    if(type(callback) != list):
-        callback=[callback] * N
-    if(channel_names is None):
-        channel_names = [None] * N
-    elif(type(channel_names[0]) != list):
-        channel_names = [channel_names] * N
 
     if lazy_plot == True:
-        for i in range(N):
-            self.recording_plotter_container.add(x, recording, lazy_plot, window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
+            self.recording_plotter_container.add(x, recording, lazy_plot, window, y,title,fs,sens,channel_names,callback, channel_first, verbose)
     else:
+        if(type(x) != list):
+            x=[x]
+        N = len(x)
+        if(type(title) != list):
+            title=[title] * N
+        if(type(fs) != list):
+            fs=[fs] * N
+        if(type(sens) != list):
+            sens=[sens] * N
+        if(type(callback) != list):
+            callback=[callback] * N
+        if(channel_names is None):
+            channel_names = [None] * N
+        elif(type(channel_names[0]) != list):
+            channel_names = [channel_names] * N
         for i in range(N):
              self.recording_plotter_container.add(x[i], recording, lazy_plot, window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
     
