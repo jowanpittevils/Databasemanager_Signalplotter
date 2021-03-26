@@ -8,7 +8,7 @@ import numbers
 import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qt_designer.base_GUI import base_UI
-from qt_designer.temporal_view import Ui_TemporalView
+from qt_designer.temporal_ui import temporal_ui
 from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
@@ -56,7 +56,6 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         plt.ion()
         super(gui_init, self).__init__()
         self.myOtherWindow = QtWidgets.QMainWindow()
-        self.temporalwindow = QtWidgets.QMainWindow()
         self.ui = base_UI()
         self.ui.setupUi(self)
         self.ui.Dataset_label.clicked.connect(self.get_dataset)
@@ -80,10 +79,8 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         self.matching_subjects = []
         self.matching_recordings = []
 
-
     def openRecording_temporal(self, timestamp):
         self.clicked_recording = None
-        self.get_recording_names_temporal()
         for rec in self.clicked_subject.recordings:
             start = datetime.timestamp(rec.start_of_recording)
             stop = rec.duration_sec + start
@@ -91,7 +88,6 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
                 self.clicked_recording = rec
                 break
         if(self.clicked_recording is not None):
-        
             window = 10
             y=None
             title=None
@@ -101,16 +97,10 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
             callback=None
             channel_first:bool = True
             verbose:bool = True
-
-
             lazy_plot:bool = True
-
-
             cplot(self, self.clicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
-    
 
     def openRecording(self, item):
-    
         self.get_recording_names()
         recording_name = item.text()
         index = self.selected_subject_recordings.index(recording_name)
@@ -124,95 +114,19 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         callback=None
         channel_first:bool = True
         verbose:bool = True
-
-
         lazy_plot:bool = True
-    
-        
         cplot(self,doubleclicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
 
-
-
-    def drawTemporal(self):
-        self.subplots = {}
-        i = 0
-        for  idx, sub in enumerate(self.ds.subjects):
-            self.subplots[idx] = self.ui3.TemporalPlot.canvas.add(cols = 1)
-            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
-
-            #plotting the recordings
-            custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
-            self.subplots[idx].set_prop_cycle(custom_cycler)
-            for rec in sub.recordings:
-                start = datetime.timestamp(rec.start_of_recording)
-                stop = rec.duration_sec + start
-
-                self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)
-
-            #plotting the events
-            custom_cycler = (cycler(color=['darkorange','gold']))
-            self.subplots[idx].set_prop_cycle(custom_cycler)
-            for rec in sub.recordings:
-                start = datetime.timestamp(rec.start_of_recording)
-                for ann in rec.annotations:
-                    for event in ann.events:
-                        if(event.label != 'bckg'):
-                            ev_start = event.start + start
-                            ev_stop = event.stop + start
-                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                            i = i + 1
-                            
-                        
-            #ax[idx].axis('off')
-            self.subplots[idx].axes.set_ylim([-1,1])
-            self.subplots[idx].spines["top"].set_visible(False)
-            self.subplots[idx].spines["right"].set_visible(False)
-            self.subplots[idx].spines["bottom"].set_visible(False)
-            self.subplots[idx].spines["left"].set_visible(False)
-            self.subplots[idx].set_yticks([])
-            self.subplots[idx].set_xticks([])
-            self.subplots[idx].set_ylabel(self.ds.subject_names[idx],rotation='horizontal', ha='right',va="center")
-        
-
-    def event_checked(self, is_checked):
-        if is_checked:
-            i = 0
-            for  idx, sub in enumerate(self.ds.subjects):
-                custom_cycler = (cycler(color=['darkorange','gold']))
-                self.subplots[idx].set_prop_cycle(custom_cycler)
-                for rec in sub.recordings:
-                    start = datetime.timestamp(rec.start_of_recording)
-                    for ann in rec.annotations:
-                        for event in ann.events:
-                            if(event.label != 'bckg'):
-                                ev_start = event.start + start
-                                ev_stop = event.stop + start
-                                self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                                i = i + 1
-        else:
-            for i in range(len(self.event_plots)):
-                self.event_plots[i].pop(0).remove()
-        self.ui3.TemporalPlot.canvas.draw_idle()
-
-
-
-
+    def temporal_click(self, event):
+        if event.inaxes is not None:
+            index = self.ds.subject_names.index(event.inaxes.get_ylabel())
+            self.clicked_subject = self.ds.subjects[index]
+            self.openRecording_temporal(event.xdata)
 
     def openTemporal(self):
-        def temporal_click(event):
-            if event.inaxes is not None:
-                index = self.ds.subject_names.index(event.inaxes.get_ylabel())
-                self.clicked_subject = self.ds.subjects[index]
-                self.openRecording_temporal(event.xdata)
-
-        self.ui3 = Ui_TemporalView()
-        self.ui3.setupUi(self.temporalwindow)
-        self.ui3.EventsCheckbox.setChecked(True)
-        self.drawTemporal()
-        self.ui3.TemporalPlot.canvas.mpl_connect('button_press_event', temporal_click)
-        self.ui3.EventsCheckbox.toggled.connect(self.event_checked)
-        self.temporalwindow.show()
- 
+        self.ui3 = temporal_ui()
+        self.ui3.drawTemporal(self.ds.subjects, self.ds.subject_names)
+        self.ui3.TemporalPlot.canvas.mpl_connect('button_press_event', self.temporal_click)
     
     def clear_GUI(self):
         self.ui.subject_list.clear()
@@ -220,16 +134,11 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         self.ui.annotations_list.clear()
         self.ui.events_list.clear()
 
-    def get_recording_names_temporal(self):
-        self.clicked_subject_recordings = []
-        for r in self.clicked_subject.recordings:
-            self.clicked_subject_recordings.append(r.name)
 
     def get_recording_names(self):
         self.selected_subject_recordings = []
         for r in self.selected_subject.recordings:
             self.selected_subject_recordings.append(r.name)
-
 
     def update_GUI(self):
         subject_names = self.ds.subject_names
@@ -248,7 +157,6 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         self.matching_recordings = [r for r in self.selected_subject_recordings if self.ui.lineEdit_2.text() in r]
         self.update_GUI()
 
-
     def update_recording_list(self, item):
         if item is not None:
             subject = item.text()
@@ -262,7 +170,6 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
             self.ui.annotations_list.clear()
             self.ui.events_list.clear()
             self.ui.recordings_list.addItems(recordings)
-
 
     def update_annotation_list(self, item):
         if item is not None:
@@ -319,10 +226,6 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         self.ui2.listWidget.itemDoubleClicked.connect(self.doubleclick_dataset)
 
 
-    
-
-
-
 
 
 if __name__ == "__main__":
@@ -336,6 +239,5 @@ if __name__ == "__main__":
     w.datasets = w.db.dataset_names
     if(w.config.get('database', 'dataset') is not None):
         w.doubleclick_dataset(w.config.get('database', 'dataset'))
-
     w.show()
     sys.exit(app.exec_())
