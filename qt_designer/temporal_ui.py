@@ -63,6 +63,7 @@ class temporal_ui(Ui_TemporalView):
             self.subplots[idx].spines["left"].set_visible(False)
             self.subplots[idx].set_yticks([])
             self.subplots[idx].set_xticks([])
+
             self.subplots[idx].set_ylabel(names[idx],rotation='horizontal', ha='right',va="center")
 
 

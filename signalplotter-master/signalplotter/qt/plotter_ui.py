@@ -5,7 +5,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5 import QtWidgets
 from databasemanager import *
 import math
-
+import datetime
+import time
 class plotter_ui(QObject, Ui_MainWindow):
     __lastID = 0
     @classmethod
@@ -82,11 +83,11 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.MainWindow.setWindowTitle(wintitle)
         
     def __increase_amplitude(self):
-        self.scale_factor = self.scale_factor*0.5
+        self.scale_factor = self.scale_factor*0.8
         self.Plot()
 
     def __decrease_amplitude(self):
-        self.scale_factor = self.scale_factor*2
+        self.scale_factor = self.scale_factor/0.8
         self.Plot()
         
     def __UpdateY(self, y):
@@ -95,6 +96,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.btnNextY.setEnabled(y is not None)
         self.btnPreviousSimilarY.setEnabled(y is not None)
         self.btnNextSimilarY.setEnabled(y is not None)
+
+    
     def __UpdateFs(self, fs):
         self.fs = fs
         if(fs is not None):
@@ -211,10 +214,20 @@ class plotter_ui(QObject, Ui_MainWindow):
         xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
         
-        t = np.arange(self.T)
+        t = np.arange(sampleIndex*self.T, (sampleIndex+1)*self.T)
+
+        ticks = list()
+
         if(self.fs is not None):
             t = t / self.fs
-            
+            for i, t_s in enumerate(t):
+                if i%self.fs == 0:
+                    ticks.append((t_s,time.strftime('%H:%M:%S', time.gmtime(t_s))))
+    
+        print(self.N)
+        stringaxis = self.axis.getAxis('bottom')
+        stringaxis.setTicks([ticks])
+
         self.Clear()
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
@@ -224,7 +237,7 @@ class plotter_ui(QObject, Ui_MainWindow):
                     self.axis.plot(t,xxi[:,ch], pen=self.GetPen(i))
             
         vb = self.axis.getViewBox()
-        vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=t[-1])
+        vb.setLimits(yMin=-1, yMax=self.CH, xMin = t[0], xMax=t[-1])
         self.__UpdateTitle()
     def GetColorString(self, colorIndex=0):
         strL = ('#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000')
