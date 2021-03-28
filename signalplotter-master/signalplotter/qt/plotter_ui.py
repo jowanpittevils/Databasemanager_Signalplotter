@@ -137,7 +137,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             self.axis.setLabel('bottom', 'Sample')
             
-    def __UpdateChannelNames(self, channelNames, areChannelsVertical):
+    def __UpdateChannelNames(self, channelNames, overlapping_events, areChannelsVertical):
         ttick=list()  
         if(areChannelsVertical): 
             side = 'left'
@@ -150,6 +150,8 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.axis.setLabel(side, 'Channel Index')
             for ch in range(self.CH):
                 ttick.append((ch,  self.CH-ch-1))
+        for i,event in enumerate(overlapping_events):
+            ttick.append((self.CH-0.1-i/8, event.label))
         ax=self.axis.getAxis(side) 
         ax.setTicks([ttick])
     
@@ -214,24 +216,24 @@ class plotter_ui(QObject, Ui_MainWindow):
     def Plot(self, sampleIndex = None):
         if(sampleIndex is not None):
             self.UpdateSampleIndex(sampleIndex)
+        overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
         if self.lazy_plot == True:
             if(self.fs != -1):
-                self.PlotLine(None, self.recording,self.window, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames, True)
+                self.PlotLine(None,overlapping_events, self.recording,self.window, self.SampleIndex)
+                self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
             else:
                 self.PlotBar(None, self.recording, self.window, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames, False)
+                self.__UpdateChannelNames(self.ChannelNames,overlapping_events, False)
         else:
             if(self.fs != -1):
-                self.PlotLine(self.xx, None, None, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames, True)
+                self.PlotLine(self.xx, overlapping_events, None, None, self.SampleIndex)
+                self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
             else:
                 self.PlotBar(self.xx, None, None, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames, False)
+                self.__UpdateChannelNames(self.ChannelNames, overlapping_events,False)
 
             
-    def PlotLine(self, xx, recording,window, sampleIndex):
-        overlapping_events = self.__CheckAnnotationOverlap(sampleIndex)
+    def PlotLine(self, xx, overlapping_events, recording,window, sampleIndex):
         
         if self.lazy_plot == True:
             if(sampleIndex < self.N - 1):
@@ -257,7 +259,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             starts[event] = max(sampleIndex*self.T/self.fs, event.start)
             stops[event] = min((sampleIndex+1)*self.T/self.fs, event.stop)
             tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
-            ToPlot[event] = [self.CH-i/10-0.2 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
+            ToPlot[event] = [self.CH-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
             print(len(tEvent[event]))
 
         ticks = list()
