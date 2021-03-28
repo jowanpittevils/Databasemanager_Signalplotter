@@ -48,11 +48,10 @@ class temporal_ui(Ui_TemporalView):
                 start = datetime.timestamp(rec.start_of_recording)
                 for ann in rec.annotations:
                     for event in ann.events:
-                        if(event.label != 'bckg'):
-                            ev_start = event.start + start
-                            ev_stop = event.stop + start
-                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                            i = i + 1
+                        ev_start = event.start + start
+                        ev_stop = event.stop + start
+                        self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                        i = i + 1
                             
                         
             #ax[idx].axis('off')
@@ -77,11 +76,10 @@ class temporal_ui(Ui_TemporalView):
                     start = datetime.timestamp(rec.start_of_recording)
                     for ann in rec.annotations:
                         for event in ann.events:
-                            if(event.label != 'bckg'):
-                                ev_start = event.start + start
-                                ev_stop = event.stop + start
-                                self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                                i = i + 1
+                            ev_start = event.start + start
+                            ev_stop = event.stop + start
+                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                            i = i + 1
         else:
             for i in range(len(self.event_plots)):
                 self.event_plots[i].pop(0).remove()

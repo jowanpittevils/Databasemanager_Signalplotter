@@ -88,7 +88,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
                 self.clicked_recording = rec
                 break
         if(self.clicked_recording is not None):
-            window = 10
+            window = 20
             y=None
             title=None
             fs=int(self.clicked_recording.fs)
@@ -105,7 +105,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         recording_name = item.text()
         index = self.selected_subject_recordings.index(recording_name)
         doubleclicked_recording = self.selected_subject.recordings[index]    
-        window = 10
+        window = 20
         y=None
         title=None
         fs=int(doubleclicked_recording.fs)

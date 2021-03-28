@@ -7,6 +7,8 @@ from databasemanager import *
 import math
 import datetime
 import time
+
+
 class plotter_ui(QObject, Ui_MainWindow):
     __lastID = 0
     @classmethod
@@ -18,9 +20,14 @@ class plotter_ui(QObject, Ui_MainWindow):
     def __init__(self, MainWindow, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
         super().__init__()
         self.recording = recording
+        self.annotations = self.recording.annotations
+        self.event_name = pg.TextItem("test")
+        self.event_name2 = pg.TextItem("teerzert")
         self.window = window
         self.scale_factor = 1
         self.lazy_plot = lazy_plot
+        self.colors_ev = {}
+        self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.verbose = verbose
         self.norm = plotter_ui.struct()
         self.ID = plotter_ui.__getNewID()
@@ -30,13 +37,15 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.channelFirst = channelFirst
         self.callback = callback
         self.sens = sens
-        self.__UpdateTitleText(title)
+        self.__UpdateTitleText(recording.name)
         self.axis.showGrid(True,True)
         self.ChannelNames = channelNames
         self.__UpdateY(y)
         self.UpdateSampleIndex(0)
         self.__AssignCallbacks()
         self.detachedWindows=[]
+        self.assign_colors()
+
         if self.lazy_plot == True:
             self.norm.totalMaxX = 0.01
             self.norm.totalMinX = -0.01
@@ -46,7 +55,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             else:
                 self.T = int(self.recording.fs) * self.window
                 self.CH = recording.number_of_channels
-            print(self.T)
             N = math.ceil(recording.duration_samp/self.T)
             self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
@@ -73,6 +81,28 @@ class plotter_ui(QObject, Ui_MainWindow):
 
         self.Plot()
 
+    def assign_colors(self):
+        i = 0
+        for ann in self.annotations:
+            for event in ann.events:
+                t = i%len(self.event_colors)
+                self.colors_ev[event] = pg.intColor(i, alpha = 255)
+                i = i+1
+
+
+
+    def __CheckAnnotationOverlap(self, SampleIndex):
+        overlapping_events = []
+        start = SampleIndex*self.window
+        end = (SampleIndex+1)*self.window
+        for ann in self.annotations:
+            for event in ann.events:
+
+                ev_start = event.start
+                ev_stop = event.stop
+                if((start <= ev_stop) and (end >= ev_start)):
+                    overlapping_events.append(event)
+        return overlapping_events
 
             
     def __UpdateTitleText(self, title):
@@ -102,7 +132,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.fs = fs
         if(fs is not None):
             if(fs != -1):
-                self.axis.setLabel('bottom', 'Time', units='s')
+                self.axis.setLabel('bottom', 'hh:mm:ss')
             self.T_sec = self.T/fs
         else:
             self.axis.setLabel('bottom', 'Sample')
@@ -201,6 +231,8 @@ class plotter_ui(QObject, Ui_MainWindow):
 
             
     def PlotLine(self, xx, recording,window, sampleIndex):
+        overlapping_events = self.__CheckAnnotationOverlap(sampleIndex)
+        
         if self.lazy_plot == True:
             if(sampleIndex < self.N - 1):
                 xx = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
@@ -215,14 +247,25 @@ class plotter_ui(QObject, Ui_MainWindow):
         xx = self.__AddBias(xx)
         
         t = np.arange(sampleIndex*self.T, (sampleIndex+1)*self.T)
+        tEvent = {}
+        ToPlot = {}
+        starts = {}
+        stops = {}
+        for i, event in enumerate(overlapping_events):
+            tEvent[event] = np.arange(sampleIndex*self.T, (sampleIndex+1)*self.T)
+            tEvent[event] = tEvent[event]/self.fs
+            starts[event] = max(sampleIndex*self.T/self.fs, event.start)
+            stops[event] = min((sampleIndex+1)*self.T/self.fs, event.stop)
+            tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
+            ToPlot[event] = [self.CH-i/10-0.2 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
+            print(len(tEvent[event]))
 
         ticks = list()
 
         if(self.fs is not None):
             t = t / self.fs
-            for i, t_s in enumerate(t):
-                if i%self.fs == 0:
-                    ticks.append((t_s,time.strftime('%H:%M:%S', time.gmtime(t_s))))
+            for i in range(0,self.T,math.floor(self.T/10)):
+                ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
     
         print(self.N)
         stringaxis = self.axis.getAxis('bottom')
@@ -235,6 +278,12 @@ class plotter_ui(QObject, Ui_MainWindow):
                     self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
                 else:
                     self.axis.plot(t,xxi[:,ch], pen=self.GetPen(i))
+        for i, event in enumerate(overlapping_events):
+            if(self.channelFirst):
+                self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
+            else:
+                self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8,))
+
             
         vb = self.axis.getViewBox()
         vb.setLimits(yMin=-1, yMax=self.CH, xMin = t[0], xMax=t[-1])
@@ -267,7 +316,7 @@ class plotter_ui(QObject, Ui_MainWindow):
 
         self.Clear()
         w = 1/len(xx)/1.5
-        for i,xxi in enumerate(xx):        
+        for i,xxi in enumerate(xx):
             bg1 = pg.BarGraphItem(x=t-(len(xx)-1)*w/2+i*w, height=xxi,width = w, brush=self.GetColorString(i))
             self.axis.addItem(bg1)
          
