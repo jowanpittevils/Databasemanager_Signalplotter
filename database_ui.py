@@ -98,40 +98,10 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         verbose:bool = True
         lazy_plot:bool = True
         cplot(self,doubleclicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
-
-    def openRecording_temporal(self, timestamp):
-        self.clicked_recording = None
-        for rec in self.clicked_subject.recordings:
-            start = datetime.timestamp(rec.start_of_recording)
-            stop = rec.duration_sec + start
-            if((timestamp > start) and (timestamp < stop)):
-                self.clicked_recording = rec
-                break
-        if(self.clicked_recording is not None):
-            window = 20
-            y=None
-            title=None
-            fs=int(self.clicked_recording.fs)
-            sens=None
-            channel_names=UserSettings.global_settings().loading_data_channels
-            callback=None
-            channel_first:bool = True
-            verbose:bool = True
-            lazy_plot:bool = True
-            cplot(self, self.clicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
-
-    def temporal_click(self, event):
-        if event.inaxes is not None:
-            index = self.ds.subject_names.index(event.inaxes.get_ylabel())
-            self.clicked_subject = self.ds.subjects[index]
-            self.openRecording_temporal(event.xdata)
-
-    def openTemporal(self):
-        self.ui3 = temporal_ui()
-        self.ui3.drawTemporal(self.ds.subjects, self.ds.subject_names)
-        #temporal_click = self.ui3.temporal_click(self.ds.subject_names, self.clicked_subject.recordings)
-        self.ui3.TemporalPlot.canvas.mpl_connect('button_press_event', self.temporal_click)
     
+    def openTemporal(self):
+        self.ui3 = temporal_ui(None,self.ds.subjects)
+
     def clear_GUI(self):
         self.ui.subject_list.clear()
         self.ui.recordings_list.clear()

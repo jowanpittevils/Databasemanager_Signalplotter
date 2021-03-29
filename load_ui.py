@@ -99,11 +99,8 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                         x = self.msg.exec_()
                      
 
-                
- 
- 
 
 
-app = QtWidgets.QApplication(sys.argv)
-w = load_ui()
-sys.exit(app.exec_())
+# app = QtWidgets.QApplication(sys.argv)
+# w = load_ui()
+# sys.exit(app.exec_())

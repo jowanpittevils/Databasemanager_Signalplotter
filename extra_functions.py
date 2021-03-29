@@ -25,7 +25,6 @@ def load_browser():
     app.exec_()
 
 
-
 def database_browser(Database):
     app = QtWidgets.QApplication(sys.argv)
     ui = database_ui()
@@ -35,13 +34,13 @@ def database_browser(Database):
     app.exec_()
 
 
+def temporal_browser(Database, subjects=None):
+    app = QtWidgets.QApplication(sys.argv)
+    ui3 = temporal_ui(Database, subjects)
+    app.exec_()
 
+root = 'C:\\db\\toyDB'
+db = Database(root)
 
-# def temporal_browser(timescale, dataset, subjects=None):
-
-#     ui3 = temporal_ui()
-#     ui3.drawTemporal(subjects, subject_names)
-#     ui3.TemporalPlot.canvas.mpl_connect('button_press_event', temporal_click)
-
-
+temporal_browser(db,['tr_ar_254', 'tr_ar_272','tr_ar_598', 'tr_ar_630'])
 

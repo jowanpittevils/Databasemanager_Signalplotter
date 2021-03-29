@@ -6,7 +6,7 @@ from extra_functions import *
 root = 'C:\\db\\toyDB'
 db = Database(root)
 
-db.summary()
+#db.summary()
 
 dsNames =  db.dataset_names
 
@@ -19,7 +19,8 @@ dsNames =  db.dataset_names
 #% dataset
 UserSettings.global_settings().loading_data_missing_channel_type = 'error'
 UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
-ds = db.load_dataset('ds1')
+ds = db.load_dataset('all')
+print(ds.subject_names)
 ds.add_operator(Resampler(100))
 ds.summary()
 #%%
