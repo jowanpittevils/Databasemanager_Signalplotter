@@ -8,32 +8,27 @@ from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from qt_designer.dataset_selector import Ui_dataset 
-from gui_init import *
+from database_ui import *
 from os import path
 
  
 
-class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
-
-        
+class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
 
         def __init__(self):
-                super(loadGUI_init, self).__init__()
+                super(load_ui, self).__init__()
                 self.ui = Ui_LoadWindow()
                 self.ui.setupUi(self)
-
-                self.ui1 = gui_init()
-
-                self.ui.browse1.clicked.connect(self.browsefolder1)
-                self.ui.browse2.clicked.connect(self.browsefolder2)
-
-                self.ui.dataset_list.itemClicked.connect(self.get_ds)
-
-                self.ui.load.clicked.connect(self.load_dataset)
-                self.ui.load.clicked.connect(self.close)
-
+                self.__AssignCallbacks()
                 self.show()
 
+        def __AssignCallbacks(self):
+                self.ui1 = database_ui()
+                self.ui.browse1.clicked.connect(self.browsefolder1)
+                self.ui.browse2.clicked.connect(self.browsefolder2)
+                self.ui.dataset_list.itemClicked.connect(self.get_ds)
+                self.ui.load.clicked.connect(self.load_dataset)
+                self.ui.load.clicked.connect(self.close)
 
         def browsefolder1(self):
                 self.ui1.root = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Database folder")        
@@ -51,7 +46,6 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
                                 self.ui.dataset_list.clear()
                                 self.ui.dataset_list.addItems(self.ui1.datasets)
                                 
-
         def browsefolder2(self):
                 if self.ui1.root == '':
                         self.import_error()
@@ -66,7 +60,6 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
                                 self.ui.dataset_list.clear()
                                 self.ui.dataset_list.addItems(self.ui1.datasets)
 
-
         def load_dataset(self): 
                 self.ui1.ds = self.ui1.db.load_dataset(self.ui1.ds)
                 self.ui1.dataset_name = self.ui1.ds.name
@@ -76,7 +69,6 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
         def get_ds(self, item):
                 self.ui1.ds = item.text()
-
 
         def import_error(self):
                 self.msg = QtWidgets.QMessageBox()
@@ -105,9 +97,7 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
                         self.ui.ds_name.clear()
                         self.ui.dataset_list.clear()
                         x = self.msg.exec_()
-     
-
-                
+                     
 
                 
  
@@ -115,5 +105,5 @@ class loadGUI_init(QtWidgets.QMainWindow,Ui_LoadWindow):
 
 
 app = QtWidgets.QApplication(sys.argv)
-w = loadGUI_init()
+w = load_ui()
 sys.exit(app.exec_())

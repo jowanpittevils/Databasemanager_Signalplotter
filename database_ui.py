@@ -20,7 +20,7 @@ from cycler import cycler
 from plotter import cplot
 from configparser import ConfigParser
 
-class gui_init(QtWidgets.QMainWindow,base_UI):
+class database_ui(QtWidgets.QMainWindow,base_UI):
     
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
@@ -54,10 +54,14 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
     
     def __init__(self):
         plt.ion()
-        super(gui_init, self).__init__()
+        super(database_ui, self).__init__()
         self.myOtherWindow = QtWidgets.QMainWindow()
         self.ui = base_UI()
         self.ui.setupUi(self)
+        self.__AssignCallbacks()
+    
+    def __AssignCallbacks(self):
+        self.chns = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
         self.ui.Dataset_label.clicked.connect(self.get_dataset)
         self.ui.lineEdit.textChanged.connect(self.search_subject_list)
         self.ui.lineEdit_2.textChanged.connect(self.search_recording_list)
@@ -66,8 +70,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         self.ui.annotations_list.currentItemChanged.connect(self.update_event_list)
         self.ui.recordings_list.itemDoubleClicked.connect(self.openRecording)
         self.ui.pushButton_8.clicked.connect(self.openTemporal)
-        self.chns = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
-    
+
     def load_database(self):
         self.datasets = self.db.dataset_names
         self.ds = self.db.load_dataset('all')
@@ -78,6 +81,23 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
         self.selected_subject_recordings = []
         self.matching_subjects = []
         self.matching_recordings = []
+
+    def openRecording(self, item):
+        self.get_recording_names()
+        recording_name = item.text()
+        index = self.selected_subject_recordings.index(recording_name)
+        doubleclicked_recording = self.selected_subject.recordings[index]    
+        window = 20
+        y=None
+        title=None
+        fs=int(doubleclicked_recording.fs)
+        sens=None
+        channel_names=UserSettings.global_settings().loading_data_channels
+        callback=None
+        channel_first:bool = True
+        verbose:bool = True
+        lazy_plot:bool = True
+        cplot(self,doubleclicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
 
     def openRecording_temporal(self, timestamp):
         self.clicked_recording = None
@@ -100,23 +120,6 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
             lazy_plot:bool = True
             cplot(self, self.clicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
 
-    def openRecording(self, item):
-        self.get_recording_names()
-        recording_name = item.text()
-        index = self.selected_subject_recordings.index(recording_name)
-        doubleclicked_recording = self.selected_subject.recordings[index]    
-        window = 20
-        y=None
-        title=None
-        fs=int(doubleclicked_recording.fs)
-        sens=None
-        channel_names=UserSettings.global_settings().loading_data_channels
-        callback=None
-        channel_first:bool = True
-        verbose:bool = True
-        lazy_plot:bool = True
-        cplot(self,doubleclicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
-
     def temporal_click(self, event):
         if event.inaxes is not None:
             index = self.ds.subject_names.index(event.inaxes.get_ylabel())
@@ -126,6 +129,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
     def openTemporal(self):
         self.ui3 = temporal_ui()
         self.ui3.drawTemporal(self.ds.subjects, self.ds.subject_names)
+        #temporal_click = self.ui3.temporal_click(self.ds.subject_names, self.clicked_subject.recordings)
         self.ui3.TemporalPlot.canvas.mpl_connect('button_press_event', self.temporal_click)
     
     def clear_GUI(self):
@@ -230,7 +234,7 @@ class gui_init(QtWidgets.QMainWindow,base_UI):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    w = gui_init()
+    w = database_ui()
     w.config = ConfigParser()
     w.config.read('config.ini')
     if(w.config.get('database', 'root') is not None):
