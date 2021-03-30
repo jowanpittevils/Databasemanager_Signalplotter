@@ -252,6 +252,7 @@ class plotter_countainer():
     def add(self, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
         MainWindow = QtWidgets.QMainWindow()
         plotter = plotter_ui(MainWindow=MainWindow, x=x, recording=recording, lazy_plot=lazy_plot, window=window, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
+        MainWindow.showMaximized()
         MainWindow.show()
 
         self.plotterList.update( {plotter.ID: plotter})

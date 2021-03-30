@@ -2,7 +2,7 @@ from .plotter_uiDesign import Ui_MainWindow
 import pyqtgraph as pg
 import numpy as np
 from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from databasemanager import *
 import math
 import datetime
@@ -39,12 +39,15 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.sens = sens
         self.__UpdateTitleText(recording.name)
         self.axis.showGrid(True,True)
+        self.vb = self.axis.getViewBox()
+
         self.ChannelNames = channelNames
         self.__UpdateY(y)
         self.UpdateSampleIndex(0)
         self.__AssignCallbacks()
         self.detachedWindows=[]
         self.assign_colors()
+        self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
 
         if self.lazy_plot == True:
             self.norm.totalMaxX = 0.01
@@ -77,9 +80,9 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.CH = self.x.shape[2]
             self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
-        
-
+        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
         self.Plot()
+
 
     def assign_colors(self):
         i = 0
@@ -231,6 +234,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             else:
                 self.PlotBar(self.xx, None, None, self.SampleIndex)
                 self.__UpdateChannelNames(self.ChannelNames, overlapping_events,False)
+        self.vb.autoRange(padding = 0)
 
             
     def PlotLine(self, xx, overlapping_events, recording,window, sampleIndex):
@@ -286,9 +290,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             else:
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8,))
 
-            
-        vb = self.axis.getViewBox()
-        vb.setLimits(yMin=-1, yMax=self.CH, xMin = t[0], xMax=t[-1])
         self.__UpdateTitle()
     def GetColorString(self, colorIndex=0):
         strL = ('#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000')
