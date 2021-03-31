@@ -21,8 +21,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         super().__init__()
         self.recording = recording
         self.annotations = self.recording.annotations
-        self.event_name = pg.TextItem("test")
-        self.event_name2 = pg.TextItem("teerzert")
         self.window = window
         self.scale_factor = 1
         self.lazy_plot = lazy_plot
@@ -39,8 +37,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.sens = sens
         self.__UpdateTitleText(recording.name)
         self.axis.showGrid(True,True)
-        self.vb = self.axis.getViewBox()
-
         self.ChannelNames = channelNames
         self.__UpdateY(y)
         self.UpdateSampleIndex(0)
@@ -80,7 +76,13 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.CH = self.x.shape[2]
             self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
-        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
+        #self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
+        self.vb = self.axis.getViewBox()
+
+        self.vb.autoRange(padding = 0)
+        self.UpdateSampleIndex(0)
+        self.Plot()
+        self.vb.autoRange(padding = 0)
         self.Plot()
 
 
@@ -253,6 +255,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         xx = self.__AddBias(xx)
         
         t = np.arange(sampleIndex*self.T, (sampleIndex+1)*self.T)
+
+        print("len t:", len(t))
+
         tEvent = {}
         ToPlot = {}
         starts = {}
@@ -270,8 +275,9 @@ class plotter_ui(QObject, Ui_MainWindow):
 
         if(self.fs is not None):
             t = t / self.fs
-            for i in range(0,self.T,math.floor(self.T/10)):
-                ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
+            if(self.T > 9):
+                for i in range(0,self.T,math.floor(self.T/10)):
+                    ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
     
         print(self.N)
         stringaxis = self.axis.getAxis('bottom')
@@ -281,6 +287,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
                 if(self.channelFirst):
+                    print("len t:", len(t))
+                    print("len xxi:", len(xxi[ch,:]))
                     self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
                 else:
                     self.axis.plot(t,xxi[:,ch], pen=self.GetPen(i))
@@ -323,11 +331,10 @@ class plotter_ui(QObject, Ui_MainWindow):
             bg1 = pg.BarGraphItem(x=t-(len(xx)-1)*w/2+i*w, height=xxi,width = w, brush=self.GetColorString(i))
             self.axis.addItem(bg1)
          
-        vb = self.axis.getViewBox()
         m = min(self.norm.totalMinX-1,0)
         M = self.norm.totalMaxX * 1.1
-        vb.setLimits(yMin=m, yMax=M, xMin = -1, xMax=t[-1]+1)
         self.__UpdateTitle()
+        self.autoRange(padding = 0)
         
     def __UpdateTitle(self):
         if(self.title is not None):
@@ -351,6 +358,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.btnFirst.clicked.connect(self.__onbtnFirstClicked)
         self.btnAmpUp.clicked.connect(self.__increase_amplitude)
         self.btnAmpDown.clicked.connect(self.__decrease_amplitude)
+        self.btnWindowUp.clicked.connect(self.__onbtnWindowUp)
+        self.btnWindowDown.clicked.connect(self.__onbtnWindowDown)
         self.btnPreviousY.clicked.connect(self.__onbtnPreviousYClicked)
         self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
         self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
@@ -401,7 +410,31 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.UpdateSampleIndex(self.nmrSampleIndex.value(), True,self.nmrSampleIndex)
     def __onbtnDuplicate(self):
         self.DuplicateCurrent()
-   
+
+    def __onbtnWindowUp(self):
+        self.window = self.window*2
+        self.T = int(int(self.recording.fs) * self.window)
+        N = math.ceil(self.recording.duration_samp/self.T)
+        #self.__UpdateFs(fs)
+        self.__UpdateTotalNumberOfSamples(N)
+        self.UpdateSampleIndex(math.floor(self.SampleIndex / 2))
+        self.Plot()
+
+
+    def __onbtnWindowDown(self):
+        self.window = self.window/2
+        self.T = int(int(self.recording.fs) * self.window)
+        print("T:",self.T)
+        print("window:",self.window)
+
+        N = math.ceil(self.recording.duration_samp/self.T)
+        print("N:",N)
+        #self.__UpdateFs(fs)
+        self.__UpdateTotalNumberOfSamples(N)
+        self.UpdateSampleIndex(self.SampleIndex * 2)
+        self.Plot()
+
+
     def __FindYIndex(self, forward, similar):
         if(self.y is None):
             return None
