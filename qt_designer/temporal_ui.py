@@ -4,14 +4,16 @@ from databasemanager import *
 from cycler import cycler
 from plotter import cplot
 from datetime import datetime
+import time
+import numpy as np
+import math
+import pyqtgraph as pg
     
 
 class temporal_ui(Ui_TemporalView):
     def __init__(self, database:Database=None, subjects=None):
         self.temporalwindow = QtWidgets.QMainWindow()
         self.setupUi(self.temporalwindow)
-        self.Slider.setMaximum(100)
-        self.Slider.setMinimum(0)
         self.clicked_recording = None
         self.clicked_subject = None
         self.event_plots = {}
@@ -32,6 +34,7 @@ class temporal_ui(Ui_TemporalView):
         else:
             self.subjects = subjects
             self.subject_names = [s.name for s in self.subjects]
+        self.__updateValuesOfSlider()
         self.drawTemporal(self.subjects, self.subject_names)
         self.Slider.valueChanged.connect(self.__onsldValueChanged)
         self.EventsCheckbox.toggled.connect(self.event_checked)
@@ -39,11 +42,66 @@ class temporal_ui(Ui_TemporalView):
         self.TemporalPlot.canvas.mpl_connect('button_press_event', self.temporal_click)
         self.temporalwindow.show()
 
+    def __updateValuesOfSlider(self):
+        for sub in self.subjects:
+            for rec in sub.recordings:
+                self.min = datetime.timestamp(rec.start_of_recording)
+                self.max = rec.duration_sec + self.min
+                break
+        for sub in self.subjects:
+            for rec in sub.recordings: 
+                start = datetime.timestamp(rec.start_of_recording)
+                stop = rec.duration_sec + start
+                if start < self.min:
+                    self.min = start
+                if stop > self.max:
+                    self.max = stop
+        self.min = datetime.fromtimestamp(self.min).year
+        self.max = datetime.fromtimestamp(self.max).year
+        self.Slider.setMinimum(self.min)
+        self.Slider.setMaximum(self.max)
+        self.sliderValue.setText('year:' + str(self.min))
+
+
     def __onsldValueChanged(self):
-        self.UpdateSampleIndex(self.Slider.value())
-    
-    def UpdateSampleIndex(self, SampleIndex):
-        pass
+        self.sliderValue.setText('year:' + str(self.Slider.value()))
+        for i in range(len(self.subplots)):
+                self.subplots[i].clear()
+        i = 0
+        for  idx, sub in enumerate(self.subjects):
+            #plotting the recordings
+            custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
+            self.subplots[idx].set_prop_cycle(custom_cycler)
+            for rec in sub.recordings:
+                start = datetime.timestamp(rec.start_of_recording)
+                stop = rec.duration_sec + start
+                if self.Slider.value() == datetime.fromtimestamp(start).year:
+                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)
+            #plotting the events
+            custom_cycler = (cycler(color=['darkorange','gold']))
+            self.subplots[idx].set_prop_cycle(custom_cycler)
+            for rec in sub.recordings:
+                start = datetime.timestamp(rec.start_of_recording)
+                if self.Slider.value == datetime.fromtimestamp(start).year:
+                    for ann in rec.annotations:
+                        for event in ann.events:
+                            ev_start = event.start + start
+                            ev_stop = event.stop + start
+                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                            i += 1     
+
+            #ax[idx].axis('off')
+            self.subplots[idx].axes.set_ylim([-1,1])
+            self.subplots[idx].spines["top"].set_visible(False)
+            self.subplots[idx].spines["right"].set_visible(False)
+            self.subplots[idx].spines["bottom"].set_visible(False)
+            self.subplots[idx].spines["left"].set_visible(False)
+            self.subplots[idx].set_yticks([])
+            self.subplots[idx].set_xticks([])
+            self.subplots[idx].set_ylabel(self.subject_names[idx],rotation='horizontal', ha='right',va="center")
+            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
+        self.TemporalPlot.canvas.draw_idle()
+
 
     def openRecording_temporal(self, timestamp):
         self.clicked_recording = None
@@ -76,17 +134,27 @@ class temporal_ui(Ui_TemporalView):
         i = 0
         for  idx, sub in enumerate(subjects):
             self.subplots[idx] = self.TemporalPlot.canvas.add(cols = 1)
-            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
-
+            #self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
             #plotting the recordings
             custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
             self.subplots[idx].set_prop_cycle(custom_cycler)
             for rec in sub.recordings:
                 start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
-
-                self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)
-                                       
+                if self.min == datetime.fromtimestamp(start).year:
+                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)          
+            #plotting the events
+            custom_cycler = (cycler(color=['darkorange','gold']))
+            self.subplots[idx].set_prop_cycle(custom_cycler)
+            for rec in sub.recordings:
+                start = datetime.timestamp(rec.start_of_recording)
+                if self.min == datetime.fromtimestamp(start).year:
+                    for ann in rec.annotations:
+                        for event in ann.events:
+                            ev_start = event.start + start
+                            ev_stop = event.stop + start
+                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                            i += 1         
             #ax[idx].axis('off')
             self.subplots[idx].axes.set_ylim([-1,1])
             self.subplots[idx].spines["top"].set_visible(False)
@@ -95,11 +163,12 @@ class temporal_ui(Ui_TemporalView):
             self.subplots[idx].spines["left"].set_visible(False)
             self.subplots[idx].set_yticks([])
             self.subplots[idx].set_xticks([])
-
             self.subplots[idx].set_ylabel(names[idx],rotation='horizontal', ha='right',va="center")
+            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
 
     def event_checked(self, is_checked):
         if is_checked:
+            print("loooooooooooooooooooooool")
             #plotting the events
             i = 0
             for  idx, sub in enumerate(self.subjects):
@@ -107,12 +176,13 @@ class temporal_ui(Ui_TemporalView):
                 self.subplots[idx].set_prop_cycle(custom_cycler)
                 for rec in sub.recordings:
                     start = datetime.timestamp(rec.start_of_recording)
-                    for ann in rec.annotations:
-                        for event in ann.events:
-                            ev_start = event.start + start
-                            ev_stop = event.stop + start
-                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                            i = i + 1
+                    if self.Slider.value == datetime.fromtimestamp(start).year:
+                        for ann in rec.annotations:
+                            for event in ann.events:
+                                ev_start = event.start + start
+                                ev_stop = event.stop + start
+                                self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                                i += 1
         else:
             for i in range(len(self.event_plots)):
                 self.event_plots[i].pop(0).remove()

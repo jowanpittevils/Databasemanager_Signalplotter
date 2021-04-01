@@ -39,8 +39,8 @@ def temporal_browser(Database, subjects=None):
     ui3 = temporal_ui(Database, subjects)
     app.exec_()
 
-root = 'A:\\db\\toyDB'
+root = 'C:\\db\\toyDB'
 db = Database(root)
 
-temporal_browser(db,['tr_ar_254', 'tr_ar_272','tr_ar_598', 'tr_ar_630'])
+temporal_browser(db)
 
