@@ -76,13 +76,11 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.CH = self.x.shape[2]
             self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
-        #self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
         self.vb = self.axis.getViewBox()
-
+        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
+        self.vb.setMouseEnabled(x=False, y=False)
         self.vb.autoRange(padding = 0)
         self.UpdateSampleIndex(0)
-        self.Plot()
-        self.vb.autoRange(padding = 0)
         self.Plot()
 
 
@@ -256,7 +254,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         
         t = np.arange(sampleIndex*self.T, (sampleIndex+1)*self.T)
 
-        print("len t:", len(t))
 
         tEvent = {}
         ToPlot = {}
@@ -269,7 +266,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             stops[event] = min((sampleIndex+1)*self.T/self.fs, event.stop)
             tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
             ToPlot[event] = [self.CH-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
-            print(len(tEvent[event]))
 
         ticks = list()
 
@@ -279,7 +275,6 @@ class plotter_ui(QObject, Ui_MainWindow):
                 for i in range(0,self.T,math.floor(self.T/10)):
                     ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
     
-        print(self.N)
         stringaxis = self.axis.getAxis('bottom')
         stringaxis.setTicks([ticks])
 
@@ -287,8 +282,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
                 if(self.channelFirst):
-                    print("len t:", len(t))
-                    print("len xxi:", len(xxi[ch,:]))
                     self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
                 else:
                     self.axis.plot(t,xxi[:,ch], pen=self.GetPen(i))
@@ -297,7 +290,8 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
             else:
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8,))
-
+        self.axis.setDownsampling(auto = True, mode = 'subsample')
+        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=t[-1])
         self.__UpdateTitle()
     def GetColorString(self, colorIndex=0):
         strL = ('#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000')
@@ -424,15 +418,15 @@ class plotter_ui(QObject, Ui_MainWindow):
     def __onbtnWindowDown(self):
         self.window = self.window/2
         self.T = int(int(self.recording.fs) * self.window)
-        print("T:",self.T)
-        print("window:",self.window)
-
-        N = math.ceil(self.recording.duration_samp/self.T)
-        print("N:",N)
-        #self.__UpdateFs(fs)
-        self.__UpdateTotalNumberOfSamples(N)
-        self.UpdateSampleIndex(self.SampleIndex * 2)
-        self.Plot()
+        if self.T > 2:
+            N = math.ceil(self.recording.duration_samp/self.T)
+            #self.__UpdateFs(fs)
+            self.__UpdateTotalNumberOfSamples(N)
+            self.UpdateSampleIndex(self.SampleIndex * 2)
+            self.Plot()
+        else:
+            self.window = self.window*2
+            self.T = int(int(self.recording.fs) * self.window)
 
 
     def __FindYIndex(self, forward, similar):
