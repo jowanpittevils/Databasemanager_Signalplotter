@@ -62,11 +62,12 @@ class temporal_ui(Ui_TemporalView):
         self.Slider.setMaximum(self.max)
         self.sliderValue.setText('year:' + str(self.min))
 
-
     def __onsldValueChanged(self):
         self.sliderValue.setText('year:' + str(self.Slider.value()))
+        self.EventsCheckbox.setChecked(True)
+        self.event_plots.clear()
         for i in range(len(self.subplots)):
-                self.subplots[i].clear()
+            self.subplots[i].clear()
         i = 0
         for  idx, sub in enumerate(self.subjects):
             #plotting the recordings
@@ -76,20 +77,19 @@ class temporal_ui(Ui_TemporalView):
                 start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
                 if self.Slider.value() == datetime.fromtimestamp(start).year:
-                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)
+                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)  
             #plotting the events
             custom_cycler = (cycler(color=['darkorange','gold']))
             self.subplots[idx].set_prop_cycle(custom_cycler)
             for rec in sub.recordings:
                 start = datetime.timestamp(rec.start_of_recording)
-                if self.Slider.value == datetime.fromtimestamp(start).year:
+                if self.Slider.value() == datetime.fromtimestamp(start).year:
                     for ann in rec.annotations:
                         for event in ann.events:
                             ev_start = event.start + start
                             ev_stop = event.stop + start
                             self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                            i += 1     
-
+                            i += 1         
             #ax[idx].axis('off')
             self.subplots[idx].axes.set_ylim([-1,1])
             self.subplots[idx].spines["top"].set_visible(False)
@@ -101,7 +101,6 @@ class temporal_ui(Ui_TemporalView):
             self.subplots[idx].set_ylabel(self.subject_names[idx],rotation='horizontal', ha='right',va="center")
             self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
         self.TemporalPlot.canvas.draw_idle()
-
 
     def openRecording_temporal(self, timestamp):
         self.clicked_recording = None
@@ -134,7 +133,6 @@ class temporal_ui(Ui_TemporalView):
         i = 0
         for  idx, sub in enumerate(subjects):
             self.subplots[idx] = self.TemporalPlot.canvas.add(cols = 1)
-            #self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
             #plotting the recordings
             custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
             self.subplots[idx].set_prop_cycle(custom_cycler)
@@ -168,22 +166,9 @@ class temporal_ui(Ui_TemporalView):
 
     def event_checked(self, is_checked):
         if is_checked:
-            print("loooooooooooooooooooooool")
-            #plotting the events
-            i = 0
-            for  idx, sub in enumerate(self.subjects):
-                custom_cycler = (cycler(color=['darkorange','gold']))
-                self.subplots[idx].set_prop_cycle(custom_cycler)
-                for rec in sub.recordings:
-                    start = datetime.timestamp(rec.start_of_recording)
-                    if self.Slider.value == datetime.fromtimestamp(start).year:
-                        for ann in rec.annotations:
-                            for event in ann.events:
-                                ev_start = event.start + start
-                                ev_stop = event.stop + start
-                                self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                                i += 1
+            for i in range(len(self.event_plots)):
+                self.event_plots[i][0].set_visible(True)
         else:
             for i in range(len(self.event_plots)):
-                self.event_plots[i].pop(0).remove()
+                self.event_plots[i][0].set_visible(False)
         self.TemporalPlot.canvas.draw_idle()
