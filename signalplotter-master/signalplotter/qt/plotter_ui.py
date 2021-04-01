@@ -37,6 +37,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.sens = sens
         self.__UpdateTitleText(recording.name)
         self.axis.showGrid(True,True)
+        self.axis.setDownsampling(auto = True, mode = 'subsample')
         self.ChannelNames = channelNames
         self.__UpdateY(y)
         self.UpdateSampleIndex(0)
@@ -290,7 +291,6 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
             else:
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8,))
-        self.axis.setDownsampling(auto = True, mode = 'subsample')
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=t[-1])
         self.__UpdateTitle()
     def GetColorString(self, colorIndex=0):
