@@ -100,7 +100,7 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                      
 
 
-
-# app = QtWidgets.QApplication(sys.argv)
-# w = load_ui()
-# sys.exit(app.exec_())
+if __name__ == "__main__":
+        app = QtWidgets.QApplication(sys.argv)
+        w = load_ui()
+        sys.exit(app.exec_())
