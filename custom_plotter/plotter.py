@@ -1,11 +1,41 @@
-from signalplotter.qt.plotter_ui import plotter_ui
-from signalplotter.plotter import plotter_countainer
+from custom_plotter.plotter_ui import plotter_ui
 import matplotlib.pyplot as plt
 import numpy as np
 import math
 import numbers
 from databasemanager import *
 import os, psutil
+from PyQt5 import QtWidgets
+
+
+class plotter_countainer():
+    def __init__(self):
+        self.plotterList = {}
+        pass
+
+    def add(self, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
+        MainWindow = QtWidgets.QMainWindow()
+        plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
+        MainWindow.showMaximized()
+        MainWindow.show()
+
+        self.plotterList.update( {plotter.ID: plotter})
+        plotter.IndexChanged.connect(self.__updateALL)
+        
+    def __updateALL(self, senderID, currentIndex):
+        for k,pl in self.plotterList.items():
+            if(k == senderID):
+                continue
+            else:
+                pl.UpdateSampleIndex(currentIndex, rePlot=True, triggeredSignals = False)
+    
+    def getFavorites(self):
+        favoriteList = {}
+        for k,pl in self.plotterList.items():
+            favoriteList.update({k: pl.FavoriteList})
+            if(len(self.plotterList)==1):
+                return pl.FavoriteList
+        return favoriteList
 
 
 def cplot(self, recording, lazy_plot:bool, window=30, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True, lazy_plotting:bool = True):

@@ -13,11 +13,9 @@ from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from qt_designer.dataset_selector import Ui_dataset 
-from signalplotter.qt.plotter_ui import plotter_ui
-from signalplotter.plotter import plotter_countainer
 from datetime import datetime
 from cycler import cycler
-from plotter import cplot
+from custom_plotter.plotter import cplot
 from configparser import ConfigParser
 
 class database_ui(QtWidgets.QMainWindow,base_UI):

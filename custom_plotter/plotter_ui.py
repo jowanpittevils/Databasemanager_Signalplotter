@@ -1,4 +1,4 @@
-from .plotter_uiDesign import Ui_MainWindow
+from custom_plotter.plotter_uiDesign import Ui_MainWindow
 import pyqtgraph as pg
 import numpy as np
 from PyQt5.QtCore import QObject, pyqtSignal
@@ -17,13 +17,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         return cls.__lastID
     
     IndexChanged = pyqtSignal(int, int)
-    def __init__(self, MainWindow, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
+    def __init__(self, MainWindow, recording, window, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
         super().__init__()
         self.recording = recording
         self.annotations = self.recording.annotations
         self.window = window
         self.scale_factor = 1
-        self.lazy_plot = lazy_plot
         self.colors_ev = {}
         self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.verbose = verbose
@@ -46,37 +45,18 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.assign_colors()
         self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
 
-        if self.lazy_plot == True:
-            self.norm.totalMaxX = 0.01
-            self.norm.totalMinX = -0.01
-            if(self.channelFirst):
-                self.T = int(self.recording.fs) * self.window
-                self.CH = recording.number_of_channels
-            else:
-                self.T = int(self.recording.fs) * self.window
-                self.CH = recording.number_of_channels
-            N = math.ceil(recording.duration_samp/self.T)
-            self.__UpdateFs(fs)
-            self.__UpdateTotalNumberOfSamples(N)
-
+        self.norm.totalMaxX = 0.01
+        self.norm.totalMinX = -0.01
+        if(self.channelFirst):
+            self.T = int(self.recording.fs) * self.window
+            self.CH = recording.number_of_channels
         else:
-            if(type(x) == list):
-                self.xx = x
-                self.x = x[0]
-            else:
-                self.xx = [x]
-                self.x = x
-            self.norm.totalMaxX = max([tx.max() for tx in self.xx])
-            self.norm.totalMinX = min([tx.min() for tx in self.xx])
-            N = self.x.shape[0]
-            if(self.channelFirst):
-                self.T = self.x.shape[2]
-                self.CH = self.x.shape[1]
-            else:
-                self.T = self.x.shape[1]
-                self.CH = self.x.shape[2]
-            self.__UpdateFs(fs)
-            self.__UpdateTotalNumberOfSamples(N)
+            self.T = int(self.recording.fs) * self.window
+            self.CH = recording.number_of_channels
+        N = math.ceil(recording.duration_samp/self.T)
+        self.__UpdateFs(fs)
+        self.__UpdateTotalNumberOfSamples(N)
+
         self.vb = self.axis.getViewBox()
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
         self.vb.setMouseEnabled(x=False, y=False)
@@ -173,12 +153,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.Plot()
         if(triggeredSignals):
             self.IndexChanged.emit(self.ID, self.SampleIndex)
-        if (self.lazy_plot == False) and (self.callback is not None):
-            if(len(self.xx)==1):
-                self.callback(self.x[self.SampleIndex,],self.SampleIndex)
-            else:
-               xx = [v[self.SampleIndex,] for v in self.xx]
-               self.callback(self.xx,self.SampleIndex)
         self.chbFavorite.blockSignals(True)
         self.chbFavorite.setChecked((self.SampleIndex in self.FavoriteList))
         self.chbFavorite.blockSignals(False)
@@ -221,34 +195,19 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(sampleIndex is not None):
             self.UpdateSampleIndex(sampleIndex)
         overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
-        if self.lazy_plot == True:
-            if(self.fs != -1):
-                self.PlotLine(None,overlapping_events, self.recording,self.window, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
-            else:
-                self.PlotBar(None, self.recording, self.window, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames,overlapping_events, False)
-        else:
-            if(self.fs != -1):
-                self.PlotLine(self.xx, overlapping_events, None, None, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
-            else:
-                self.PlotBar(self.xx, None, None, self.SampleIndex)
-                self.__UpdateChannelNames(self.ChannelNames, overlapping_events,False)
+        self.PlotLine(None,overlapping_events, self.recording,self.window, self.SampleIndex)
+        self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
         self.vb.autoRange(padding = 0)
 
             
     def PlotLine(self, xx, overlapping_events, recording,window, sampleIndex):
         
-        if self.lazy_plot == True:
-            if(sampleIndex < self.N - 1):
-                xx = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
-            else:
-                xx = np.zeros(shape=(1,self.CH,self.T))
-                data = np.array([recording.get_data(start=sampleIndex*window)])
-                xx[:,:data.shape[1],:data.shape[2]] = data
+        if(sampleIndex < self.N - 1):
+            xx = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
         else:
-            xx = [v[sampleIndex,] for v in xx]
+            xx = np.zeros(shape=(1,self.CH,self.T))
+            data = np.array([recording.get_data(start=sampleIndex*window)])
+            xx[:,:data.shape[1],:data.shape[2]] = data
 
         xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
@@ -293,42 +252,12 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8,))
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=t[-1])
         self.__UpdateTitle()
+
     def GetColorString(self, colorIndex=0):
         strL = ('#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000')
         return str(strL[colorIndex])
     def GetPen(self, colorIndex=0):
         return pg.mkPen(self.GetColorString(colorIndex))
-    def PlotBar(self, xx, recording, window, sampleIndex):
-        if self.lazy_plot == True:
-            if(sampleIndex < self.N - 1):
-                xx0 = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
-            else:
-                xx0 = np.zeros(shape=(1,8,2500))
-                data = np.array([recording.get_data(start=sampleIndex*window)])
-                xx0[:,:data.shape[1],:data.shape[2]] = data
-        else:
-            xx0 = [v[sampleIndex,] for v in xx]
-        
-        xx = []
-        for v in xx0:
-            if((len(v.shape)==2) or (not self.channelFirst)):
-                mm = v.mean(0)
-                t = np.arange(v.shape[0]) # for the next lines 'pg.BarGraphItem'
-            else:
-                mm = v.mean(1)
-                t = np.arange(v.shape[1]) # for the next lines 'pg.BarGraphItem'
-            xx.append(mm)
-
-        self.Clear()
-        w = 1/len(xx)/1.5
-        for i,xxi in enumerate(xx):
-            bg1 = pg.BarGraphItem(x=t-(len(xx)-1)*w/2+i*w, height=xxi,width = w, brush=self.GetColorString(i))
-            self.axis.addItem(bg1)
-         
-        m = min(self.norm.totalMinX-1,0)
-        M = self.norm.totalMaxX * 1.1
-        self.__UpdateTitle()
-        self.autoRange(padding = 0)
         
     def __UpdateTitle(self):
         if(self.title is not None):
@@ -365,6 +294,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
         self.btnDuplicate.clicked.connect(self.__onbtnDuplicate)
         self.chbFavorite.stateChanged.connect(self.__onchbFavoriteStateChanged)
+
     def __onchbFavoriteStateChanged(self, state):
         if(self.chbFavorite.isChecked()):
             self.FavoriteList.add(self.SampleIndex)
@@ -409,7 +339,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.window = self.window*2
         self.T = int(int(self.recording.fs) * self.window)
         N = math.ceil(self.recording.duration_samp/self.T)
-        #self.__UpdateFs(fs)
         self.__UpdateTotalNumberOfSamples(N)
         self.UpdateSampleIndex(math.ceil(self.SampleIndex / 2))
         self.Plot()
@@ -420,14 +349,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.T = int(int(self.recording.fs) * self.window)
         if self.T > 2:
             N = math.ceil(self.recording.duration_samp/self.T)
-            #self.__UpdateFs(fs)
             self.__UpdateTotalNumberOfSamples(N)
             self.UpdateSampleIndex(self.SampleIndex * 2)
             self.Plot()
         else:
             self.window = self.window*2
             self.T = int(int(self.recording.fs) * self.window)
-
 
     def __FindYIndex(self, forward, similar):
         if(self.y is None):
@@ -460,7 +387,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(self.verbose):                
             print('detaching...')
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, x=None, recording=self.recording, lazy_plot=self.lazy_plot, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        plotter = plotter_ui(MainWindow=MainWindow, x=None, recording=self.recording, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
         self.detachedWindows.append(plotter)
         MainWindow.show()
         MainWindow.resize(self.MainWindow.size())
