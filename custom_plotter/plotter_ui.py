@@ -299,11 +299,14 @@ class plotter_ui(QObject, Ui_MainWindow):
 
 
     def __onbtnPreviousClicked(self):
-        if(self.SampleIndex>0):
-            self.UpdateSampleIndex(self.SampleIndex-1, True)
+        if(self.SampleIndex>math.floor(self.T*0.3)):
+            self.UpdateSampleIndex(self.SampleIndex - math.floor(self.T*0.3), True)
+        else:
+            self.UpdateSampleIndex(0, True)
     def __onbtnNextClicked(self):
-        if(self.SampleIndex<(self.recording.duration_samp-1)):
-            self.UpdateSampleIndex(self.SampleIndex+1, True)
+        if(self.SampleIndex<(self.recording.duration_samp - math.floor(self.T*0.3))):
+            print(self.SampleIndex - math.floor(self.T*0.3))
+            self.UpdateSampleIndex(self.SampleIndex + math.floor(self.T*0.3), True)
     def __onbtnLastClicked(self):
         self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
     def __onsldSliderReleased(self):
