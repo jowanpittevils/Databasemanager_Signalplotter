@@ -28,17 +28,18 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.verbose = verbose
         self.norm = plotter_ui.struct()
         self.ID = plotter_ui.__getNewID()
+        self.y = y
         self.FavoriteList=set()
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
         self.channelFirst = channelFirst
+        self.window_scale = 1
         self.callback = callback
         self.sens = sens
         self.__UpdateTitleText(recording.name)
         self.axis.showGrid(True,True)
         self.axis.setDownsampling(auto = True, mode = 'subsample')
         self.ChannelNames = channelNames
-        self.__UpdateY(y)
         self.UpdateSampleIndex(0)
         self.__AssignCallbacks()
         self.detachedWindows=[]
@@ -55,13 +56,12 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.CH = recording.number_of_channels
         N = math.ceil(recording.duration_samp/self.T)
         self.__UpdateFs(fs)
-        self.__UpdateTotalNumberOfSamples(N)
+        self.__UpdateTotalNumberOfSamples()
 
         self.vb = self.axis.getViewBox()
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
         self.vb.setMouseEnabled(x=False, y=False)
         self.vb.autoRange(padding = 0)
-        self.UpdateSampleIndex(0)
         self.Plot()
 
 
@@ -74,16 +74,15 @@ class plotter_ui(QObject, Ui_MainWindow):
                 i = i+1
 
 
-
     def __CheckAnnotationOverlap(self, SampleIndex):
         overlapping_events = []
-        start = SampleIndex*self.window
-        end = (SampleIndex+1)*self.window
+        start = SampleIndex
+        end = SampleIndex+self.T
         for ann in self.annotations:
             for event in ann.events:
 
-                ev_start = event.start
-                ev_stop = event.stop
+                ev_start = event.start*self.fs
+                ev_stop = event.stop*self.fs
                 if((start <= ev_stop) and (end >= ev_start)):
                     overlapping_events.append(event)
         return overlapping_events
@@ -103,14 +102,6 @@ class plotter_ui(QObject, Ui_MainWindow):
     def __decrease_amplitude(self):
         self.scale_factor = self.scale_factor/0.8
         self.Plot()
-        
-    def __UpdateY(self, y):
-        self.y = y
-        self.btnPreviousY.setEnabled(y is not None)
-        self.btnNextY.setEnabled(y is not None)
-        self.btnPreviousSimilarY.setEnabled(y is not None)
-        self.btnNextSimilarY.setEnabled(y is not None)
-
     
     def __UpdateFs(self, fs):
         self.fs = fs
@@ -123,21 +114,19 @@ class plotter_ui(QObject, Ui_MainWindow):
             
     def __UpdateChannelNames(self, channelNames, overlapping_events, areChannelsVertical):
         ttick=list()  
-        if(areChannelsVertical): 
-            side = 'left'
-        else:
-            side = 'bottom'
-        if(channelNames is not None):
-            for i,t in enumerate(channelNames[::-1]):
-                ttick.append((i,  t))
-        else:
-            self.axis.setLabel(side, 'Channel Index')
-            for ch in range(self.CH):
-                ttick.append((ch,  self.CH-ch-1))
+        for i,t in enumerate(channelNames[::-1]):
+            ttick.append((i,  t))
         for i,event in enumerate(overlapping_events):
             ttick.append((self.CH-0.1-i/8, event.label))
-        ax=self.axis.getAxis(side) 
-        ax.setTicks([ttick])
+        left_ax=self.axis.getAxis('left') 
+        left_ax.setTicks([ttick])
+
+    #def __UpdateAmplitude(self, scalefactor, range):
+    #    ttick=list()  
+    #    ttick.append((0, range*scalefactor))
+    #    right_ax=self.axis.getAxis('right') 
+    #    right_ax.setTicks([ttick])
+
     
     def UpdateSampleIndex(self, sampleIndex, rePlot=False, callerObject=None, triggeredSignals = True):
         self.SampleIndex = sampleIndex
@@ -158,12 +147,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFavorite.blockSignals(False)
         
         
+        
 
-    def __UpdateTotalNumberOfSamples(self,N):
-        self.N = N
-        self.lblTotalSamples.setText("/ " + str(N))
-        self.sldSampleIndex.setMaximum(N-1)
-        self.nmrSampleIndex.setMaximum(N-1)
+    def __UpdateTotalNumberOfSamples(self):
+        self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - math.floor(self.T/2)))
+        self.sldSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T/2))
+        self.nmrSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T/2))
         self.sldSampleIndex.setMinimum(0)
         self.nmrSampleIndex.setMinimum(0)
         
@@ -184,7 +173,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             M = sens
             m = -sens
-            
+        #self.__UpdateAmplitude(self.scale_factor, M-m)
         x = [(v-m)/(M-m) for v in x0]
         return x
         
@@ -201,31 +190,27 @@ class plotter_ui(QObject, Ui_MainWindow):
 
             
     def PlotLine(self, xx, overlapping_events, recording,window, sampleIndex):
+        if(self.window_scale >= 1):
+            window_scale = int(self.window_scale)
+        else:
+            window_scale = 1
         
-        if(sampleIndex < self.N - 1):
-            xx = [recording.get_data(start=sampleIndex*window, stop=(sampleIndex+1)*window)]
+        if(sampleIndex < self.recording.duration_samp - self.T):
+            start=sampleIndex
+            stop=sampleIndex+self.T
+            xx = [recording._get_data_in_sample(start=start, stop=stop)]
+            xx = [xx[0][0:,0::window_scale]]
         else:
             xx = np.zeros(shape=(1,self.CH,self.T))
-            data = np.array([recording.get_data(start=sampleIndex*window)])
+            data = np.array([recording.get_data(start=sampleIndex/self.fs)])
             xx[:,:data.shape[1],:data.shape[2]] = data
+            xx = [xx[0][0:,0::window_scale]]
 
         xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
         
-        t = np.arange(sampleIndex*self.T, (sampleIndex+1)*self.T)
+        t = np.arange(sampleIndex, sampleIndex+self.T)
 
-
-        tEvent = {}
-        ToPlot = {}
-        starts = {}
-        stops = {}
-        for i, event in enumerate(overlapping_events):
-            tEvent[event] = np.arange(sampleIndex*self.T, (sampleIndex+1)*self.T)
-            tEvent[event] = tEvent[event]/self.fs
-            starts[event] = max(sampleIndex*self.T/self.fs, event.start)
-            stops[event] = min((sampleIndex+1)*self.T/self.fs, event.stop)
-            tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
-            ToPlot[event] = [self.CH-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
 
         ticks = list()
 
@@ -234,9 +219,22 @@ class plotter_ui(QObject, Ui_MainWindow):
             if(self.T > 9):
                 for i in range(0,self.T,math.floor(self.T/10)):
                     ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
-    
+
         stringaxis = self.axis.getAxis('bottom')
         stringaxis.setTicks([ticks])
+        t = t[0::window_scale]
+        tEvent = {}
+        ToPlot = {}
+        starts = {}
+        stops = {}
+        for i, event in enumerate(overlapping_events):
+            tEvent[event] = t
+            starts[event] = max(sampleIndex/self.fs, event.start)
+            stops[event] = min((sampleIndex+self.T)/self.fs, event.stop)
+            tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
+            ToPlot[event] = [self.CH-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
+
+
 
         self.Clear()
         for i, xxi in enumerate(xx):
@@ -283,12 +281,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.btnAmpDown.clicked.connect(self.__decrease_amplitude)
         self.btnWindowUp.clicked.connect(self.__onbtnWindowUp)
         self.btnWindowDown.clicked.connect(self.__onbtnWindowDown)
-        self.btnPreviousY.clicked.connect(self.__onbtnPreviousYClicked)
-        self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
         self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
         self.btnNext.clicked.connect(self.__onbtnNextClicked)
-        self.btnNextY.clicked.connect(self.__onbtnNextYClicked)
-        self.btnNextSimilarY.clicked.connect(self.__onbtnNextSimilarYClicked)
         self.btnLast.clicked.connect(self.__onbtnLastClicked)
         self.sldSampleIndex.valueChanged.connect(self.__onsldValueChanged)
         self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
@@ -302,30 +296,16 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.FavoriteList.discard(self.SampleIndex)
     def __onbtnFirstClicked(self):
         self.UpdateSampleIndex(0, True)
-    def __onbtnPreviousYClicked(self):
-        n = self.__FindYIndex(False, False)
-        if(n is not None):
-            self.UpdateSampleIndex(n, True)
-    def __onbtnPreviousSimilarYClicked(self):
-        n = self.__FindYIndex(False, True)
-        if(n is not None):
-            self.UpdateSampleIndex(n, True)
+
+
     def __onbtnPreviousClicked(self):
         if(self.SampleIndex>0):
             self.UpdateSampleIndex(self.SampleIndex-1, True)
     def __onbtnNextClicked(self):
-        if(self.SampleIndex<(self.N-1)):
+        if(self.SampleIndex<(self.recording.duration_samp-1)):
             self.UpdateSampleIndex(self.SampleIndex+1, True)
-    def __onbtnNextYClicked(self):
-        n = self.__FindYIndex(True, False)
-        if(n is not None):
-            self.UpdateSampleIndex(n, True)
-    def __onbtnNextSimilarYClicked(self):
-        n = self.__FindYIndex(True, True)
-        if(n is not None):
-            self.UpdateSampleIndex(n, True)
     def __onbtnLastClicked(self):
-        self.UpdateSampleIndex(self.N-1, True)
+        self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
     def __onsldSliderReleased(self):
         self.UpdateSampleIndex(self.sldSampleIndex.value(), True,self.sldSampleIndex)
     def __onsldValueChanged(self):
@@ -338,56 +318,30 @@ class plotter_ui(QObject, Ui_MainWindow):
     def __onbtnWindowUp(self):
         self.window = self.window*2
         self.T = int(int(self.recording.fs) * self.window)
-        N = math.ceil(self.recording.duration_samp/self.T)
-        self.__UpdateTotalNumberOfSamples(N)
-        self.UpdateSampleIndex(math.ceil(self.SampleIndex / 2))
+        self.__UpdateTotalNumberOfSamples()
+        self.window_scale = self.window_scale*2
         self.Plot()
 
 
     def __onbtnWindowDown(self):
         self.window = self.window/2
         self.T = int(int(self.recording.fs) * self.window)
+        self.__UpdateTotalNumberOfSamples()
+        self.window_scale = self.window_scale/2
+
         if self.T > 2:
-            N = math.ceil(self.recording.duration_samp/self.T)
-            self.__UpdateTotalNumberOfSamples(N)
-            self.UpdateSampleIndex(self.SampleIndex * 2)
             self.Plot()
         else:
             self.window = self.window*2
             self.T = int(int(self.recording.fs) * self.window)
+            self.__UpdateTotalNumberOfSamples()
 
-    def __FindYIndex(self, forward, similar):
-        if(self.y is None):
-            return None
-        n = self.SampleIndex
-        cy = self.y[n]
-        if(forward):
-            searchRange = range(n+1,self.N)
-        else:
-            searchRange = range(n-1,-1,-1)
-            
-        for i in searchRange:
-            if(similar):
-                if(isinstance(self.y[i], list) or isinstance(self.y[i], np.ndarray)):
-                    if((all(self.y[i] == cy))):
-                        return i
-                else:
-                    if(self.y[i] == cy):
-                        return i
-            else:
-                if(isinstance(self.y[i], list) or isinstance(self.y[i], np.ndarray)):
-                    if((all(self.y[i] != cy))):
-                        return i
-                else:
-                    if(self.y[i] != cy):
-                        return i
-        return None
-    
+
     def DuplicateCurrent(self):
         if(self.verbose):                
             print('detaching...')
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, x=None, recording=self.recording, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
         self.detachedWindows.append(plotter)
         MainWindow.show()
         MainWindow.resize(self.MainWindow.size())

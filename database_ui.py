@@ -22,11 +22,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
     
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
-
-
     config = None
-
- 
     root = ''
     data_root = None
     ds_root = None
