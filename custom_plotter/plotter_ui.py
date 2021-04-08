@@ -39,7 +39,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.sens = sens
         self.__UpdateTitleText(recording.name)
         self.axis.showGrid(True,True)
-        self.axis.setDownsampling(auto = True, mode = 'subsample')
         self.ChannelNames = channelNames
         self.UpdateSampleIndex(0)
         self.__AssignCallbacks()
@@ -60,17 +59,15 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.__UpdateTotalNumberOfSamples()
 
         self.vb = self.axis.getViewBox()
-        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
         self.vb.setMouseEnabled(x=False, y=False)
-        self.vb.autoRange(padding = 0)
-        if self.start_event == None:
-            self.Plot()
+        plotSample = int(self.start_event*self.fs-10*self.fs)
+        if plotSample < 0 :
+            self.UpdateSampleIndex(0,True)
+
         else:
-            plotSample = int(self.start_event*self.fs-10*self.fs)
-            if plotSample < 0 :
-                self.Plot()
-            else:
-                self.Plot(plotSample)
+            self.UpdateSampleIndex(plotSample,True)
+
+
            
 
 
@@ -159,9 +156,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         
 
     def __UpdateTotalNumberOfSamples(self):
-        self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - self.T))
-        self.sldSampleIndex.setMaximum(self.recording.duration_samp - self.T)
-        self.nmrSampleIndex.setMaximum(self.recording.duration_samp - self.T)
+        self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - math.floor(self.T/2)))
+        self.sldSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T))
+        self.nmrSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T))
         self.sldSampleIndex.setMinimum(0)
         self.nmrSampleIndex.setMinimum(0)
         
@@ -193,20 +190,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(sampleIndex is not None):
             self.UpdateSampleIndex(sampleIndex)
         overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
-<<<<<<< HEAD
-        self.PlotLine(None,overlapping_events, self.recording, self.SampleIndex)
-=======
         self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex)
->>>>>>> 4482a5f20574317c8288944a492d49b12847007a
         self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
         self.vb.autoRange(padding = 0)
 
             
-<<<<<<< HEAD
-    def PlotLine(self, xx, overlapping_events, recording, sampleIndex):
-=======
     def PlotLine(self, overlapping_events, recording,window, sampleIndex):
->>>>>>> 4482a5f20574317c8288944a492d49b12847007a
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
@@ -216,12 +205,15 @@ class plotter_ui(QObject, Ui_MainWindow):
             start=sampleIndex
             stop=sampleIndex+self.T
             xx = [recording._get_data_in_sample(start=start, stop=stop)]
-            xx = [xx[0][0:,0::window_scale]]  #downsampling
+            xx = [xx[0][0:,0::window_scale]]
         else:
             xx = np.zeros(shape=(1,self.CH,self.T))
             data = np.array([recording.get_data(start=sampleIndex/self.fs)])
             xx[:,:data.shape[1],:data.shape[2]] = data
-            xx = [xx[0][0:,0::window_scale]] #downsampling
+            xx = [xx[0][0:,0::window_scale]]
+        print(window_scale)
+        print("start:", start)
+        print("stop:", stop)
 
         xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
@@ -265,7 +257,7 @@ class plotter_ui(QObject, Ui_MainWindow):
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
             else:
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8,))
-        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=t[-1])
+        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = sampleIndex/self.fs, xMax=t[-1])
         self.__UpdateTitle()
 
     def GetColorString(self, colorIndex=0):
@@ -321,10 +313,18 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             self.UpdateSampleIndex(0, True)
     def __onbtnNextClicked(self):
-        if(self.SampleIndex<(self.recording.duration_samp - math.floor(self.T*1.3))):
+        if(self.SampleIndex<(self.recording.duration_samp - 1.3*math.floor(self.T))):
             self.UpdateSampleIndex(self.SampleIndex + math.floor(self.T*0.3), True)
         else:
-            self.UpdateSampleIndex(self.recording.duration_samp - self.T, True)
+            self.UpdateSampleIndex(self.recording.duration_samp - math.floor(self.T), True)
+    def __onbtnPreviousSimilarYClicked(self):
+        if(self.SampleIndex>self.T):
+            self.UpdateSampleIndex(self.SampleIndex-self.T,True)
+        else:
+            self.UpdateSampleIndex(0,True)
+    def __onbtnNextSimilarYClicked(self):
+        if(self.SampleIndex<(self.recording.duration_samp-self.T)):
+            self.UpdateSampleIndex(self.SampleIndex+self.T,True)
     def __onbtnLastClicked(self):
         self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
     def __onsldSliderReleased(self):
@@ -337,15 +337,10 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.DuplicateCurrent()
 
     def __onbtnWindowUp(self):
-        if(int(int(self.recording.fs) * self.window * 2)) < self.recording.duration_samp:
-            self.window = self.window*2
-            self.T = int(int(self.recording.fs) * self.window)
-            self.__UpdateTotalNumberOfSamples()
-            self.window_scale = self.window_scale*2
-        else:
-            self.T = self.recording.duration_samp
-            self.window = int(self.T/self.recording.fs)
-            self.__UpdateTotalNumberOfSamples()
+        self.window = self.window*2
+        self.T = int(int(self.recording.fs) * self.window)
+        self.__UpdateTotalNumberOfSamples()
+        self.window_scale = self.window_scale*2
         self.Plot()
 
 
@@ -353,8 +348,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.window = self.window/2
         self.T = int(int(self.recording.fs) * self.window)
         self.__UpdateTotalNumberOfSamples()
-        if(self.T != self.recording.duration_samp):
-            self.window_scale = self.window_scale/2
+        self.window_scale = self.window_scale/2
 
         if self.T > 2:
             self.Plot()
@@ -376,6 +370,3 @@ class plotter_ui(QObject, Ui_MainWindow):
         
     class struct():
         pass
-
-       
-                

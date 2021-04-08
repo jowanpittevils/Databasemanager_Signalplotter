@@ -17,7 +17,6 @@ class plotter_countainer():
         MainWindow = QtWidgets.QMainWindow()
         plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, start_event=start_event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
         MainWindow.showMaximized()
-        MainWindow.show()
 
         self.plotterList.update( {plotter.ID: plotter})
         plotter.IndexChanged.connect(self.__updateALL)

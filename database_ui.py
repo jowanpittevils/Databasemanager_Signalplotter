@@ -79,7 +79,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         index = self.selected_subject_recordings.index(recording_name)
         doubleclicked_recording = self.selected_subject.recordings[index]    
         window = 20
-        event=None
+        start_event=0
         y=None
         title=None
         fs=int(doubleclicked_recording.fs)
@@ -88,7 +88,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         callback=None
         channel_first:bool = True
         verbose:bool = True
-        cplot(self,doubleclicked_recording, window, event, title,fs,sens,channel_names, callback, channel_first, verbose)
+        cplot(self,doubleclicked_recording, window, start_event, title,fs,sens,channel_names, callback, channel_first, verbose)
     
     def openEventRecording(self,item):
         event = item.text()
