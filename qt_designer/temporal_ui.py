@@ -112,7 +112,7 @@ class temporal_ui(Ui_TemporalView):
                 break
         if(self.clicked_recording is not None):
             window = 20
-            event = None
+            start_event = None
             y=None
             title=None
             fs=int(self.clicked_recording.fs)
@@ -121,7 +121,7 @@ class temporal_ui(Ui_TemporalView):
             callback=None
             channel_first:bool = True
             verbose:bool = True
-            cplot(self, self.clicked_recording, window, event, title,fs,sens,channel_names, callback, channel_first, verbose)
+            cplot(self, self.clicked_recording, window, start_event, title,fs,sens,channel_names, callback, channel_first, verbose)
 
     def temporal_click(self, event):
         if event.inaxes is not None:

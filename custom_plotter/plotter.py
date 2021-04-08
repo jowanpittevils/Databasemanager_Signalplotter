@@ -13,9 +13,9 @@ class plotter_countainer():
         self.plotterList = {}
         pass
 
-    def add(self, recording, window, event:Event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
+    def add(self, recording, window, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, event=event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
+        plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, start_event=start_event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
         MainWindow.showMaximized()
         MainWindow.show()
 
@@ -38,7 +38,7 @@ class plotter_countainer():
         return favoriteList
 
 
-def cplot(self, recording, window=30, event:Event=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def cplot(self, recording, window=30, start_event=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     It plots continious signals by spliting into smaller segments and calling gplot.
     It may add zeros to the end of signals for the last segment. 
@@ -49,10 +49,10 @@ def cplot(self, recording, window=30, event:Event=None, title=None,fs=1,sens=Non
         -- window:      optional, the length of signal in seconds to be shown in each window frame.        
         --other inputs are as gplot
     '''
-    return gplot(self, recording=recording, window = window, event=None, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
+    return gplot(self, recording=recording, window = window, start_event=start_event, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
 
-def gplot(self, recording, window, event:Event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def gplot(self, recording, window, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     gplot (graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     - inputs:
@@ -90,7 +90,7 @@ def gplot(self, recording, window, event:Event=None, y=None, title=None,fs=1,sen
     '''
 
     self.recording_plotter_container = plotter_countainer()
-    self.recording_plotter_container.add(recording, window, event, y,title,fs,sens,channel_names,callback, channel_first, verbose)
+    self.recording_plotter_container.add(recording, window, start_event, y,title,fs,sens,channel_names,callback, channel_first, verbose)
     
     process = psutil.Process(os.getpid())
     print('memory used:')

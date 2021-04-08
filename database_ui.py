@@ -95,7 +95,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         for key in self.event_list.keys():
             if event == key:
                 doubleclicked_event = self.event_list[key]
-        print(doubleclicked_event)
+        start_event = doubleclicked_event.start
         window = 60
         y=None
         title=None
@@ -105,7 +105,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         callback=None
         channel_first:bool = True
         verbose:bool = True
-        cplot(self, self.selected_recording, window, doubleclicked_event, title,fs,sens,channel_names, callback, channel_first, verbose)
+        cplot(self, self.selected_recording, window, start_event, title,fs,sens,channel_names, callback, channel_first, verbose)
 
     def openTemporal(self):
         self.ui3 = temporal_ui(None,self.ds.subjects)
