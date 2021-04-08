@@ -150,9 +150,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         
 
     def __UpdateTotalNumberOfSamples(self):
-        self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - math.floor(self.T/2)))
-        self.sldSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T/2))
-        self.nmrSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T/2))
+        self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - self.T))
+        self.sldSampleIndex.setMaximum(self.recording.duration_samp - self.T)
+        self.nmrSampleIndex.setMaximum(self.recording.duration_samp - self.T)
         self.sldSampleIndex.setMinimum(0)
         self.nmrSampleIndex.setMinimum(0)
         
@@ -184,12 +184,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(sampleIndex is not None):
             self.UpdateSampleIndex(sampleIndex)
         overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
-        self.PlotLine(None,overlapping_events, self.recording,self.window, self.SampleIndex)
+        self.PlotLine(None,overlapping_events, self.recording, self.SampleIndex)
         self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
         self.vb.autoRange(padding = 0)
 
             
-    def PlotLine(self, xx, overlapping_events, recording,window, sampleIndex):
+    def PlotLine(self, xx, overlapping_events, recording, sampleIndex):
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
@@ -199,12 +199,12 @@ class plotter_ui(QObject, Ui_MainWindow):
             start=sampleIndex
             stop=sampleIndex+self.T
             xx = [recording._get_data_in_sample(start=start, stop=stop)]
-            xx = [xx[0][0:,0::window_scale]]
+            xx = [xx[0][0:,0::window_scale]]  #downsampling
         else:
             xx = np.zeros(shape=(1,self.CH,self.T))
             data = np.array([recording.get_data(start=sampleIndex/self.fs)])
             xx[:,:data.shape[1],:data.shape[2]] = data
-            xx = [xx[0][0:,0::window_scale]]
+            xx = [xx[0][0:,0::window_scale]] #downsampling
 
         xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
@@ -304,9 +304,10 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             self.UpdateSampleIndex(0, True)
     def __onbtnNextClicked(self):
-        if(self.SampleIndex<(self.recording.duration_samp - math.floor(self.T*0.3))):
-            print(self.SampleIndex - math.floor(self.T*0.3))
+        if(self.SampleIndex<(self.recording.duration_samp - math.floor(self.T*1.3))):
             self.UpdateSampleIndex(self.SampleIndex + math.floor(self.T*0.3), True)
+        else:
+            self.UpdateSampleIndex(self.recording.duration_samp - self.T, True)
     def __onbtnLastClicked(self):
         self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
     def __onsldSliderReleased(self):
@@ -319,10 +320,15 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.DuplicateCurrent()
 
     def __onbtnWindowUp(self):
-        self.window = self.window*2
-        self.T = int(int(self.recording.fs) * self.window)
-        self.__UpdateTotalNumberOfSamples()
-        self.window_scale = self.window_scale*2
+        if(int(int(self.recording.fs) * self.window * 2)) < self.recording.duration_samp:
+            self.window = self.window*2
+            self.T = int(int(self.recording.fs) * self.window)
+            self.__UpdateTotalNumberOfSamples()
+            self.window_scale = self.window_scale*2
+        else:
+            self.T = self.recording.duration_samp
+            self.window = int(self.T/self.recording.fs)
+            self.__UpdateTotalNumberOfSamples()
         self.Plot()
 
 
@@ -330,7 +336,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.window = self.window/2
         self.T = int(int(self.recording.fs) * self.window)
         self.__UpdateTotalNumberOfSamples()
-        self.window_scale = self.window_scale/2
+        if(self.T != self.recording.duration_samp):
+            self.window_scale = self.window_scale/2
 
         if self.T > 2:
             self.Plot()
