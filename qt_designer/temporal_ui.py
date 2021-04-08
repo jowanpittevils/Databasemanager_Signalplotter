@@ -18,6 +18,7 @@ class temporal_ui(Ui_TemporalView):
         self.clicked_subject = None
         self.event_plots = {}
         self.subplots = {}
+        self.rec_plots = {}
         if database is not None:
             self.ds = database.load_dataset('all')
             if subjects is None:
@@ -65,10 +66,14 @@ class temporal_ui(Ui_TemporalView):
     def __onsldValueChanged(self):
         self.sliderValue.setText('year:' + str(self.Slider.value()))
         self.EventsCheckbox.setChecked(True)
+        for i in range(len(self.event_plots)):
+                self.event_plots[i][0].set_visible(False)
         self.event_plots.clear()
-        for i in range(len(self.subplots)):
-            self.subplots[i].clear()
+        for i in range(len(self.rec_plots)):
+                self.rec_plots[i][0].set_visible(False)
+        self.rec_plots.clear()
         i = 0
+        k = 0
         for  idx, sub in enumerate(self.subjects):
             #plotting the recordings
             custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
@@ -77,7 +82,8 @@ class temporal_ui(Ui_TemporalView):
                 start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
                 if self.Slider.value() == datetime.fromtimestamp(start).year:
-                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)  
+                    self.rec_plots[k] = self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)
+                    k += 1  
             #plotting the events
             custom_cycler = (cycler(color=['darkorange','gold']))
             self.subplots[idx].set_prop_cycle(custom_cycler)
@@ -90,16 +96,6 @@ class temporal_ui(Ui_TemporalView):
                             ev_stop = event.stop + start
                             self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
                             i += 1         
-            #ax[idx].axis('off')
-            self.subplots[idx].axes.set_ylim([-1,1])
-            self.subplots[idx].spines["top"].set_visible(False)
-            self.subplots[idx].spines["right"].set_visible(False)
-            self.subplots[idx].spines["bottom"].set_visible(False)
-            self.subplots[idx].spines["left"].set_visible(False)
-            self.subplots[idx].set_yticks([])
-            self.subplots[idx].set_xticks([])
-            self.subplots[idx].set_ylabel(self.subject_names[idx],rotation='horizontal', ha='right',va="center")
-            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
         self.TemporalPlot.canvas.draw_idle()
 
     def openRecording_temporal(self, timestamp):
@@ -130,6 +126,7 @@ class temporal_ui(Ui_TemporalView):
             self.openRecording_temporal(event.xdata)
 
     def drawTemporal(self, subjects, names):
+        k = 0
         i = 0
         for  idx, sub in enumerate(subjects):
             self.subplots[idx] = self.TemporalPlot.canvas.add(cols = 1)
@@ -140,7 +137,8 @@ class temporal_ui(Ui_TemporalView):
                 start = datetime.timestamp(rec.start_of_recording)
                 stop = rec.duration_sec + start
                 if self.min == datetime.fromtimestamp(start).year:
-                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)          
+                    self.rec_plots[k] = self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)       
+                    k += 1    
             #plotting the events
             custom_cycler = (cycler(color=['darkorange','gold']))
             self.subplots[idx].set_prop_cycle(custom_cycler)
@@ -163,7 +161,7 @@ class temporal_ui(Ui_TemporalView):
             self.subplots[idx].set_xticks([])
             self.subplots[idx].set_ylabel(names[idx],rotation='horizontal', ha='right',va="center")
             self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
-
+            
     def event_checked(self, is_checked):
         if is_checked:
             for i in range(len(self.event_plots)):
