@@ -193,12 +193,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(sampleIndex is not None):
             self.UpdateSampleIndex(sampleIndex)
         overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
-        self.PlotLine(None,overlapping_events, self.recording,self.window, self.SampleIndex)
+        self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex)
         self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
         self.vb.autoRange(padding = 0)
 
             
-    def PlotLine(self, xx, overlapping_events, recording,window, sampleIndex):
+    def PlotLine(self, overlapping_events, recording,window, sampleIndex):
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
@@ -292,6 +292,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.btnWindowDown.clicked.connect(self.__onbtnWindowDown)
         self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
         self.btnNext.clicked.connect(self.__onbtnNextClicked)
+        self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
+        self.btnNextSimilarY.clicked.connect(self.__onbtnNextSimilarYClicked)
         self.btnLast.clicked.connect(self.__onbtnLastClicked)
         self.sldSampleIndex.valueChanged.connect(self.__onsldValueChanged)
         self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
@@ -305,8 +307,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.FavoriteList.discard(self.SampleIndex)
     def __onbtnFirstClicked(self):
         self.UpdateSampleIndex(0, True)
-
-
     def __onbtnPreviousClicked(self):
         if(self.SampleIndex>math.floor(self.T*0.3)):
             self.UpdateSampleIndex(self.SampleIndex - math.floor(self.T*0.3), True)
@@ -314,8 +314,15 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.UpdateSampleIndex(0, True)
     def __onbtnNextClicked(self):
         if(self.SampleIndex<(self.recording.duration_samp - math.floor(self.T*0.3))):
-            print(self.SampleIndex - math.floor(self.T*0.3))
             self.UpdateSampleIndex(self.SampleIndex + math.floor(self.T*0.3), True)
+    def __onbtnPreviousSimilarYClicked(self):
+        if(self.SampleIndex>self.T):
+            self.UpdateSampleIndex(self.SampleIndex-self.T,True)
+        else:
+            self.UpdateSampleIndex(0,True)
+    def __onbtnNextSimilarYClicked(self):
+        if(self.SampleIndex<(self.recording.duration_samp-self.T)):
+            self.UpdateSampleIndex(self.SampleIndex+self.T,True)
     def __onbtnLastClicked(self):
         self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
     def __onsldSliderReleased(self):
