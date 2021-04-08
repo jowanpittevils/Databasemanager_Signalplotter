@@ -17,11 +17,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         return cls.__lastID
     
     IndexChanged = pyqtSignal(int, int)
-    def __init__(self, MainWindow, recording, window, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
+    def __init__(self, MainWindow, recording, window, event:Event=None, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
         super().__init__()
         self.recording = recording
         self.annotations = self.recording.annotations
         self.window = window
+        self.event = event
         self.scale_factor = 1
         self.colors_ev = {}
         self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
@@ -62,7 +63,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
         self.vb.setMouseEnabled(x=False, y=False)
         self.vb.autoRange(padding = 0)
-        self.Plot()
+        if self.event == None:
+            self.Plot()
+        else:
+            sampleIndex = self.event.start*self.fs
+            print(sampleIndex)
+            self.Plot(sampleIndex)
 
 
     def assign_colors(self):

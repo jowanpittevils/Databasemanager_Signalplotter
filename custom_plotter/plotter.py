@@ -13,9 +13,9 @@ class plotter_countainer():
         self.plotterList = {}
         pass
 
-    def add(self, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
+    def add(self, recording, window, event:Event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
+        plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, event=event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
         MainWindow.showMaximized()
         MainWindow.show()
 
@@ -38,7 +38,7 @@ class plotter_countainer():
         return favoriteList
 
 
-def cplot(self, recording, lazy_plot:bool, window=30, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True, lazy_plotting:bool = True):
+def cplot(self, recording, window=30, event:Event=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     It plots continious signals by spliting into smaller segments and calling gplot.
     It may add zeros to the end of signals for the last segment. 
@@ -49,46 +49,10 @@ def cplot(self, recording, lazy_plot:bool, window=30, title=None,fs=1,sens=None,
         -- window:      optional, the length of signal in seconds to be shown in each window frame.        
         --other inputs are as gplot
     '''
-    def prepare_x(x, window, fs, channel_first):
-        if(type(x) == list):
-            xx = []
-            for i in range(len(x)):
-                xx.append(prepare_x(x[i], window, fs, channel_first))
-            return xx
-
-        assert(isinstance(x, np.ndarray))
-        if(x.ndim == 1):
-            x = np.expand_dims(x,1)
-            channel_first = False
-        assert(x.ndim == 2)
-        if(not channel_first):
-            x = x.transpose()
-            channel_first = True
-        window_sample = window * fs
-        CH = x.shape[0]
-        T = x.shape[1]
-        Nceil = math.ceil(T/window_sample)
-        z = np.zeros((CH, Nceil*window_sample - T))
-        x = np.concatenate((x,z),1)
-        T = x.shape[1]
-        assert((T%window_sample)==0)
-        xx = np.reshape(x, (CH, int(T/window_sample), window_sample))
-        xx = xx.transpose((1,0,2))
-        return xx
+    return gplot(self, recording=recording, window = window, event=None, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
 
-    if lazy_plot == True:
-        return gplot(self, x=None, recording=recording, lazy_plot=lazy_plot, window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
-    else:
-        x = recording.get_data()
-        if(type(x) != list):
-            x=[x]
-        x = prepare_x(x,window,fs,channel_first)
-
-        return gplot(self, x=x, recording=recording, lazy_plot=lazy_plot, window = window, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
-    
-
-def gplot(self, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def gplot(self, recording, window, event:Event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     gplot (graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     - inputs:
@@ -126,27 +90,7 @@ def gplot(self, x, recording, lazy_plot:bool, window, y=None, title=None,fs=1,se
     '''
 
     self.recording_plotter_container = plotter_countainer()
-
-    if lazy_plot == True:
-            self.recording_plotter_container.add(x, recording, lazy_plot, window, y,title,fs,sens,channel_names,callback, channel_first, verbose)
-    else:
-        if(type(x) != list):
-            x=[x]
-        N = len(x)
-        if(type(title) != list):
-            title=[title] * N
-        if(type(fs) != list):
-            fs=[fs] * N
-        if(type(sens) != list):
-            sens=[sens] * N
-        if(type(callback) != list):
-            callback=[callback] * N
-        if(channel_names is None):
-            channel_names = [None] * N
-        elif(type(channel_names[0]) != list):
-            channel_names = [channel_names] * N
-        for i in range(N):
-             self.recording_plotter_container.add(x[i], recording, lazy_plot, window, y,title[i],fs[i],sens[i],channel_names[i],callback[i], channel_first, verbose)
+    self.recording_plotter_container.add(recording, window, event, y,title,fs,sens,channel_names,callback, channel_first, verbose)
     
     process = psutil.Process(os.getpid())
     print('memory used:')

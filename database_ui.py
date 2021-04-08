@@ -38,10 +38,6 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
 
     matching_subjects = []
     matching_recordings = []
-    clicked_subject = None
-    clicked_recording = None
-
-    recording_plotter_container = None
 
     event_plots = {}
 
@@ -63,6 +59,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         self.ui.recordings_list.currentItemChanged.connect(self.update_annotation_list)
         self.ui.annotations_list.currentItemChanged.connect(self.update_event_list)
         self.ui.recordings_list.itemDoubleClicked.connect(self.openRecording)
+        self.ui.events_list.itemDoubleClicked.connect(self.openEventRecording)
         self.ui.pushButton_8.clicked.connect(self.openTemporal)
 
     def load_database(self):
@@ -82,6 +79,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         index = self.selected_subject_recordings.index(recording_name)
         doubleclicked_recording = self.selected_subject.recordings[index]    
         window = 20
+        event=None
         y=None
         title=None
         fs=int(doubleclicked_recording.fs)
@@ -90,9 +88,25 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         callback=None
         channel_first:bool = True
         verbose:bool = True
-        lazy_plot:bool = True
-        cplot(self,doubleclicked_recording, lazy_plot, window, title,fs,sens,channel_names, callback, channel_first, verbose)
+        cplot(self,doubleclicked_recording, window, event, title,fs,sens,channel_names, callback, channel_first, verbose)
     
+    def openEventRecording(self,item):
+        event = item.text()
+        for key in self.event_list.keys():
+            if event == key:
+                doubleclicked_event = self.event_list[key]
+        print(doubleclicked_event)
+        window = 60
+        y=None
+        title=None
+        fs=int(self.selected_recording.fs)
+        sens=None
+        channel_names=UserSettings.global_settings().loading_data_channels
+        callback=None
+        channel_first:bool = True
+        verbose:bool = True
+        cplot(self, self.selected_recording, window, doubleclicked_event, title,fs,sens,channel_names, callback, channel_first, verbose)
+
     def openTemporal(self):
         self.ui3 = temporal_ui(None,self.ds.subjects)
 
@@ -154,16 +168,15 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
     
     def update_event_list(self,item):
         if item is not None:
-
             annotation = item.text()
             for i in range(len(self.selected_recording.annotations)):
                 if annotation == self.selected_recording.annotations[i].name:
                     self.selected_annotation = self.selected_recording.annotations[i]
-            event_list = []
-            for events in self.selected_annotation.events:
-                event_list.append(events.label + " " + str(int(events.start)) + "-" + str(int(events.end)))
+            self.event_list = {}
+            for event in self.selected_annotation.events:
+                self.event_list[event.label + " " + str(int(event.start)) + "-" + str(int(event.end))] = event
             self.ui.events_list.clear()
-            self.ui.events_list.addItems(event_list)
+            self.ui.events_list.addItems(self.event_list.keys())
     
     def load_dataset(self):
         self.ds = self.db.load_dataset(self.dataset_name)
