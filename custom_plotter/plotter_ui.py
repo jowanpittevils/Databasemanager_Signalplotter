@@ -63,7 +63,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = 0, xMax=self.window*N)
         self.vb.setMouseEnabled(x=False, y=False)
         self.vb.autoRange(padding = 0)
-        if self.event == None:
+        if self.start_event == None:
             self.Plot()
         else:
             plotSample = int(self.start_event*self.fs-10*self.fs)
