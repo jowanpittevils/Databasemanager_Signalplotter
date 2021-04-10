@@ -48,6 +48,14 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         self.myOtherWindow = QtWidgets.QMainWindow()
         self.ui = base_UI()
         self.ui.setupUi(self)
+        self.config = ConfigParser()
+        self.config.read('config.ini')
+        if(self.config.get('database', 'root') is not None):
+            self.root = self.config.get('database', 'root')
+            self.db = Database(self.root)
+            self.datasets = self.db.dataset_names
+        if(self.config.get('database', 'dataset') is not None):
+            self.doubleclick_dataset(self.config.get('database', 'dataset'))
         self.__AssignCallbacks()
     
     def __AssignCallbacks(self):
@@ -212,13 +220,5 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = database_ui()
-    w.config = ConfigParser()
-    w.config.read('config.ini')
-    if(w.config.get('database', 'root') is not None):
-        w.root = w.config.get('database', 'root')
-    w.db = Database(w.root)
-    w.datasets = w.db.dataset_names
-    if(w.config.get('database', 'dataset') is not None):
-        w.doubleclick_dataset(w.config.get('database', 'dataset'))
     w.show()
     sys.exit(app.exec_())
