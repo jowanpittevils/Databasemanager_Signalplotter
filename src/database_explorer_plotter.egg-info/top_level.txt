@@ -1,0 +1,4 @@
+custom_plotter
+database_explorer_plotter
+databasemanager-master
+qt_designer

@@ -1,7 +1,0 @@
-#!C:\Users\jowan\Documents\LEUVEN\Univ\postgraduaat\project work design\signalplotter-master\venv\Scripts\python.exe
-
-import os
-from gapp import location
-
-#  runs the command streamlit run app.py
-os.system(location.path) 

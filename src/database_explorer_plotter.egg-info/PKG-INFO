@@ -1,0 +1,24 @@
+Metadata-Version: 2.1
+Name: database-explorer-plotter
+Version: 0.0.1
+Summary: A package for exploring databases and plotting biomedical data
+Home-page: https://github.com/jowanpittevils/Databasemanager_Signalplotter
+Author: Kwinten v. Meerbeek; Jowan Pittevils
+Author-email: jowan.pittevils@telenet.be
+License: UNKNOWN
+Description: # Example Package
+        
+        This is a simple example package. You can use
+        [Github-flavored Markdown](https://guides.github.com/features/mastering-markdown/)
+        to write your content.
+Platform: UNKNOWN
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: License :: OSI Approved :: BSD 3-Clause
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Intended Audience :: Developers
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown

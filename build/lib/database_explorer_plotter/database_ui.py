@@ -50,11 +50,11 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         self.ui.setupUi(self)
         self.config = ConfigParser()
         self.config.read('config.ini')
-        if(self.config.has_section('database')):
+        if(self.config.has_section('database', 'root')):
             self.root = self.config.get('database', 'root')
             self.db = Database(self.root)
             self.datasets = self.db.dataset_names
-        if(self.config.has_section('database')):
+        if(self.config.has_section('database', 'dataset') is not None):
             self.doubleclick_dataset(self.config.get('database', 'dataset'))
         self.__AssignCallbacks()
     

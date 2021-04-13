@@ -1,7 +1,6 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 from databasemanager import *
-from configparser import ConfigParser
-from database_explorer.database_ui import database_ui
+from database_explorer_plotter.database_ui import database_ui
 import sys
 
 app = QtWidgets.QApplication(sys.argv)

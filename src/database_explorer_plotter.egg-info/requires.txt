@@ -1,0 +1,5 @@
+matplotlib
+PyQt5
+numpy
+datetime
+pyqtgraph
