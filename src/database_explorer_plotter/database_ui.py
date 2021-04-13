@@ -202,7 +202,6 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
             self.dataset_name = item.text()
         else:
              self.dataset_name = item
-        self.config.set('database', 'root', self.root)
         self.config.set('database', 'dataset', self.dataset_name)
         with open('config.ini', 'w') as f:
             self.config.write(f)
