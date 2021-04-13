@@ -2,9 +2,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from database_ui import database_ui
 from load_ui import load_ui
 from os import path
-from qt_designer.temporal_ui import temporal_ui
+from qt_designer.temporal_new import temporal_ui
 from databasemanager import *
 from database_ui import database_ui
+from datetime import datetime
 
 import sys
 import numpy as np
@@ -33,13 +34,14 @@ def database_browser(Database):
     app.exec_()
 
 
-def temporal_browser(Database, subjects=None):
+def temporal_browser(Database, subjects=None, timescale = 'year'):
     app = QtWidgets.QApplication(sys.argv)
-    ui3 = temporal_ui(Database, subjects)
+    ui3 = temporal_ui(Database, subjects, timescale)
     app.exec_()
 
 root = 'C:\\db\\toyDB'
 db = Database(root)
 
-temporal_browser(db)
+
+temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'day')
 

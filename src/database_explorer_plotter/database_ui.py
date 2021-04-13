@@ -30,15 +30,11 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
     datasets = db.dataset_names
     dataset_name = ""
     selected_subject = []
-    
     selected_recording = []
     selected_annotation = []
-
     selected_subject_recordings = []
-
     matching_subjects = []
     matching_recordings = []
-
     event_plots = {}
 
     
@@ -54,8 +50,11 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
             self.root = self.config.get('database', 'root')
             self.db = Database(self.root)
             self.datasets = self.db.dataset_names
-        if(self.config.has_section('database')):
             self.doubleclick_dataset(self.config.get('database', 'dataset'))
+        else:
+            self.config.add_section('database')
+            with open('config.ini', 'w') as f:
+                self.config.write(f)
         self.__AssignCallbacks()
     
     def __AssignCallbacks(self):

@@ -7,7 +7,6 @@ src/custom_plotter/__init__.py
 src/custom_plotter/plotter.py
 src/custom_plotter/plotter_ui.py
 src/custom_plotter/plotter_uiDesign.py
-src/custom_plotter/plotter_ui_Thread.py
 src/database_explorer_plotter/__init__.py
 src/database_explorer_plotter/database_ui.py
 src/database_explorer_plotter/extra_functions.py
@@ -87,5 +86,6 @@ src/qt_designer/base_GUI.py
 src/qt_designer/dataset_selector.py
 src/qt_designer/import_GUI.py
 src/qt_designer/mplwidget.py
+src/qt_designer/temporal_new.py
 src/qt_designer/temporal_ui.py
 src/qt_designer/temporal_view.py

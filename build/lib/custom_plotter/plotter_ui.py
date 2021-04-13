@@ -17,7 +17,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         return cls.__lastID
     
     IndexChanged = pyqtSignal(int, int)
-    def __init__(self, MainWindow, recording, window, start_event=None, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
+    def __init__(self, MainWindow, recording, window, start_event=0, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
         super().__init__()
         self.recording = recording
         self.annotations = self.recording.annotations
@@ -67,10 +67,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             self.UpdateSampleIndex(plotSample,True)
 
-
-           
-
-
     def assign_colors(self):
         i = 0
         for ann in self.annotations:
@@ -78,7 +74,6 @@ class plotter_ui(QObject, Ui_MainWindow):
                 t = i%len(self.event_colors)
                 self.colors_ev[event] = pg.intColor(i, alpha = 255)
                 i = i+1
-
 
     def __CheckAnnotationOverlap(self, SampleIndex):
         overlapping_events = []
@@ -92,7 +87,6 @@ class plotter_ui(QObject, Ui_MainWindow):
                 if((start <= ev_stop) and (end >= ev_start)):
                     overlapping_events.append(event)
         return overlapping_events
-
             
     def __UpdateTitleText(self, title):
         self.title = title
@@ -152,9 +146,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFavorite.setChecked((self.SampleIndex in self.FavoriteList))
         self.chbFavorite.blockSignals(False)
         
-        
-        
-
     def __UpdateTotalNumberOfSamples(self):
         self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - math.floor(self.T/2)))
         self.sldSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T))
@@ -193,14 +184,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex)
         self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
         self.vb.autoRange(padding = 0)
-
             
     def PlotLine(self, overlapping_events, recording,window, sampleIndex):
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
             window_scale = 1
-        
         if(sampleIndex < self.recording.duration_samp - self.T):
             start=sampleIndex
             stop=sampleIndex+self.T
@@ -211,24 +200,15 @@ class plotter_ui(QObject, Ui_MainWindow):
             data = np.array([recording.get_data(start=sampleIndex/self.fs)])
             xx[:,:data.shape[1],:data.shape[2]] = data
             xx = [xx[0][0:,0::window_scale]]
-        print(window_scale)
-        print("start:", start)
-        print("stop:", stop)
-
         xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
-        
         t = np.arange(sampleIndex, sampleIndex+self.T)
-
-
         ticks = list()
-
         if(self.fs is not None):
             t = t / self.fs
             if(self.T > 9):
                 for i in range(0,self.T,math.floor(self.T/10)):
                     ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
-
         stringaxis = self.axis.getAxis('bottom')
         stringaxis.setTicks([ticks])
         t = t[0::window_scale]
@@ -242,9 +222,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             stops[event] = min((sampleIndex+self.T)/self.fs, event.stop)
             tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
             ToPlot[event] = [self.CH-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
-
-
-
         self.Clear()
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
@@ -343,13 +320,11 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.window_scale = self.window_scale*2
         self.Plot()
 
-
     def __onbtnWindowDown(self):
         self.window = self.window/2
         self.T = int(int(self.recording.fs) * self.window)
         self.__UpdateTotalNumberOfSamples()
         self.window_scale = self.window_scale/2
-
         if self.T > 2:
             self.Plot()
         else:
@@ -357,12 +332,11 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.T = int(int(self.recording.fs) * self.window)
             self.__UpdateTotalNumberOfSamples()
 
-
     def DuplicateCurrent(self):
         if(self.verbose):                
             print('detaching...')
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, start_event = 0,y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
         self.detachedWindows.append(plotter)
         MainWindow.show()
         MainWindow.resize(self.MainWindow.size())
