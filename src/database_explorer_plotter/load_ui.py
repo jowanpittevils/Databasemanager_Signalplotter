@@ -8,7 +8,7 @@ from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from qt_designer.dataset_selector import Ui_dataset 
-from database_ui import *
+from database_explorer_plotter.database_ui import *
 from os import path
 
  
