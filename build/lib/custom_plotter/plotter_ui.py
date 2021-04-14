@@ -30,7 +30,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.norm = plotter_ui.struct()
         self.ID = plotter_ui.__getNewID()
         self.y = y
-        self.FavoriteList=set()
+        self.FavoriteList=list()
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
         self.channelFirst = channelFirst
@@ -60,12 +60,12 @@ class plotter_ui(QObject, Ui_MainWindow):
 
         self.vb = self.axis.getViewBox()
         self.vb.setMouseEnabled(x=False, y=False)
-        plotSample = int(self.start_event*self.fs-10*self.fs)
-        if plotSample < 0 :
+        plotEvent = int(self.start_event-10)
+        if plotEvent < 0 :
             self.UpdateSampleIndex(0,True)
 
         else:
-            self.UpdateSampleIndex(plotSample,True)
+            self.UpdateSampleIndex(plotEvent,True)
 
     def assign_colors(self):
         i = 0
@@ -143,14 +143,13 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(triggeredSignals):
             self.IndexChanged.emit(self.ID, self.SampleIndex)
         self.chbFavorite.blockSignals(True)
-        self.chbFavorite.setChecked((self.SampleIndex in self.FavoriteList))
+        self.chbFavorite.setChecked(([self.SampleIndex,self.SampleIndex+self.window] in self.FavoriteList))
         self.chbFavorite.blockSignals(False)
-        print(self.FavoriteList)
         
     def __UpdateTotalNumberOfSamples(self):
-        self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - math.floor(self.T/2)))
-        self.sldSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T))
-        self.nmrSampleIndex.setMaximum(self.recording.duration_samp - math.floor(self.T))
+        self.lblTotalSamples.setText("/ " + str(self.recording.duration_sec))
+        self.sldSampleIndex.setMaximum(self.recording.duration_sec-1)
+        self.nmrSampleIndex.setMaximum(self.recording.duration_sec-1)
         self.sldSampleIndex.setMinimum(0)
         self.nmrSampleIndex.setMinimum(0)
         
@@ -181,12 +180,12 @@ class plotter_ui(QObject, Ui_MainWindow):
     def Plot(self, sampleIndex = None):
         if(sampleIndex is not None):
             self.UpdateSampleIndex(sampleIndex)
-        overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
-        self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex)
+        overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex*self.fs)
+        self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex*self.fs)
         self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
         self.vb.autoRange(padding = 0)
             
-    def PlotLine(self, overlapping_events, recording,window, sampleIndex):
+    def PlotLine(self, overlapping_events, recording, window, sampleIndex):
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
@@ -280,37 +279,41 @@ class plotter_ui(QObject, Ui_MainWindow):
 
     def __onchbFavoriteStateChanged(self, state):
         if(self.chbFavorite.isChecked()):
-            self.FavoriteList.add(self.SampleIndex)
+            self.FavoriteList.append([self.SampleIndex,self.SampleIndex+self.window])
+            print(self.FavoriteList)
         else:
-            self.FavoriteList.discard(self.SampleIndex)
+            self.FavoriteList.remove([self.SampleIndex,self.SampleIndex+self.window])
+            print(self.FavoriteList)
     def __onbtnFirstClicked(self):
         self.UpdateSampleIndex(0, True)
     def __onbtnPreviousClicked(self):
-        if(self.SampleIndex>math.floor(self.T*0.3)):
-            self.UpdateSampleIndex(self.SampleIndex - math.floor(self.T*0.3), True)
+        if(self.SampleIndex>math.floor(self.window*0.3)):
+            self.UpdateSampleIndex(self.SampleIndex - math.floor(self.window*0.3), True)
         else:
             self.UpdateSampleIndex(0, True)
     def __onbtnNextClicked(self):
-        if(self.SampleIndex<(self.recording.duration_samp - 1.3*math.floor(self.T))):
-            self.UpdateSampleIndex(self.SampleIndex + math.floor(self.T*0.3), True)
+        if(self.SampleIndex<(self.recording.duration_sec - math.floor(self.window*1.3))):
+            self.UpdateSampleIndex(self.SampleIndex + math.floor(self.window*0.3), True)
         else:
-            self.UpdateSampleIndex(self.recording.duration_samp - math.floor(self.T), True)
+            self.UpdateSampleIndex(self.recording.duration_sec - 1, True)
     def __onbtnPreviousSimilarYClicked(self):
-        if(self.SampleIndex>self.T):
-            self.UpdateSampleIndex(self.SampleIndex-self.T,True)
+        if(self.SampleIndex>self.window):
+            self.UpdateSampleIndex(self.SampleIndex - self.window, True)
         else:
             self.UpdateSampleIndex(0,True)
     def __onbtnNextSimilarYClicked(self):
-        if(self.SampleIndex<(self.recording.duration_samp-self.T)):
-            self.UpdateSampleIndex(self.SampleIndex+self.T,True)
+        if(self.SampleIndex<(self.recording.duration_sec-self.window)):
+            self.UpdateSampleIndex(self.SampleIndex+self.window,True)
+        else:
+            self.UpdateSampleIndex(self.recording.duration_sec-1,True)
     def __onbtnLastClicked(self):
-        self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
+        self.UpdateSampleIndex(self.recording.duration_sec-1, True)
     def __onsldSliderReleased(self):
-        self.UpdateSampleIndex(self.sldSampleIndex.value(), True,self.sldSampleIndex)
+        self.UpdateSampleIndex(self.sldSampleIndex.value(), True, self.sldSampleIndex)
     def __onsldValueChanged(self):
-        self.UpdateSampleIndex(self.sldSampleIndex.value(), True,self.sldSampleIndex)
+        self.UpdateSampleIndex(self.sldSampleIndex.value(), True, self.sldSampleIndex)
     def __onnmrValueChanged(self):
-        self.UpdateSampleIndex(self.nmrSampleIndex.value(), True,self.nmrSampleIndex)
+        self.UpdateSampleIndex(self.nmrSampleIndex.value(), True, self.nmrSampleIndex)
     def __onbtnDuplicate(self):
         self.DuplicateCurrent()
 
