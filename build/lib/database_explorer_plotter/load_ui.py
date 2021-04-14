@@ -8,7 +8,7 @@ from PyQt5.uic import loadUi
 from databasemanager import *
 import sys
 from qt_designer.dataset_selector import Ui_dataset 
-from database_ui import *
+from database_explorer_plotter.database_ui import *
 from os import path
 
  
@@ -36,6 +36,9 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                         self.import_error() 
                 else:
                         self.ui.db_name.setText(self.ui1.root)
+                        self.ui1.config.set('database', 'root', self.ui1.root)
+                        with open('config.ini', 'w') as f:
+                                self.ui1.config.write(f)
                         self.ui1.data_root = self.ui1.root + '/Data'
                         if path.exists(self.ui1.root + '/Datasets') == False:
                                 self.import_error()
@@ -69,6 +72,9 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
 
         def get_ds(self, item):
                 self.ui1.ds = item.text()
+                self.ui1.config.set('database','dataset', item.text())
+                with open('config.ini', 'w') as f:
+                        self.ui1.config.write(f)
 
         def import_error(self):
                 self.msg = QtWidgets.QMessageBox()

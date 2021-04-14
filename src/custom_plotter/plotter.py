@@ -13,7 +13,7 @@ class plotter_countainer():
         self.plotterList = {}
         pass
 
-    def add(self, recording, window, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
+    def add(self, recording, window, start_event=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
         MainWindow = QtWidgets.QMainWindow()
         plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, start_event=start_event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
         MainWindow.showMaximized()
@@ -37,26 +37,17 @@ class plotter_countainer():
         return favoriteList
 
 
-def cplot(self, recording, window=30, start_event=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
-    '''
-    It plots continious signals by spliting into smaller segments and calling gplot.
-    It may add zeros to the end of signals for the last segment. 
-    - inputs:
-        -- x:           The inout tensore. Its dimension should be as (K: Channel, T: Time-samples) if channel_first is True. Otherwise, as (T, K), for instance (3600s * 250 hz, 20 channels).
-                        If it has only one dimension, it is assumed to be temporal samples of a single channel signal.
-                        It is also possible to pass x1,x2,x3,x4,... for different channels. in this case x must be None.
-        -- window:      optional, the length of signal in seconds to be shown in each window frame.        
-        --other inputs are as gplot
-    '''
-    return gplot(self, recording=recording, window = window, start_event=start_event, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
-
-def gplot(self, recording, window, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def gplot(self, recording, window, start_event=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     gplot (graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
+    It plots continious signals by sampling the data of the given recording.
+    It may add zeros to the end of signals for the last window. 
     - inputs:
-        -- x:           the inout tensore. Its dimension should be as (S: Segments, K: Channel, T: Time-samples) (the same as the default dimension of Keras) if channel_first is True. Otherwise, as (S, T, K).
+        -- recording:   the recording to be plotted
+        -- window:      optional, the length of signal in seconds to be shown in each window frame.
                         for instance (200 segments, 10s * 250 hz, 20 channels)
+        -- start_event: plots the recording at the start of the given event.
         -- y:           optional, the labels of segments. It must be a vector with size of S.
         -- title:       optional, the tile of the window.
         -- fs:          optional [default is None], the sampling frequensy. If fs is None the data will be plotted in samples, otherwise in seconds. 
@@ -66,10 +57,10 @@ def gplot(self, recording, window, start_event=None, y=None, title=None,fs=1,sen
         -- callback:    optional [default is None], a function as func(x, sampleIndex) to be called when the user change the sample index by the GUI.
         -- channel_first: optional it defines if channel is before or after the time in the dimensions of the given x tensor.
         -- verbose: optional, if it is true, it logs the changes in the GUI; otherwise it is silent.
-        * in order to plot tensors on top of each other (holding on) in the linePlot mode or barPlotMode, use x as List in List: [[x]] (see example 4)
         
     - output: list of selected indexes (as favorite)
     
+    TODO:
     - examples: 'x=numpy.random.randn(15,fs*10,20)'
             gplot(x)
             gplot(x,title='title', sens=10)

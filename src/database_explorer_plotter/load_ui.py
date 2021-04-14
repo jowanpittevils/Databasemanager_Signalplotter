@@ -7,9 +7,11 @@ from qt_designer.dataset_selector import Ui_dataset
 from database_explorer_plotter.database_ui import *
 from os import path
 
- 
-
 class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
+        """
+        A class to browse through files to select a database and the corresponding datasets in case none are provided in the database.  
+        After loading the database with datasets, the user is able to click on one of the datasets which leads to the second window, the database explorer.
+        """
 
         def __init__(self):
                 super(load_ui, self).__init__()
@@ -32,6 +34,9 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                         self.import_error() 
                 else:
                         self.ui.db_name.setText(self.ui1.root)
+                        self.ui1.config.set('database', 'root', self.ui1.root)
+                        with open('config.ini', 'w') as f:
+                                self.ui1.config.write(f)
                         self.ui1.data_root = self.ui1.root + '/Data'
                         if path.exists(self.ui1.root + '/Datasets') == False:
                                 self.import_error()
@@ -56,7 +61,7 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                                 self.ui.dataset_list.clear()
                                 self.ui.dataset_list.addItems(self.ui1.datasets)
 
-        def load_dataset(self): 
+        def load_dataset(self):
                 self.ui1.ds = self.ui1.db.load_dataset(self.ui1.ds)
                 self.ui1.dataset_name = self.ui1.ds.name
                 self.ui1.matching_subjects = [subject for subject in self.ui1.ds.subject_names if self.ui1.ui.lineEdit.text() in subject]
@@ -65,6 +70,9 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
 
         def get_ds(self, item):
                 self.ui1.ds = item.text()
+                self.ui1.config.set('database','dataset', item.text())
+                with open('config.ini', 'w') as f:
+                        self.ui1.config.write(f)
 
         def import_error(self):
                 self.msg = QtWidgets.QMessageBox()
@@ -94,6 +102,7 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                         self.ui.dataset_list.clear()
                         x = self.msg.exec_()
                      
+
 
 
 if __name__ == "__main__":

@@ -6,4 +6,4 @@ import sys
 app = QtWidgets.QApplication(sys.argv)
 w = database_ui()
 w.show()
-sys.exit(app.exec_())
+sys.exit(app.exec_()) 

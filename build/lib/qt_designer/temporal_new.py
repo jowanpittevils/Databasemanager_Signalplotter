@@ -2,7 +2,7 @@ from qt_designer.temporal_view import Ui_TemporalView
 from PyQt5 import QtCore, QtGui, QtWidgets
 from databasemanager import *
 from cycler import cycler
-from custom_plotter.plotter import cplot
+from custom_plotter.plotter import gplot
 from datetime import datetime
 import time
 import numpy as np
@@ -11,6 +11,20 @@ import pyqtgraph as pg
     
 
 class temporal_ui(Ui_TemporalView):
+    """
+    Opens a temporal window of the given subjects from a certain database with a specified timescale.
+    The temporal window shows the recordings and events of the subjects situated relative to each other in the specified timescale.
+    
+    Parameters:
+    ----------
+    Database:   from the class 'database' in the package 'databasemanager'
+    subjects:   A list of strings of the names of the subjects to be shown in the temporal window. (Default is None which shows a temporal window 
+                of all the subjects in the given database) 
+    timescale:  A string which shows the recordings and events in that timescale situated from each other.
+                inputs can be: 'day', 'week', 'month and 'year' (Default is 'year')
+
+    e.g. temporal_browser(Database('C:\\db'), ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'day')
+    """
     def __init__(self, database:Database=None, subjects=None, timescale = 'year'):
         self.temporalwindow = QtWidgets.QMainWindow()
         self.setupUi(self.temporalwindow)
@@ -166,7 +180,7 @@ class temporal_ui(Ui_TemporalView):
             callback=None
             channel_first:bool = True
             verbose:bool = True
-            cplot(self, self.clicked_recording, window, start_event, title,fs,sens,channel_names, callback, channel_first, verbose)
+            gplot(self, self.clicked_recording, window, start_event, y, title,fs,sens,channel_names, callback, channel_first, verbose)
 
     def temporal_click(self, event):
         if event.inaxes is not None:
