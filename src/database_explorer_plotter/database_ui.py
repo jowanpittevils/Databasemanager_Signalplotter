@@ -19,6 +19,16 @@ from custom_plotter.plotter import cplot
 from configparser import ConfigParser
 
 class database_ui(QtWidgets.QMainWindow,base_UI):
+    """
+    This class is to orderly navigate through the database, showing all information (subjects, recordings, annotations and events). 
+    The class does the following:
+    -   opens a temporal view of the dataset which optionally shows events and annotations
+    -   Change datasets
+    -   Open a recording in a new window using matplotlib by double-clicking it
+    -   Open an event in a new window by double-clicking it
+    -   Search for specific subjects, recordings or events
+    -   Have a summary button that displays the most important information regarding the currently selected dataset (sampling frequency, channels,...)
+    """
     
     UserSettings.global_settings().loading_data_missing_channel_type = 'error'
     UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
@@ -125,7 +135,6 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         self.ui.annotations_list.clear()
         self.ui.events_list.clear()
 
-
     def get_recording_names(self):
         self.selected_subject_recordings = []
         for r in self.selected_subject.recordings:
@@ -197,7 +206,6 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         self.update_GUI()
 
     def doubleclick_dataset(self, item):
-        print(item)
         if not (isinstance(item, str)):
             self.dataset_name = item.text()
         else:

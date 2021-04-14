@@ -11,9 +11,11 @@ from qt_designer.dataset_selector import Ui_dataset
 from database_explorer_plotter.database_ui import *
 from os import path
 
- 
-
 class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
+        """
+        A class to browse through files to select a database and the corresponding datasets in case none are provided in the database.  
+        After loading the database with datasets, the user is able to click on one of the datasets which leads to the second window, the database explorer.
+        """
 
         def __init__(self):
                 super(load_ui, self).__init__()
@@ -63,7 +65,7 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                                 self.ui.dataset_list.clear()
                                 self.ui.dataset_list.addItems(self.ui1.datasets)
 
-        def load_dataset(self): 
+        def load_dataset(self):
                 self.ui1.ds = self.ui1.db.load_dataset(self.ui1.ds)
                 self.ui1.dataset_name = self.ui1.ds.name
                 self.ui1.matching_subjects = [subject for subject in self.ui1.ds.subject_names if self.ui1.ui.lineEdit.text() in subject]
@@ -104,6 +106,7 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                         self.ui.dataset_list.clear()
                         x = self.msg.exec_()
                      
+
 
 
 if __name__ == "__main__":
