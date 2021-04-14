@@ -52,16 +52,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btnPreviousY">
-        <property name="toolTip">
-         <string>Jump to the previous different segment</string>
-        </property>
-        <property name="text">
-         <string>|&lt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QPushButton" name="btnPreviousSimilarY">
         <property name="toolTip">
          <string>Jump to the previous similar segment</string>
@@ -155,16 +145,6 @@
         </property>
         <property name="text">
          <string>|&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnNextY">
-        <property name="toolTip">
-         <string>Jump to the next different segment</string>
-        </property>
-        <property name="text">
-         <string>&gt;|</string>
         </property>
        </widget>
       </item>
