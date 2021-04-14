@@ -4,7 +4,7 @@ from load_ui import load_ui
 from os import path
 from qt_designer.temporal_new import temporal_ui
 from databasemanager import *
-from custom_plotter.plotter import cplot
+from custom_plotter.plotter import gplot
 
 import sys
 import numpy as np
@@ -76,7 +76,7 @@ def temporal_browser(Database, subjects=None, timescale = 'year'):
     app.exec_()
 
 
-def plot_browser(recording, window=30, start_event=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def plot_browser(recording, window=30, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     """
     Opens a recording in the plot explorer for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     It plots continious signals by sampling the data of the given recording.
@@ -99,7 +99,7 @@ def plot_browser(recording, window=30, start_event=None, title=None,fs=1,sens=No
         
     - output: list of selected indexes (as favorite)
     """
-    cplot(window, start_event, title, fs, sens, channel_names, callback, channel_first, verbose)
+    gplot(recording, window, start_event, y, title, fs, sens, channel_names, callback, channel_first, verbose)
 
 
 

@@ -2,7 +2,7 @@ from qt_designer.temporal_view import Ui_TemporalView
 from PyQt5 import QtCore, QtGui, QtWidgets
 from databasemanager import *
 from cycler import cycler
-from custom_plotter.plotter import cplot
+from custom_plotter.plotter import gplot
 from datetime import datetime
 import time
 import numpy as np
@@ -173,7 +173,7 @@ class temporal_ui(Ui_TemporalView):
             callback=None
             channel_first:bool = True
             verbose:bool = True
-            cplot(self, self.clicked_recording, window, start_event, title,fs,sens,channel_names, callback, channel_first, verbose)
+            gplot(self, self.clicked_recording, window, start_event, y, title,fs,sens,channel_names, callback, channel_first, verbose)
 
     def temporal_click(self, event):
         if event.inaxes is not None:

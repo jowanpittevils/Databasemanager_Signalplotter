@@ -15,7 +15,7 @@ import sys
 from qt_designer.dataset_selector import Ui_dataset 
 from datetime import datetime
 from cycler import cycler
-from custom_plotter.plotter import cplot
+from custom_plotter.plotter import gplot
 from configparser import ConfigParser
 
 class database_ui(QtWidgets.QMainWindow,base_UI):
@@ -107,7 +107,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         callback=None
         channel_first:bool = True
         verbose:bool = True
-        cplot(self,doubleclicked_recording, window, start_event, title,fs,sens,channel_names, callback, channel_first, verbose)
+        gplot(self,doubleclicked_recording, window, start_event, y, title, fs, sens, channel_names, callback, channel_first, verbose)
     
     def openEventRecording(self,item):
         event = item.text()
@@ -124,7 +124,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         callback=None
         channel_first:bool = True
         verbose:bool = True
-        cplot(self, self.selected_recording, window, start_event, title,fs,sens,channel_names, callback, channel_first, verbose)
+        gplot(self, self.selected_recording, window, start_event, y, title, fs, sens, channel_names, callback, channel_first, verbose)
 
     def openTemporal(self):
         self.ui3 = temporal_ui(None,self.ds.subjects)

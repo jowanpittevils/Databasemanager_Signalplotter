@@ -13,7 +13,7 @@ class plotter_countainer():
         self.plotterList = {}
         pass
 
-    def add(self, recording, window, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
+    def add(self, recording, window, start_event=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
         MainWindow = QtWidgets.QMainWindow()
         plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, start_event=start_event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
         MainWindow.showMaximized()
@@ -37,22 +37,12 @@ class plotter_countainer():
         return favoriteList
 
 
-def cplot(self, recording, window=30, start_event=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
-    '''
-    It plots continious signals by sampling the data of the given recording and calling gplot.
-    It may add zeros to the end of signals for the last window. 
-    - inputs:
-        -- recording:   the recording to be plotted
-        -- window:      optional, the length of signal in seconds to be shown in each window frame.
-        -- start_event: plots the recording at the start of the given event.        
-        --other inputs are as gplot
-    '''
-    return gplot(self, recording=recording, window = window, start_event=start_event, y=None, title=title, fs=fs, sens=sens,channel_names=channel_names, callback=callback, channel_first=True, verbose=verbose)
 
-
-def gplot(self, recording, window, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def gplot(self, recording, window, start_event=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     '''
     gplot (graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
+    It plots continious signals by sampling the data of the given recording.
+    It may add zeros to the end of signals for the last window. 
     - inputs:
         -- recording:   the recording to be plotted
         -- window:      optional, the length of signal in seconds to be shown in each window frame.
