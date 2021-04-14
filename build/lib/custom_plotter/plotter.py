@@ -13,9 +13,9 @@ class plotter_countainer():
         self.plotterList = {}
         pass
 
-    def add(self, recording, window, start_event=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first=True, verbose=True):
+    def add(self, recording, window, start_event=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose=True):
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, start_event=start_event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, channelFirst=channel_first, verbose=verbose)
+        plotter = plotter_ui(MainWindow=MainWindow,  recording=recording, window=window, start_event=start_event, y=y, title=title, fs=fs, sens=sens, channelNames=channel_names, callback=callback, verbose=verbose)
         MainWindow.showMaximized()
 
         self.plotterList.update( {plotter.ID: plotter})

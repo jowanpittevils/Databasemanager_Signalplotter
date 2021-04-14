@@ -17,12 +17,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         return cls.__lastID
     
     IndexChanged = pyqtSignal(int, int)
-    def __init__(self, MainWindow, recording, window, start_event=0, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, channelFirst=True, verbose=True):
+    def __init__(self, MainWindow, recording, window, start=0, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, verbose=True):
         super().__init__()
         self.recording = recording
         self.annotations = self.recording.annotations
         self.window = window
-        self.start_event = start_event
+        self.start = start
         self.scale_factor = 1
         self.colors_ev = {}
         self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
@@ -33,7 +33,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.FavoriteList=set()
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
-        self.channelFirst = channelFirst
         self.window_scale = 1
         self.callback = callback
         self.sens = sens
@@ -45,22 +44,17 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.detachedWindows=[]
         self.assign_colors()
         self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
-
         self.norm.totalMaxX = 0.01
         self.norm.totalMinX = -0.01
-        if(self.channelFirst):
-            self.T = int(self.recording.fs) * self.window
-            self.CH = recording.number_of_channels
-        else:
-            self.T = int(self.recording.fs) * self.window
-            self.CH = recording.number_of_channels
+        self.T = int(self.recording.fs) * self.window
+        self.CH = recording.number_of_channels
         N = math.ceil(recording.duration_samp/self.T)
         self.__UpdateFs(fs)
         self.__UpdateTotalNumberOfSamples()
 
         self.vb = self.axis.getViewBox()
         self.vb.setMouseEnabled(x=False, y=False)
-        plotSample = int(self.start_event*self.fs-10*self.fs)
+        plotSample = int(self.start*self.fs-10*self.fs)
         if plotSample < 0 :
             self.UpdateSampleIndex(0,True)
 
@@ -68,6 +62,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.UpdateSampleIndex(plotSample,True)
 
     def assign_colors(self):
+        #gives each event a different color in the plotter window
         i = 0
         for ann in self.annotations:
             for event in ann.events:
@@ -76,6 +71,7 @@ class plotter_ui(QObject, Ui_MainWindow):
                 i = i+1
 
     def __CheckAnnotationOverlap(self, SampleIndex):
+        #needed to know which events are currently overlapping the window
         overlapping_events = []
         start = SampleIndex
         end = SampleIndex+self.T
@@ -120,13 +116,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             ttick.append((self.CH-0.1-i/8, event.label))
         left_ax=self.axis.getAxis('left') 
         left_ax.setTicks([ttick])
-
-    #def __UpdateAmplitude(self, scalefactor, range):
-    #    ttick=list()  
-    #    ttick.append((0, range*scalefactor))
-    #    right_ax=self.axis.getAxis('right') 
-    #    right_ax.setTicks([ttick])
-
     
     def UpdateSampleIndex(self, sampleIndex, rePlot=False, callerObject=None, triggeredSignals = True):
         self.SampleIndex = sampleIndex
@@ -158,10 +147,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         x = x0
         for xi in x:
             for ch in range(self.CH):
-                if(self.channelFirst):
-                    xi[ch,:] += (self.CH-ch-1) - 0.5
-                else:
-                    xi[:,ch] += (self.CH-ch-1) - 0.5
+                xi[ch,:] += (self.CH-ch-1) - 0.5
         return x
         
     def __iNormalize(self, x0, sens = None):
@@ -171,7 +157,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             M = sens
             m = -sens
-        #self.__UpdateAmplitude(self.scale_factor, M-m)
         x = [(v-m)/(M-m) for v in x0]
         return x
         
@@ -226,15 +211,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.Clear()
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
-                if(self.channelFirst):
                     self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
-                else:
-                    self.axis.plot(t,xxi[:,ch], pen=self.GetPen(i))
         for i, event in enumerate(overlapping_events):
-            if(self.channelFirst):
                 self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
-            else:
-                self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8,))
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = sampleIndex/self.fs, xMax=t[-1])
         self.__UpdateTitle()
 
@@ -337,7 +316,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(self.verbose):                
             print('detaching...')
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, start_event = 0,y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, start = 0,y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
         self.detachedWindows.append(plotter)
         MainWindow.show()
         MainWindow.resize(self.MainWindow.size())

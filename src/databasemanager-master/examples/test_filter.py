@@ -1,6 +1,6 @@
 #%%
 import numpy as np
-from signalplotter import gplot, iplot
+from signalplotter import agplot, iplot
 from scipy.signal import get_window, firwin, filtfilt
 from databasemanager.operators.firfilter import FIRFilter
 from databasemanager.operators.filtercorrector import FilterCorrector
@@ -25,7 +25,7 @@ print('y.shape: ',y.shape)
 iplot(x[0,:,:], fs,auto_normalize=False)
 iplot(y[0,:,:],fs,auto_normalize=False)
 
-#gplot([[x,y]])
+#agplot([[x,y]])
 # %%
 correct_samples=True
 f = FIRFilter(cutoffs=[1,40], N=255, approach='filter')
@@ -52,7 +52,7 @@ r.set_fs(fs)
 r.set_axis(1)
 yyt_s = r.apply(yyt)
 print(yyt_s.shape)
-#gplot([[x,yyt], yyt_s])
+#agplot([[x,yyt], yyt_s])
 iplot(x[0,],auto_normalize=False)
 iplot(yyt[0,],auto_normalize=False)
 

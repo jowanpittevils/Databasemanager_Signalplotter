@@ -1,6 +1,6 @@
 #%%
 import numpy as np
-from signalplotter import gplot, iplot
+from signalplotter import agplot, iplot
 from databasemanager.operators.montagemaker import MontageMaker
 from databasemanager.operators.rereferencer import Rereferencer
 from databasemanager import *

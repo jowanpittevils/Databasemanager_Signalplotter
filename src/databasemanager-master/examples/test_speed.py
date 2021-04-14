@@ -8,7 +8,7 @@ from databasemanager.operators.shrinker import Shrinker
 import numpy as np
 from databasemanager import *
 from datagenerator.generators.randomsubjectgenerator import RandomSubjectGenerator
-from signalplotter import iplot, gplot
+from signalplotter import iplot, agplot
 
 chs = ['cz','fp1','fp2','c3','c4','t3','t4','o1','o2']
 UserSettings.global_settings().loading_data_channels = chs

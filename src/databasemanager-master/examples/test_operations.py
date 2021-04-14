@@ -5,7 +5,7 @@
 import numpy as np
 from databasemanager import *
 from databasemanager.operators.shrinker import Shrinker
-from signalplotter import iplot, gplot
+from signalplotter import iplot, agplot
 
 
 root = 'D:\\MyFiles\\MyDatabases\\Sleep'
@@ -141,7 +141,7 @@ print(dst.subjects[0].recordings[0].get_data(0,int(30)).shape)
 import numpy as np
 from databasemanager.operators.notchfilter import NotchFilter
 from databasemanager.operators.firfilter import FIRFilter
-from signalplotter import iplot, gplot
+from signalplotter import iplot, agplot
 
 fs = 100
 T = 10

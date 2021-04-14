@@ -4,7 +4,7 @@ from load_ui import load_ui
 from os import path
 from qt_designer.temporal_new import temporal_ui
 from databasemanager import *
-from custom_plotter.plotter import gplot
+from custom_plotter.plotter import agplot
 
 import sys
 import numpy as np
@@ -76,7 +76,7 @@ def temporal_browser(Database, subjects=None, timescale = 'year'):
     app.exec_()
 
 
-def plot_browser(recording, window=30, start_event=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
+def plot_browser(recording, window=30, start=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, channel_first:bool = True, verbose:bool = True):
     """
     Opens a recording in the plot explorer for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     It plots continious signals by sampling the data of the given recording.
@@ -86,7 +86,7 @@ def plot_browser(recording, window=30, start_event=None, y=None, title=None,fs=1
         -- recording:   the recording to be plotted
         -- window:      optional, the length of signal in seconds to be shown in each window frame.
                         for instance (200 segments, 10s * 250 hz, 20 channels)
-        -- start_event: plots the recording at the start of the given event.
+        -- start: plots the recording at the start of the given event.
         -- y:           optional, the labels of segments. It must be a vector with size of S.
         -- title:       optional, the tile of the window.
         -- fs:          optional [default is None], the sampling frequensy. If fs is None the data will be plotted in samples, otherwise in seconds. 
@@ -99,7 +99,7 @@ def plot_browser(recording, window=30, start_event=None, y=None, title=None,fs=1
         
     - output: list of selected indexes (as favorite)
     """
-    gplot(recording, window, start_event, y, title, fs, sens, channel_names, callback, channel_first, verbose)
+    agplot(recording, window, start, y, title, fs, sens, channel_names, callback, channel_first, verbose)
 
 
 

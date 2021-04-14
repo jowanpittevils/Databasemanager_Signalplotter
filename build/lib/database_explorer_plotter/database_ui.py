@@ -15,7 +15,7 @@ import sys
 from qt_designer.dataset_selector import Ui_dataset 
 from datetime import datetime
 from cycler import cycler
-from custom_plotter.plotter import gplot
+from custom_plotter.plotter import agplot
 from configparser import ConfigParser
 
 class database_ui(QtWidgets.QMainWindow,base_UI):
@@ -98,23 +98,22 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         index = self.selected_subject_recordings.index(recording_name)
         doubleclicked_recording = self.selected_subject.recordings[index]    
         window = 20
-        start_event=0
+        start=0
         y=None
         title=None
         fs=int(doubleclicked_recording.fs)
         sens=None
         channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
-        channel_first:bool = True
         verbose:bool = True
-        gplot(self,doubleclicked_recording, window, start_event, y, title, fs, sens, channel_names, callback, channel_first, verbose)
+        agplot(self,doubleclicked_recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
     
     def openEventRecording(self,item):
         event = item.text()
         for key in self.event_list.keys():
             if event == key:
                 doubleclicked_event = self.event_list[key]
-        start_event = doubleclicked_event.start
+        start = doubleclicked_event.start
         window = 60
         y=None
         title=None
@@ -122,9 +121,8 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         sens=None
         channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
-        channel_first:bool = True
         verbose:bool = True
-        gplot(self, self.selected_recording, window, start_event, y, title, fs, sens, channel_names, callback, channel_first, verbose)
+        agplot(self, self.selected_recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
 
     def openTemporal(self):
         self.ui3 = temporal_ui(None,self.ds.subjects)
