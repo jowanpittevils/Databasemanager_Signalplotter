@@ -145,6 +145,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFavorite.blockSignals(True)
         self.chbFavorite.setChecked((self.SampleIndex in self.FavoriteList))
         self.chbFavorite.blockSignals(False)
+        print(self.FavoriteList)
         
     def __UpdateTotalNumberOfSamples(self):
         self.lblTotalSamples.setText("/ " + str(self.recording.duration_samp - math.floor(self.T/2)))
