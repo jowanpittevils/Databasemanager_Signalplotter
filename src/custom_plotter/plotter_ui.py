@@ -136,9 +136,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFavorite.blockSignals(False)
         
     def __UpdateTotalNumberOfSamples(self):
-        self.lblTotalSamples.setText("/ " + str(self.recording.duration_sec))
-        self.sldSampleIndex.setMaximum(self.recording.duration_sec-1)
-        self.nmrSampleIndex.setMaximum(self.recording.duration_sec-1)
+        self.lblTotalSamples.setText("/ " + str(self.recording.duration_sec-self.window))
+        self.sldSampleIndex.setMaximum(self.recording.duration_sec-self.window)
+        self.nmrSampleIndex.setMaximum(self.recording.duration_sec-self.window)
         self.sldSampleIndex.setMinimum(0)
         self.nmrSampleIndex.setMinimum(0)
         
