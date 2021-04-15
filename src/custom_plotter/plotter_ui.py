@@ -27,6 +27,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.colors_ev = {}
         self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.verbose = verbose
+        self.range = 0
         self.norm = plotter_ui.struct()
         self.ID = plotter_ui.__getNewID()
         self.y = y
@@ -93,10 +94,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         
     def __increase_amplitude(self):
         self.scale_factor = self.scale_factor*0.8
+        self.__UpdateAmplitude()
         self.Plot()
 
     def __decrease_amplitude(self):
         self.scale_factor = self.scale_factor/0.8
+        self.__UpdateAmplitude()
         self.Plot()
     
     def __UpdateFs(self, fs):
@@ -134,6 +137,10 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFavorite.blockSignals(True)
         self.chbFavorite.setChecked(([self.SampleIndex*self.fs,(self.SampleIndex+self.window)*self.fs] in self.FavoriteList))
         self.chbFavorite.blockSignals(False)
+
+    def __UpdateAmplitude(self):
+        temp = self.format_e(self.range*self.scale_factor)
+        self.lblAmplitude.setText(temp)
         
     def __UpdateTotalNumberOfSamples(self):
         self.lblTotalSamples.setText("/ " + str(self.recording.duration_sec - self.window))
@@ -141,6 +148,10 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.nmrSampleIndex.setMaximum(self.recording.duration_sec -self.window)
         self.sldSampleIndex.setMinimum(0)
         self.nmrSampleIndex.setMinimum(0)
+
+    def format_e(self, n):
+        a = '%E' % n
+        return a.split('E')[0].rstrip('0').rstrip('.') + 'E' + a.split('E')[1]
         
     def __AddBias(self, x0):
         x = x0
@@ -151,12 +162,14 @@ class plotter_ui(QObject, Ui_MainWindow):
         
     def __iNormalize(self, x0, sens = None):
         if(sens is None):
-            M = self.scale_factor*max([v.max() for v in x0]) #Scale factor for changing amplitude
-            m = self.scale_factor*min([v.min() for v in x0])
+            M = max([v.max() for v in x0]) #Scale factor for changing amplitude
+            m = min([v.min() for v in x0])
         else:
             M = sens
             m = -sens
-        x = [(v-m)/(M-m) for v in x0]
+        x = [(v-self.scale_factor*m)/(self.scale_factor*M-self.scale_factor*m) for v in x0]
+        self.range = M-m
+        self.__UpdateAmplitude()
         return x
         
     def Clear(self):
