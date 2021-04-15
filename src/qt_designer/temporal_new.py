@@ -179,7 +179,7 @@ class temporal_ui(Ui_TemporalView):
             channel_names=UserSettings.global_settings().loading_data_channels
             callback=None
             verbose:bool = True
-            agplot(self, self.clicked_recording, window, start, y, title,fs,sens,channel_names, callback, verbose)
+            agplot(self.clicked_recording, window, start, y, title,fs,sens,channel_names, callback, verbose)
 
     def temporal_click(self, event):
         if event.inaxes is not None:

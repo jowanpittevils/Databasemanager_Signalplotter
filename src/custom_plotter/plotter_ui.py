@@ -7,6 +7,9 @@ from databasemanager import *
 import math
 import datetime
 import time
+from threading import Thread
+import threading
+
 
 
 class plotter_ui(QObject, Ui_MainWindow):

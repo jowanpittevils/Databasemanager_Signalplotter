@@ -101,7 +101,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
         verbose:bool = True
-        agplot(self,doubleclicked_recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
+        agplot(doubleclicked_recording, window, start, y, title, fs, sens, channel_names, callback, verbose, self)
     
     def openEventRecording(self,item):
         event = item.text()
@@ -117,7 +117,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
         verbose:bool = True
-        agplot(self, self.selected_recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
+        agplot(self.selected_recording, window, start, y, title, fs, sens, channel_names, callback, verbose, self)
 
     def openTemporal(self):
         self.ui3 = temporal_ui(None,self.ds.subjects)

@@ -1,7 +1,7 @@
 from databasemanager import *
 from custom_plotter.plotter_ui import plotter_ui
 from PyQt5 import QtWidgets
-
+import sys
 
 class plotter_countainer():
     def __init__(self):
@@ -37,7 +37,8 @@ class plotter_countainer():
 
 
 
-def agplot(self, recording, window, start=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose:bool = True):
+def agplot(recording, window, start=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose:bool = True, UIObject=None):
+    print(UIObject)
     '''
     agplot (adapted graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     It plots continious signals by sampling the data of the given recording.
@@ -76,7 +77,10 @@ def agplot(self, recording, window, start=0, y=None, title=None,fs=1,sens=None,c
             agplot([x1,x2,x3], y=y,title=[title1, None, title3], fs=fsAll, channel_names=[chn1,None,None])
             agplot([x1,x2,[x3 , x4]], y=y,title=[title1, None, title3], fs=[fs1,fs2,-1], channel_names=[chn1,None,None])
     '''
+    if(UIObject == None):
+        app = QtWidgets.QApplication(sys.argv)
+    recording_plotter_container = plotter_countainer()
+    recording_plotter_container.add(recording, window, start, y,title,fs,sens,channel_names,callback, verbose)
 
-    self.recording_plotter_container = plotter_countainer()
-    self.recording_plotter_container.add(recording, window, start, y,title,fs,sens,channel_names,callback, verbose)
-    return self.recording_plotter_container.getFavorites()
+    sys.exit(app.exec_())
+    return recording_plotter_container.getFavorites()
