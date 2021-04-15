@@ -38,7 +38,6 @@ class plotter_countainer():
 
 
 def agplot(recording, window, start=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose:bool = True, UIObject=None):
-    print(UIObject)
     '''
     agplot (adapted graphical UI-plot) is a function for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     It plots continious signals by sampling the data of the given recording.
