@@ -29,31 +29,26 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
     -   Search for specific subjects, recordings or events
     -   Have a summary button that displays the most important information regarding the currently selected dataset (sampling frequency, channels,...)
     """
-    
-    UserSettings.global_settings().loading_data_missing_channel_type = 'error'
-    UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
-    config = None
-    root = ''
-    data_root = None
-    ds_root = None
-    db = Database(root)
-    datasets = db.dataset_names
-    dataset_name = ""
-    selected_subject = []
-    selected_recording = []
-    selected_annotation = []
-    selected_subject_recordings = []
-    matching_subjects = []
-    matching_recordings = []
-    event_plots = {}
-
-    
     def __init__(self):
         plt.ion()
         super(database_ui, self).__init__()
+        UserSettings.global_settings().loading_data_missing_channel_type = 'error'
+        UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
+        root = ''
+        self.db = Database(root)
+        self.datasets = self.db.dataset_names
+        self.dataset_name = ""
         self.myOtherWindow = QtWidgets.QMainWindow()
+        self.selected_subject = []
+        self.selected_recording = []
+        self.selected_annotation = []
+        self.selected_subject_recordings = []
+        self.matching_subjects = []
+        self.matching_recordings = []
+        self.event_plots = {}
         self.ui = base_UI()
         self.ui.setupUi(self)
+
         self.config = ConfigParser()
         self.config.read('config.ini')
         if(self.config.has_section('database')):
