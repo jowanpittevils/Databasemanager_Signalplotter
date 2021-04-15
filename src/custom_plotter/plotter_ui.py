@@ -138,7 +138,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(triggeredSignals):
             self.IndexChanged.emit(self.ID, self.SampleIndex)
         self.chbFavorite.blockSignals(True)
-        self.chbFavorite.setChecked(([self.SampleIndex*self.fs,(self.SampleIndex+self.window)*self.fs] in self.FavoriteList))
+        self.chbFavorite.setChecked(([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window] in self.FavoriteList))
         self.chbFavorite.blockSignals(False)
 
     def __UpdateAmplitude(self):
@@ -280,10 +280,10 @@ class plotter_ui(QObject, Ui_MainWindow):
 
     def __onchbFavoriteStateChanged(self, state):
         if(self.chbFavorite.isChecked()):
-            self.FavoriteList.append([self.SampleIndex*self.fs,(self.SampleIndex+self.window)*self.fs])
+            self.FavoriteList.append([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window])
             print(self.FavoriteList)
         else:
-            self.FavoriteList.remove([self.SampleIndex*self.fs,(self.SampleIndex+self.window)*self.fs])
+            self.FavoriteList.remove([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window])
             print(self.FavoriteList)
     def __onbtnFirstClicked(self):
         self.UpdateSampleIndex(0, True)

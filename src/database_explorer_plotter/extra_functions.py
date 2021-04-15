@@ -2,7 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from  database_explorer_plotter.database_ui import database_ui
 from load_ui import load_ui
 from os import path
-from qt_designer.temporal_new import temporal_ui
+from qt_designer.temporal_ui import temporal_ui
 from databasemanager import *
 from custom_plotter.plotter import agplot
 
@@ -76,7 +76,7 @@ def temporal_browser(Database, subjects=None, timescale = 'year'):
     app.exec_()
 
 
-def plot_browser(recording, window=30, start=None, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose:bool = True):
+def plot_browser(recording:Recording, window=30, start=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose:bool = True):
     """
     Opens a recording in the plot explorer for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     It plots continious signals by sampling the data of the given recording.
@@ -98,13 +98,35 @@ def plot_browser(recording, window=30, start=None, y=None, title=None,fs=1,sens=
         
     - output: list of selected indexes (as favorite)
     """
+    app = QtWidgets.QApplication(sys.argv)
     agplot(recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
+    app.exec_()
 
 
+UserSettings.global_settings().loading_data_missing_channel_type = 'error'
+UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
+    
 
 root = 'C:\\db\\toyDB'
 db = Database(root)
+ds = db.load_dataset('all')
 
+# rec = ds.subjects[0].recordings[0]
+# ann = rec.annotations[0]
+# print(type(rec))
+# print(ann)
 
-temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'day')
+# window = 20
+# start =0
+# y=None
+# title=None
+# fs=int(rec.fs)
+# sens=None
+# channel_names=UserSettings.global_settings().loading_data_channels
+# callback=None
+# verbose:bool = True
+
+# plot_browser(rec, fs=int(rec.fs),channel_names=channel_names)
+print("lol")
+temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'month')
 
