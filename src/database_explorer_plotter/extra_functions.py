@@ -98,9 +98,7 @@ def plot_browser(recording:Recording, window=30, start=0, y=None, title=None,fs=
         
     - output: list of selected indexes (as favorite)
     """
-    app = QtWidgets.QApplication(sys.argv)
     agplot(recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
-    app.exec_()
 
 
 UserSettings.global_settings().loading_data_missing_channel_type = 'error'
@@ -111,22 +109,12 @@ root = 'C:\\db\\toyDB'
 db = Database(root)
 ds = db.load_dataset('all')
 
-# rec = ds.subjects[0].recordings[0]
-# ann = rec.annotations[0]
-# print(type(rec))
-# print(ann)
+rec = ds.subjects[1].recordings[0]
+fs=int(rec.fs)
+channel_names=UserSettings.global_settings().loading_data_channels
 
-# window = 20
-# start =0
-# y=None
-# title=None
-# fs=int(rec.fs)
-# sens=None
-# channel_names=UserSettings.global_settings().loading_data_channels
-# callback=None
-# verbose:bool = True
 
-# plot_browser(rec, fs=int(rec.fs),channel_names=channel_names)
+plot_browser(rec, fs=fs,channel_names=channel_names)
 print("lol")
 temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'month')
 

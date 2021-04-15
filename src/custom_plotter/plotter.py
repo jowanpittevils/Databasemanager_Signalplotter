@@ -79,8 +79,12 @@ def agplot(recording, window, start=0, y=None, title=None,fs=1,sens=None,channel
     '''
     if(UIObject == None):
         app = QtWidgets.QApplication(sys.argv)
-    recording_plotter_container = plotter_countainer()
-    recording_plotter_container.add(recording, window, start, y,title,fs,sens,channel_names,callback, verbose)
+        recording_plotter_container = plotter_countainer()
+        recording_plotter_container.add(recording, window, start, y,title,fs,sens,channel_names,callback, verbose)
+        sys.exit(app.exec_())
+        return recording_plotter_container.getFavorites
+    else:
+        UIObject.recording_plotter_container = plotter_countainer()
+        UIObject.recording_plotter_container.add(recording, window, start, y,title,fs,sens,channel_names,callback, verbose)
+        return UIObject.recording_plotter_container.getFavorites
 
-    sys.exit(app.exec_())
-    return recording_plotter_container.getFavorites()
