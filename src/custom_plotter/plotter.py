@@ -55,6 +55,7 @@ def agplot(recording, window, start=0, y=None, title=None,fs=1,sens=None,channel
         -- channel_names:optional [default is None], the name of channels to be plotted on the y-axis.
         -- callback:    optional [default is None], a function as func(x, sampleIndex) to be called when the user change the sample index by the GUI.
         -- verbose: optional, if it is true, it logs the changes in the GUI; otherwise it is silent.
+        -- UIObject: when calling the agplot function from a different UI, give this UIObject to the function as a parameter. When calling the function without another UI running, this should be None
         
     - output: list of selected indexes (as favorite)
     

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>DB_explorer</class>
+ <widget class="QMainWindow" name="DB_explorer">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -129,7 +129,7 @@
              <color alpha="255">
               <red>0</red>
               <green>0</green>
-              <blue>255</blue>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -140,7 +140,7 @@
              <color alpha="255">
               <red>0</red>
               <green>0</green>
-              <blue>255</blue>
+              <blue>0</blue>
              </color>
             </brush>
            </colorrole>
@@ -160,7 +160,7 @@
         </property>
         <property name="font">
          <font>
-          <underline>true</underline>
+          <underline>false</underline>
          </font>
         </property>
         <property name="title">
@@ -275,22 +275,7 @@
             </layout>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_6">
-             <item>
-              <widget class="QPushButton" name="pushButton_9">
-               <property name="text">
-                <string>Button 1</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="pushButton_10">
-               <property name="text">
-                <string>Button 2</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <layout class="QHBoxLayout" name="horizontalLayout_6"/>
            </item>
           </layout>
          </item>
@@ -375,7 +360,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="lineEdit_2">
+              <widget class="lineEdit_autocomplete2" name="lineEdit_2">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
                  <horstretch>0</horstretch>
@@ -431,37 +416,7 @@
        <enum>QLayout::SetNoConstraint</enum>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_9">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Minimum</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Advanced Search</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <layout class="QHBoxLayout" name="horizontalLayout_9"/>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_8">
@@ -546,49 +501,7 @@
                 <enum>QLayout::SetNoConstraint</enum>
                </property>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_10">
-                 <item>
-                  <widget class="QLabel" name="label_8">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>13</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>Find:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QPlainTextEdit" name="plainTextEdit_7">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>19</height>
-                    </size>
-                   </property>
-                   <property name="verticalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
-                   </property>
-                   <property name="horizontalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
+                <layout class="QHBoxLayout" name="horizontalLayout_10"/>
                </item>
                <item>
                 <widget class="QListWidget" name="events_list">
@@ -642,12 +555,17 @@
   <customwidget>
    <class>lineEdit_autocomplete</class>
    <extends>QLineEdit</extends>
-   <header>additional_qtclasses.h</header>
+   <header>qt_designer.additional_qtclasses.h</header>
   </customwidget>
   <customwidget>
    <class>QLabel_Clickable</class>
    <extends>QLabel</extends>
-   <header>additional_qtclasses.h</header>
+   <header>qt_designer.additional_qtclasses.h</header>
+  </customwidget>
+  <customwidget>
+   <class>lineEdit_autocomplete2</class>
+   <extends>QLineEdit</extends>
+   <header>qt_designer.additional_qtclasses.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

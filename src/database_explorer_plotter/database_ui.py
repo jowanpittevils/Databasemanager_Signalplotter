@@ -7,7 +7,7 @@ import math
 import numbers
 import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qt_designer.base_GUI import base_UI
+from qt_designer.base_GUI import Ui_DB_explorer
 from qt_designer.temporal_ui import temporal_ui
 from PyQt5.uic import loadUi
 from databasemanager import *
@@ -18,7 +18,7 @@ from cycler import cycler
 from custom_plotter.plotter import agplot
 from configparser import ConfigParser
 
-class database_ui(QtWidgets.QMainWindow,base_UI):
+class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
     """
     This class is to orderly navigate through the database, showing all information (subjects, recordings, annotations and events). 
     The class does the following:
@@ -46,7 +46,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         self.matching_subjects = []
         self.matching_recordings = []
         self.event_plots = {}
-        self.ui = base_UI()
+        self.ui = Ui_DB_explorer()
         self.ui.setupUi(self)
 
         self.config = ConfigParser()
