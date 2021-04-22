@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1092</width>
-    <height>906</height>
+    <height>919</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,36 +72,32 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btnAmpUp">
+       <widget class="QPushButton" name="btnNext">
+        <property name="toolTip">
+         <string>Go to the next segment</string>
+        </property>
         <property name="text">
-         <string>+</string>
+         <string>&gt;</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btnAmpDown">
+       <widget class="QPushButton" name="btnNextSimilarY">
+        <property name="toolTip">
+         <string>Jump to the next similar segment</string>
+        </property>
         <property name="text">
-         <string>-</string>
+         <string>|&gt;</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QPushButton" name="btnLast">
+        <property name="toolTip">
+         <string>Jump to the last segment</string>
         </property>
         <property name="text">
-         <string>Amplitude:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lblAmplitude">
-        <property name="text">
-         <string/>
+         <string>&gt;&gt;</string>
         </property>
        </widget>
       </item>
@@ -135,46 +131,50 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btnAmpUp">
+        <property name="text">
+         <string>Amplitude+</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnAmpDown">
+        <property name="text">
+         <string>Amplitude-</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnWindowUp">
         <property name="text">
-         <string>Window+</string>
+         <string>Timescale+</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnWindowDown">
         <property name="text">
-         <string>Window-</string>
+         <string>Timescale-</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btnNext">
-        <property name="toolTip">
-         <string>Go to the next segment</string>
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>&gt;</string>
+         <string>Amplitude:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btnNextSimilarY">
-        <property name="toolTip">
-         <string>Jump to the next similar segment</string>
-        </property>
+       <widget class="QLabel" name="lblAmplitude">
         <property name="text">
-         <string>|&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnLast">
-        <property name="toolTip">
-         <string>Jump to the last segment</string>
-        </property>
-        <property name="text">
-         <string>&gt;&gt;</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -185,6 +185,20 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="chbFit">
+        <property name="text">
+         <string>Fit to pane</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chbNight">
+        <property name="text">
+         <string>Night mode</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -204,7 +218,7 @@
          <string>Mark as favorite</string>
         </property>
         <property name="text">
-         <string>*</string>
+         <string>Favorite</string>
         </property>
        </widget>
       </item>
@@ -221,6 +235,13 @@
         </property>
         <property name="text">
          <string>D</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnPrint">
+        <property name="text">
+         <string>Print</string>
         </property>
        </widget>
       </item>

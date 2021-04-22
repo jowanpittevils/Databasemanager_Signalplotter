@@ -1,8 +1,9 @@
 from custom_plotter.plotter_uiDesign import Ui_MainWindow
 import pyqtgraph as pg
 import numpy as np
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5 import QtWidgets, QtGui
+from PyQt5.QtCore import QObject, pyqtSignal, Qt
+from PyQt5 import QtChart, QtWidgets, QtGui, QtPrintSupport
+from PyQt5.QtWidgets import QFileDialog
 from databasemanager import *
 import math
 import datetime
@@ -22,6 +23,7 @@ class plotter_ui(QObject, Ui_MainWindow):
     IndexChanged = pyqtSignal(int, int)
     def __init__(self, MainWindow, recording, window, start=0, y=None, title=None,fs=1, sens=None, channelNames=None, callback=None, verbose=True):
         super().__init__()
+        self.fit_to_pane = False
         self.recording = recording
         self.annotations = self.recording.annotations
         self.window = window
@@ -40,13 +42,16 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.window_scale = 1
         self.callback = callback
         self.sens = sens
-        self.__UpdateTitleText(recording.name)
+        self.__UpdateTitleText(recording.subject_name + ': ' + recording.name)
         self.axis.showGrid(True,True)
         self.ChannelNames = channelNames
         self.T = int(self.recording.fs) * self.window
         self.CH = recording.number_of_channels
         N = math.ceil(recording.duration_samp/self.T)
         self.__UpdateFs(fs)
+        self.chbFit.setChecked(False)
+        self.chbNight.setChecked(True)
+
         self.UpdateSampleIndex(0)
         self.__AssignCallbacks()
         self.detachedWindows=[]
@@ -55,15 +60,16 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.norm.totalMaxX = 0.01
         self.norm.totalMinX = -0.01
         self.__UpdateTotalNumberOfSamples()
-
         self.vb = self.axis.getViewBox()
         self.vb.setMouseEnabled(x=False, y=False)
+
         plotSample = int(self.start*self.fs-10*self.fs)
         if plotSample < 0 :
             self.UpdateSampleIndex(0,True)
 
         else:
             self.UpdateSampleIndex(plotSample,True)
+
 
     def assign_colors(self):
         #gives each event a different color in the plotter window
@@ -142,11 +148,18 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFavorite.blockSignals(False)
 
     def __UpdateAmplitude(self):
-        temp = self.format_e(self.range*self.scale_factor)
-        self.lblAmplitude.setText(temp)
+        if(self.fit_to_pane):
+            self.lblAmplitude.setText("Fit to pane")
+        else:
+            temp = self.format_e(self.range*self.scale_factor)
+            self.lblAmplitude.setText(temp)
         
     def __UpdateTotalNumberOfSamples(self):
-        self.lblTotalSamples.setText("/ " + str(self.recording.duration_sec - self.window))
+        if(self.recording.duration_sec - self.window) > 0:
+            self.lblTotalSamples.setText("/ " + str(int(self.recording.duration_sec - int(self.window))) + " s")
+        else:
+            self.lblTotalSamples.setText("/ " + str(0) + " s")
+        print(self.T, 'T')
         self.sldSampleIndex.setMaximum(self.recording.duration_samp - self.T)
         self.nmrSampleIndex.setMaximum(self.recording.duration_sec -self.window)
         self.sldSampleIndex.setMinimum(0)
@@ -164,12 +177,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         return x
         
     def __iNormalize(self, x0, sens = None):
-        if(sens is None):
-            M = max([v.max() for v in x0]) #Scale factor for changing amplitude
-            m = min([v.min() for v in x0])
-        else:
-            M = sens
-            m = -sens
+        M = max([v.max() for v in x0]) #Scale factor for changing amplitude
+        m = min([v.min() for v in x0])
         x = [(v-self.scale_factor*m)/(self.scale_factor*M-self.scale_factor*m) for v in x0]
         self.range = M-m
         self.__UpdateAmplitude()
@@ -187,6 +196,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.vb.autoRange(padding = 0)
             
     def PlotLine(self, overlapping_events, recording, window, sampleIndex):
+        if(sampleIndex < 0):
+            sampleIndex = 0
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
@@ -198,10 +209,19 @@ class plotter_ui(QObject, Ui_MainWindow):
             xx = [xx[0][0:,0::window_scale]]
         else:
             xx = np.zeros(shape=(1,self.CH,self.T))
+            print(sampleIndex, "sampleindex")
+            print(sampleIndex/self.fs)
             data = np.array([recording.get_data(start=sampleIndex/self.fs)])
             xx[:,:data.shape[1],:data.shape[2]] = data
             xx = [xx[0][0:,0::window_scale]]
-        xx = self.__iNormalize(xx, self.sens)
+        temp = []
+        if(self.fit_to_pane):
+            for i in range(self.CH):
+                temp.append(self.__iNormalize([xx[0][i,0:]], self.sens))
+            temp = np.transpose(temp, (1,0,2))
+            xx = temp
+        else:
+            xx = self.__iNormalize(xx, self.sens)
         xx = self.__AddBias(xx)
         t = np.arange(sampleIndex, sampleIndex+self.T)
         ticks = list()
@@ -256,8 +276,13 @@ class plotter_ui(QObject, Ui_MainWindow):
                 printstr += ' ' + ystr
             print(printstr)
     
+
+
+    
     def __AssignCallbacks(self):
         self.btnFirst.clicked.connect(self.__onbtnFirstClicked)
+        self.chbNight.stateChanged.connect(self.__onchbNightStateChanged)        
+        self.btnPrint.clicked.connect(self.__onbtnPrintClicked)
         #go to first sample
         self.btnAmpUp.clicked.connect(self.__increase_amplitude)
         self.btnAmpDown.clicked.connect(self.__decrease_amplitude)
@@ -277,6 +302,10 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
         self.btnDuplicate.clicked.connect(self.__onbtnDuplicate)
         self.chbFavorite.stateChanged.connect(self.__onchbFavoriteStateChanged)
+        self.chbFit.stateChanged.connect(self.__onchbFitStateChanged)
+
+    def __onbtnPrintClicked(self):
+        pass
 
     def __onchbFavoriteStateChanged(self, state):
         if(self.chbFavorite.isChecked()):
@@ -285,6 +314,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         else:
             self.FavoriteList.remove([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window])
             print(self.FavoriteList)
+
+    def __onchbFitStateChanged(self, state):
+        self.scale_factor = 1
+        self.fit_to_pane = state
+        self.Plot()
+
     def __onbtnFirstClicked(self):
         self.UpdateSampleIndex(0, True)
     def __onbtnPreviousClicked(self):
@@ -319,10 +354,15 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.DuplicateCurrent()
 
     def __onbtnWindowUp(self):
-        self.window = self.window*2
-        self.T = int(int(self.recording.fs) * self.window)
-        self.__UpdateTotalNumberOfSamples()
-        self.window_scale = self.window_scale*2
+        if(self.window*2*self.recording.fs < self.recording.duration_samp):
+            self.window = self.window*2
+            self.T = int(int(self.recording.fs) * self.window)
+            self.__UpdateTotalNumberOfSamples()
+            self.window_scale = self.window_scale*2
+        else:
+            self.window = self.recording.duration_sec
+            self.T = int(int(self.recording.fs) * self.window)
+            self.__UpdateTotalNumberOfSamples()
         self.Plot()
 
     def __onbtnWindowDown(self):
@@ -336,6 +376,35 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.window = self.window*2
             self.T = int(int(self.recording.fs) * self.window)
             self.__UpdateTotalNumberOfSamples()
+
+    def __onchbNightStateChanged(self, state):
+        if(state):
+            self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
+            self.Plot()
+        else:
+            self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255, 255))) # set background color here
+            self.Plot() 
+
+    def __onbtnPrintClicked(self):
+        printer = QtPrintSupport.QPrinter(QtPrintSupport.QPrinter.HighResolution)
+        dialog = QtPrintSupport.QPrintDialog(printer, self.MainWindow)
+        if dialog.exec_() == QtPrintSupport.QPrintDialog.Accepted:
+            self.handle_paint_request(printer)
+
+    def handle_paint_request(self, printer):
+        painter = QtGui.QPainter(printer)
+        rect = painter.viewport()
+        # Start painter
+        painter.begin(printer)
+        # Grab a widget you want to print
+        screen = self.MainWindow.grab()
+        size = screen.size()
+        size.scale(rect.size(), Qt.KeepAspectRatio)
+        # Draw grabbed pixmap
+        painter.setViewport(rect.x(), rect.y(), size.width(), size.height())
+        painter.drawPixmap(0, 0, screen)
+        # End painting
+        painter.end()
 
     def DuplicateCurrent(self):
         if(self.verbose):                
