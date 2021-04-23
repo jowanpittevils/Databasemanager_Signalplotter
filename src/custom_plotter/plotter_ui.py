@@ -51,7 +51,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.__UpdateFs(fs)
         self.chbFit.setChecked(False)
         self.chbNight.setChecked(True)
-
+        self.night_mode = 1
         self.UpdateSampleIndex(0)
         self.__AssignCallbacks()
         self.detachedWindows=[]
@@ -246,9 +246,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.Clear()
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
+                if(self.night_mode == 1):
                     self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
+                else:
+                    self.axis.plot(t,xxi[ch,:], pen=self.GetPen(21))
         for i, event in enumerate(overlapping_events):
-                self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
+            self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = sampleIndex/self.fs, xMax=t[-1])
         self.__UpdateTitle()
 
@@ -379,9 +382,11 @@ class plotter_ui(QObject, Ui_MainWindow):
 
     def __onchbNightStateChanged(self, state):
         if(state):
+            self.night_mode = 1
             self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
             self.Plot()
         else:
+            self.night_mode = 0
             self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255, 255))) # set background color here
             self.Plot() 
 
@@ -392,16 +397,18 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.handle_paint_request(printer)
 
     def handle_paint_request(self, printer):
-        painter = QtGui.QPainter(printer)
-        rect = painter.viewport()
+        printer.setPaperSize(QtPrintSupport.QPrinter.A4)
+        painter = QtGui.QPainter()
+        
         # Start painter
         painter.begin(printer)
+        scaleX = printer.pageRect().width() / self.MainWindow.rect().width()
+        scaleY = printer.pageRect().height() / self.MainWindow.rect().height()
+        useScale = min(scaleX, scaleY)
+        painter.scale(useScale, useScale)
         # Grab a widget you want to print
         screen = self.MainWindow.grab()
-        size = screen.size()
-        size.scale(rect.size(), Qt.KeepAspectRatio)
         # Draw grabbed pixmap
-        painter.setViewport(rect.x(), rect.y(), size.width(), size.height())
         painter.drawPixmap(0, 0, screen)
         # End painting
         painter.end()
