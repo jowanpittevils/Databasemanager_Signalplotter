@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1092</width>
+    <width>1103</width>
     <height>919</height>
    </rect>
   </property>
@@ -200,6 +200,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="chbFavorite">
+        <property name="toolTip">
+         <string>Mark as favorite</string>
+        </property>
+        <property name="text">
+         <string>Favorite</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -211,16 +221,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chbFavorite">
-        <property name="toolTip">
-         <string>Mark as favorite</string>
-        </property>
-        <property name="text">
-         <string>Favorite</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnDuplicate">
@@ -254,12 +254,148 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1092</width>
-     <height>21</height>
+     <width>1103</width>
+     <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menusignals">
+    <property name="title">
+     <string>signals</string>
+    </property>
+    <addaction name="signals_add"/>
+    <addaction name="signals_remove"/>
+   </widget>
+   <widget class="QMenu" name="menutimescale">
+    <property name="title">
+     <string>timescale</string>
+    </property>
+    <addaction name="window1sec"/>
+    <addaction name="window2sec"/>
+    <addaction name="window5sec"/>
+    <addaction name="window10sec"/>
+    <addaction name="window20sec"/>
+    <addaction name="window30sec"/>
+    <addaction name="window60sec"/>
+   </widget>
+   <widget class="QMenu" name="menuamplitude">
+    <property name="title">
+     <string>amplitude</string>
+    </property>
+    <addaction name="amp5x"/>
+    <addaction name="amp2x"/>
+    <addaction name="amp1_5x"/>
+    <addaction name="amp1_2x"/>
+    <addaction name="amp1x"/>
+    <addaction name="amp0_8x"/>
+    <addaction name="amp0_5x"/>
+    <addaction name="amp0_3x"/>
+    <addaction name="amp0_1x"/>
+   </widget>
+   <addaction name="menusignals"/>
+   <addaction name="menutimescale"/>
+   <addaction name="menuamplitude"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="signals_add">
+   <property name="text">
+    <string>add</string>
+   </property>
+  </action>
+  <action name="signals_remove">
+   <property name="text">
+    <string>remove</string>
+   </property>
+  </action>
+  <action name="window1sec">
+   <property name="text">
+    <string>1sec/window</string>
+   </property>
+  </action>
+  <action name="window2sec">
+   <property name="text">
+    <string>2sec/window</string>
+   </property>
+  </action>
+  <action name="window5sec">
+   <property name="text">
+    <string>5sec/window</string>
+   </property>
+  </action>
+  <action name="window10sec">
+   <property name="text">
+    <string>10sec/window</string>
+   </property>
+  </action>
+  <action name="window20sec">
+   <property name="text">
+    <string>20sec/window</string>
+   </property>
+  </action>
+  <action name="window30sec">
+   <property name="text">
+    <string>30sec/window</string>
+   </property>
+  </action>
+  <action name="window60sec">
+   <property name="text">
+    <string>60sec/window</string>
+   </property>
+  </action>
+  <action name="amp0_1x">
+   <property name="text">
+    <string>0.1x</string>
+   </property>
+  </action>
+  <action name="amp0_3x">
+   <property name="text">
+    <string>0.3x</string>
+   </property>
+  </action>
+  <action name="amp0_5x">
+   <property name="text">
+    <string>0.5x</string>
+   </property>
+  </action>
+  <action name="action0_05">
+   <property name="text">
+    <string>0.05x</string>
+   </property>
+  </action>
+  <action name="action0_02x">
+   <property name="text">
+    <string>0.02x</string>
+   </property>
+  </action>
+  <action name="amp1x">
+   <property name="text">
+    <string>1x</string>
+   </property>
+  </action>
+  <action name="amp2x">
+   <property name="text">
+    <string>2x</string>
+   </property>
+  </action>
+  <action name="amp1_5x">
+   <property name="text">
+    <string>1.5x</string>
+   </property>
+  </action>
+  <action name="amp5x">
+   <property name="text">
+    <string>5x</string>
+   </property>
+  </action>
+  <action name="amp0_8x">
+   <property name="text">
+    <string>0.8x</string>
+   </property>
+  </action>
+  <action name="amp1_2x">
+   <property name="text">
+    <string>1.2x</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

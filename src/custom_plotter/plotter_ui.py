@@ -100,16 +100,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(title is not None):
             wintitle += ' - ' + title
         self.MainWindow.setWindowTitle(wintitle)
-        
-    def __increase_amplitude(self):
-        self.scale_factor = self.scale_factor*0.8
-        self.__UpdateAmplitude()
-        self.Plot()
-
-    def __decrease_amplitude(self):
-        self.scale_factor = self.scale_factor/0.8
-        self.__UpdateAmplitude()
-        self.Plot()
     
     def __UpdateFs(self, fs):
         self.fs = fs
@@ -205,7 +195,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(sampleIndex < self.recording.duration_samp - self.T):
             start=sampleIndex
             stop=sampleIndex+self.T
-            xx = [recording._get_data_in_sample(start=start, stop=stop)]
+            xx = [recording._get_data_in_sample(start=int(start), stop=int(stop))]
             xx = [xx[0][0:,0::window_scale]]
         else:
             xx = np.zeros(shape=(1,self.CH,self.T))
@@ -228,7 +218,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(self.fs is not None):
             t = t / self.fs
             if(self.T > 9):
-                for i in range(0,self.T,math.floor(self.T/10)):
+                for i in range(0,int(self.T),int(math.floor(self.T/10))):
                     ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
         stringaxis = self.axis.getAxis('bottom')
         stringaxis.setTicks([ticks])
@@ -307,8 +297,70 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFavorite.stateChanged.connect(self.__onchbFavoriteStateChanged)
         self.chbFit.stateChanged.connect(self.__onchbFitStateChanged)
 
-    def __onbtnPrintClicked(self):
+        ###menubar###
+        #signals
+        self.signals_add.triggered.connect(self.__onbtnSignalsAdd)
+        self.signals_remove.triggered.connect(self.__onbtnSignalsRemove)
+        #timescale
+        self.window1sec.triggered.connect(lambda: self.__windowResize(1))
+        self.window2sec.triggered.connect(lambda: self.__windowResize(2))
+        self.window5sec.triggered.connect(lambda: self.__windowResize(5))
+        self.window10sec.triggered.connect(lambda: self.__windowResize(10))
+        self.window20sec.triggered.connect(lambda: self.__windowResize(20))
+        self.window30sec.triggered.connect(lambda: self.__windowResize(30))
+        self.window60sec.triggered.connect(lambda: self.__windowResize(60))
+        #amplitude
+        self.amp5x.triggered.connect(lambda: self.__amplitudeResize(5))
+        self.amp2x.triggered.connect(lambda: self.__amplitudeResize(2))
+        self.amp1_5x.triggered.connect(lambda: self.__amplitudeResize(1.5))
+        self.amp1_2x.triggered.connect(lambda: self.__amplitudeResize(1.2))
+        self.amp1x.triggered.connect(lambda: self.__amplitudeResize(1))
+        self.amp0_8x.triggered.connect(lambda: self.__amplitudeResize(0.8))
+        self.amp0_5x.triggered.connect(lambda: self.__amplitudeResize(0.5))
+        self.amp0_3x.triggered.connect(lambda: self.__amplitudeResize(0.3))
+        self.amp0_1x.triggered.connect(lambda: self.__amplitudeResize(0.1))
+
+    def __onbtnSignalsAdd(self):
         pass
+    
+    def __onbtnSignalsRemove(self):
+        pass
+
+    def __windowResize(self, window):
+        if self.window == window:
+            return
+        if self.window < window : 
+            if(window*self.recording.fs < self.recording.duration_samp):
+                self.window_scale = self.window_scale*window/self.window
+                self.window = window
+                self.T = int(int(self.recording.fs)*self.window)
+                self.__UpdateTotalNumberOfSamples()
+            else:
+                self.window = self.recording.duration_sec
+                self.T = int(int(self.recording.fs)*self.window)
+                self.__UpdateTotalNumberOfSamples
+            self.Plot()
+        else:       
+            self.window_scale = self.window_scale/(self.window/window)  
+            self.T = int(int(self.recording.fs) * window)
+            self.__UpdateTotalNumberOfSamples()
+            if self.T > self.window/window:
+                self.window = window
+                self.Plot()
+            else:
+                self.window = window
+                self.T = int(int(self.recording.fs) * self.window)
+                self.__UpdateTotalNumberOfSamples()
+
+    def __amplitudeResize(self, scale):
+        if self.scale_factor == scale:
+            return
+        if self.scale_factor < scale:
+            self.scale_factor = 1/scale
+        else:
+            self.scale_factor = 1/scale
+        self.__UpdateAmplitude()
+        self.Plot()
 
     def __onchbFavoriteStateChanged(self, state):
         if(self.chbFavorite.isChecked()):
@@ -355,6 +407,16 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.UpdateSampleIndex(self.nmrSampleIndex.value()*self.fs, True, self.nmrSampleIndex)
     def __onbtnDuplicate(self):
         self.DuplicateCurrent()
+
+    def __increase_amplitude(self):
+        self.scale_factor = self.scale_factor*0.8
+        self.__UpdateAmplitude()
+        self.Plot()
+
+    def __decrease_amplitude(self):
+        self.scale_factor = self.scale_factor/0.8
+        self.__UpdateAmplitude()
+        self.Plot()
 
     def __onbtnWindowUp(self):
         if(self.window*2*self.recording.fs < self.recording.duration_samp):

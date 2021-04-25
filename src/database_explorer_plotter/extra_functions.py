@@ -76,7 +76,7 @@ def temporal_browser(Database, subjects=None, timescale = 'year'):
     app.exec_()
 
 
-def plot_browser(recording:Recording, window=30, start=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose:bool = True):
+def plot_browser(recording, window=30, start=0, y=None, title=None,fs=1,sens=None,channel_names=None, callback=None, verbose:bool = True):
     """
     Opens a recording in the plot explorer for visualizing tensors of multichannel timeseries such as speech, EEG, ECG, EMG, EOG. 
     It plots continious signals by sampling the data of the given recording.
@@ -86,7 +86,7 @@ def plot_browser(recording:Recording, window=30, start=0, y=None, title=None,fs=
         -- recording:   the recording to be plotted
         -- window:      optional, the length of signal in seconds to be shown in each window frame.
                         for instance (200 segments, 10s * 250 hz, 20 channels)
-        -- start: plots the recording at the start of the given event.
+        -- start:       plots the recording at the start of the given event.
         -- y:           optional, the labels of segments. It must be a vector with size of S.
         -- title:       optional, the tile of the window.
         -- fs:          optional [default is None], the sampling frequensy. If fs is None the data will be plotted in samples, otherwise in seconds. 
@@ -94,7 +94,7 @@ def plot_browser(recording:Recording, window=30, start=0, y=None, title=None,fs=
         -- sens:        optional [default is None], normalizing factor. If it is None, the signals will be normalize automatically with the min and max of each channel in each segment.
         -- channel_names:optional [default is None], the name of channels to be plotted on the y-axis.
         -- callback:    optional [default is None], a function as func(x, sampleIndex) to be called when the user change the sample index by the GUI.
-        -- verbose: optional, if it is true, it logs the changes in the GUI; otherwise it is silent.
+        -- verbose:     optional, if it is true, it logs the changes in the GUI; otherwise it is silent.
         
     - output: list of selected indexes (as favorite)
     """
@@ -115,6 +115,6 @@ channel_names=UserSettings.global_settings().loading_data_channels
 
 
 plot_browser(rec, fs=fs,channel_names=channel_names)
-print("lol")
-temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'month')
+
+#temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'month')
 

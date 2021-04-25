@@ -34,8 +34,8 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
         super(database_ui, self).__init__()
         UserSettings.global_settings().loading_data_missing_channel_type = 'error'
         UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
-        root = ''
-        self.db = Database(root)
+        self.root = ''
+        self.db = Database(self.root)
         self.datasets = self.db.dataset_names
         self.dataset_name = ""
         self.myOtherWindow = QtWidgets.QMainWindow()
