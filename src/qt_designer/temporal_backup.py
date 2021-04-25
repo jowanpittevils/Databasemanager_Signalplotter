@@ -4,11 +4,6 @@ from databasemanager import *
 from cycler import cycler
 from custom_plotter.plotter import agplot
 from datetime import datetime
-import time
-import numpy as np
-import math
-import pyqtgraph as pg
-    
 
 class temporal_ui(Ui_TemporalView):
     """
@@ -172,7 +167,7 @@ class temporal_ui(Ui_TemporalView):
             channel_names=UserSettings.global_settings().loading_data_channels
             callback=None
             verbose:bool = True
-            agplot(self.clicked_recording, window, start, y, title,fs,sens,channel_names, callback, verbose)
+            agplot(self.clicked_recording, window, start, y, title,fs,sens,channel_names, callback, verbose, self)
 
     def temporal_click(self, event):
         if event.inaxes is not None:
