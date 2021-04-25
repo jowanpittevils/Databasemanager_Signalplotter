@@ -1,5 +1,0 @@
-minimum width temporal
-scroll bar on temporal
-function of temporal: give parameter timescale + list of subjects (if none: plot everything)
-icons/titles
-margins
