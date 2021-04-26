@@ -1,4 +1,5 @@
 from custom_plotter.plotter_uiDesign import Ui_MainWindow
+from custom_plotter.channel_ui import channel_UI
 import pyqtgraph as pg
 import numpy as np
 from PyQt5.QtCore import QObject, pyqtSignal, Qt
@@ -47,7 +48,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ChannelNames = channelNames
         self.T = int(self.recording.fs) * self.window
         self.CH = recording.number_of_channels
-        N = math.ceil(recording.duration_samp/self.T)
         self.__UpdateFs(fs)
         self.chbFit.setChecked(False)
         self.chbNight.setChecked(True)
@@ -62,7 +62,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.__UpdateTotalNumberOfSamples()
         self.vb = self.axis.getViewBox()
         self.vb.setMouseEnabled(x=False, y=False)
-
         plotSample = int(self.start*self.fs-10*self.fs)
         if plotSample < 0 :
             self.UpdateSampleIndex(0,True)
@@ -273,34 +272,31 @@ class plotter_ui(QObject, Ui_MainWindow):
 
     
     def __AssignCallbacks(self):
+        # move buttons
         self.btnFirst.clicked.connect(self.__onbtnFirstClicked)
-        self.chbNight.stateChanged.connect(self.__onchbNightStateChanged)        
-        self.btnPrint.clicked.connect(self.__onbtnPrintClicked)
-        #go to first sample
+        self.btnLast.clicked.connect(self.__onbtnLastClicked)
+        self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
+        self.btnNext.clicked.connect(self.__onbtnNextClicked)
+        self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
+        self.btnNextSimilarY.clicked.connect(self.__onbtnNextSimilarYClicked)
+        #slider+spinbox
+        self.sldSampleIndex.valueChanged.connect(self.__onsldValueChanged)
+        self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
+        #amplitude+timescale buttons
         self.btnAmpUp.clicked.connect(self.__increase_amplitude)
         self.btnAmpDown.clicked.connect(self.__decrease_amplitude)
         self.btnWindowUp.clicked.connect(self.__onbtnWindowUp)
         self.btnWindowDown.clicked.connect(self.__onbtnWindowDown)
-        self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
-        #move the plotted data by 0.3*window size backwards
-        self.btnNext.clicked.connect(self.__onbtnNextClicked)
-        #move the plotted data by 0.3*window size forwards
-        self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
-        #move the plotted data by a window size backwards
-        self.btnNextSimilarY.clicked.connect(self.__onbtnNextSimilarYClicked)
-        #move the plotted data by a window size forwards
-        self.btnLast.clicked.connect(self.__onbtnLastClicked)
-        #go to last sample
-        self.sldSampleIndex.valueChanged.connect(self.__onsldValueChanged)
-        self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
-        self.btnDuplicate.clicked.connect(self.__onbtnDuplicate)
+        #checkboxes + duplicate&print buttons
+        self.chbNight.stateChanged.connect(self.__onchbNightStateChanged)        
         self.chbFavorite.stateChanged.connect(self.__onchbFavoriteStateChanged)
         self.chbFit.stateChanged.connect(self.__onchbFitStateChanged)
-
+        self.btnPrint.clicked.connect(self.__onbtnPrintClicked)
+        self.btnDuplicate.clicked.connect(self.__onbtnDuplicate)
         ###menubar###
-        #signals
-        self.signals_add.triggered.connect(self.__onbtnSignalsAdd)
-        self.signals_remove.triggered.connect(self.__onbtnSignalsRemove)
+        #channels
+        self.signals_add.triggered.connect(self.__onbtnChannelsAdd)
+        self.signals_remove.triggered.connect(self.__onbtnChannelsRemove)
         #timescale
         self.window1sec.triggered.connect(lambda: self.__windowResize(1))
         self.window2sec.triggered.connect(lambda: self.__windowResize(2))
@@ -320,63 +316,11 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.amp0_3x.triggered.connect(lambda: self.__amplitudeResize(0.3))
         self.amp0_1x.triggered.connect(lambda: self.__amplitudeResize(0.1))
 
-    def __onbtnSignalsAdd(self):
-        pass
-    
-    def __onbtnSignalsRemove(self):
-        pass
-
-    def __windowResize(self, window):
-        if self.window == window:
-            return
-        if self.window < window : 
-            if(window*self.recording.fs < self.recording.duration_samp):
-                self.window_scale = self.window_scale*window/self.window
-                self.window = window
-                self.T = int(int(self.recording.fs)*self.window)
-                self.__UpdateTotalNumberOfSamples()
-            else:
-                self.window = self.recording.duration_sec
-                self.T = int(int(self.recording.fs)*self.window)
-                self.__UpdateTotalNumberOfSamples
-            self.Plot()
-        else:       
-            self.window_scale = self.window_scale/(self.window/window)  
-            self.T = int(int(self.recording.fs) * window)
-            self.__UpdateTotalNumberOfSamples()
-            if self.T > self.window/window:
-                self.window = window
-                self.Plot()
-            else:
-                self.window = window
-                self.T = int(int(self.recording.fs) * self.window)
-                self.__UpdateTotalNumberOfSamples()
-
-    def __amplitudeResize(self, scale):
-        if self.scale_factor == scale:
-            return
-        if self.scale_factor < scale:
-            self.scale_factor = 1/scale
-        else:
-            self.scale_factor = 1/scale
-        self.__UpdateAmplitude()
-        self.Plot()
-
-    def __onchbFavoriteStateChanged(self, state):
-        if(self.chbFavorite.isChecked()):
-            self.FavoriteList.append([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window])
-            print(self.FavoriteList)
-        else:
-            self.FavoriteList.remove([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window])
-            print(self.FavoriteList)
-
-    def __onchbFitStateChanged(self, state):
-        self.scale_factor = 1
-        self.fit_to_pane = state
-        self.Plot()
-
+    #move buttons
     def __onbtnFirstClicked(self):
         self.UpdateSampleIndex(0, True)
+    def __onbtnLastClicked(self):
+        self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
     def __onbtnPreviousClicked(self):
         if(self.SampleIndex>math.floor(self.T*0.3)):
             self.UpdateSampleIndex(self.SampleIndex - math.floor(self.T*0.3), True)
@@ -397,17 +341,14 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.UpdateSampleIndex(self.SampleIndex+self.T,True)
         else:
             self.UpdateSampleIndex(self.recording.duration_samp-self.T,True)
-    def __onbtnLastClicked(self):
-        self.UpdateSampleIndex(self.recording.duration_samp-self.T, True)
-    def __onsldSliderReleased(self):
-        self.UpdateSampleIndex(self.sldSampleIndex.value(), True, self.sldSampleIndex)
+
+    #slider+spinbox
     def __onsldValueChanged(self):
         self.UpdateSampleIndex(self.sldSampleIndex.value(), True, self.sldSampleIndex)
     def __onnmrValueChanged(self):
         self.UpdateSampleIndex(self.nmrSampleIndex.value()*self.fs, True, self.nmrSampleIndex)
-    def __onbtnDuplicate(self):
-        self.DuplicateCurrent()
 
+    #amplitude+timescale buttons
     def __increase_amplitude(self):
         self.scale_factor = self.scale_factor*0.8
         self.__UpdateAmplitude()
@@ -442,6 +383,20 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.T = int(int(self.recording.fs) * self.window)
             self.__UpdateTotalNumberOfSamples()
 
+    #checkboxes + duplicate&print buttons
+    def __onchbFavoriteStateChanged(self, state):
+        if(self.chbFavorite.isChecked()):
+            self.FavoriteList.append([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window])
+            print(self.FavoriteList)
+        else:
+            self.FavoriteList.remove([self.SampleIndex/self.fs,self.SampleIndex/self.fs+self.window])
+            print(self.FavoriteList)
+
+    def __onchbFitStateChanged(self, state):
+        self.scale_factor = 1
+        self.fit_to_pane = state
+        self.Plot()
+    
     def __onchbNightStateChanged(self, state):
         if(state):
             self.night_mode = 1
@@ -452,6 +407,19 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255, 255))) # set background color here
             self.Plot() 
 
+    def __onbtnDuplicate(self):
+        self.DuplicateCurrent()
+    
+    def DuplicateCurrent(self):
+        if(self.verbose):                
+            print('detaching...')
+        MainWindow = QtWidgets.QMainWindow()
+        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, start = 0,y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        self.detachedWindows.append(plotter)
+        MainWindow.show()
+        MainWindow.resize(self.MainWindow.size())
+        plotter.UpdateSampleIndex(self.SampleIndex, rePlot=True, triggeredSignals = False)
+
     def __onbtnPrintClicked(self):
         printer = QtPrintSupport.QPrinter(QtPrintSupport.QPrinter.HighResolution)
         dialog = QtPrintSupport.QPrintDialog(printer, self.MainWindow)
@@ -461,7 +429,6 @@ class plotter_ui(QObject, Ui_MainWindow):
     def handle_paint_request(self, printer):
         printer.setPaperSize(QtPrintSupport.QPrinter.A4)
         painter = QtGui.QPainter()
-        
         # Start painter
         painter.begin(printer)
         scaleX = printer.pageRect().width() / self.MainWindow.rect().width()
@@ -475,15 +442,75 @@ class plotter_ui(QObject, Ui_MainWindow):
         # End painting
         painter.end()
 
-    def DuplicateCurrent(self):
-        if(self.verbose):                
-            print('detaching...')
-        MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, start = 0,y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
-        self.detachedWindows.append(plotter)
-        MainWindow.show()
-        MainWindow.resize(self.MainWindow.size())
-        plotter.UpdateSampleIndex(self.SampleIndex, rePlot=True, triggeredSignals = False)
+    ###menubar
+    # channels menu
+    def __onbtnChannelsAdd(self):
+        self.ch_ui = channel_UI()
+        self.ch_window = QtWidgets.QMainWindow()
+        self.ch_ui.setupUi(self.ch_window)
+        self.ch_window.show()
+        all_channels = ['fp1','fp2','f3','f4','p3','p4','c3','c4','t1','t2','t3','t4','t5','t6','o1','o2','a1','a2','f7','f8','fz','cz','pz','ecg','emg','resp','sao2','eogl','eogr','pulse']
+        self.ch_ui.channelsList.addItems(all_channels)
+        self.ch_ui.btnSignals.setText("Add channel(s)")
+        self.ch_ui.btnSignals.clicked.connect(self.addChannels)
+    
+    def addChannels(self):
+        channels = self.ch_ui.channelsList.selectedItems()
+        for i in range(len(channels)):
+            self.ChannelNames.append(str(self.ch_ui.channelsList.selectedItems()[i].text()))
+        self.ch_window.close()
+        self.Plot()
+    
+    def __onbtnChannelsRemove(self):
+        self.ch_ui = channel_UI()
+        self.ch_window = QtWidgets.QMainWindow()
+        self.ch_ui.setupUi(self.ch_window)
+        self.ch_window.show()
+        self.ch_ui.channelsList.addItems(self.ChannelNames)
+        self.ch_ui.btnSignals.clicked.connect(self.removeChannels)
+
+    def removeChannels(self):
+        channels = self.ch_ui.channelsList.selectedItems()
+        for i in range(len(channels)):
+            self.ChannelNames.remove(str(self.ch_ui.channelsList.selectedItems()[i].text()))
+        self.ch_window.close()
+        self.Plot()
+
+    # timescale menu
+    def __windowResize(self, window):
+        if self.window == window:
+            return
+        if self.window < window : 
+            if(window*self.recording.fs < self.recording.duration_samp):
+                self.window_scale = self.window_scale*window/self.window
+                self.window = window
+                self.T = int(int(self.recording.fs)*self.window)
+                self.__UpdateTotalNumberOfSamples()
+            else:
+                self.window = self.recording.duration_sec
+                self.T = int(int(self.recording.fs)*self.window)
+                self.__UpdateTotalNumberOfSamples
+            self.Plot()
+        else:       
+            self.window_scale = self.window_scale/(self.window/window)  
+            self.T = int(int(self.recording.fs) * window)
+            self.__UpdateTotalNumberOfSamples()
+            if self.T > self.window/window:
+                self.window = window
+                self.Plot()
+            else:
+                self.window = window
+                self.T = int(int(self.recording.fs) * self.window)
+                self.__UpdateTotalNumberOfSamples()
+
+    # amplitude menu
+    def __amplitudeResize(self, scale):
+        if self.scale_factor == scale:
+            return
+        else:
+            self.scale_factor = 1/scale
+        self.__UpdateAmplitude()
+        self.Plot()
         
     class struct():
         pass
