@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1103</width>
-    <height>919</height>
+    <height>668</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -118,7 +118,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>60</width>
+          <width>16777215</width>
           <height>16777215</height>
          </size>
         </property>
@@ -127,34 +127,6 @@
         </property>
         <property name="text">
          <string>/ 99999999</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnAmpUp">
-        <property name="text">
-         <string>Amplitude+</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnAmpDown">
-        <property name="text">
-         <string>Amplitude-</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnWindowUp">
-        <property name="text">
-         <string>Timescale+</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btnWindowDown">
-        <property name="text">
-         <string>Timescale-</string>
         </property>
        </widget>
       </item>

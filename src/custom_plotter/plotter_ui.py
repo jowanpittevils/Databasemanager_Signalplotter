@@ -268,53 +268,45 @@ class plotter_ui(QObject, Ui_MainWindow):
                 printstr += ' ' + ystr
             print(printstr)
     
-
-
-    
     def __AssignCallbacks(self):
-    # move buttons
-    self.btnFirst.clicked.connect(self.__onbtnFirstClicked)
-    self.btnLast.clicked.connect(self.__onbtnLastClicked)
-    self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
-    self.btnNext.clicked.connect(self.__onbtnNextClicked)
-    self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
-    self.btnNextSimilarY.clicked.connect(self.__onbtnNextSimilarYClicked)
-    #slider+spinbox
-    self.sldSampleIndex.valueChanged.connect(self.__onsldValueChanged)
-    self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
-    #amplitude+timescale buttons
-    self.btnAmpUp.clicked.connect(self.__increase_amplitude)
-    self.btnAmpDown.clicked.connect(self.__decrease_amplitude)
-    self.btnWindowUp.clicked.connect(self.__onbtnWindowUp)
-    self.btnWindowDown.clicked.connect(self.__onbtnWindowDown)
-    #checkboxes + duplicate&print buttons
-    self.chbNight.stateChanged.connect(self.__onchbNightStateChanged)        
-    self.chbFavorite.stateChanged.connect(self.__onchbFavoriteStateChanged)
-    self.chbFit.stateChanged.connect(self.__onchbFitStateChanged)
-    self.btnPrint.clicked.connect(self.__onbtnPrintClicked)
-    self.btnDuplicate.clicked.connect(self.__onbtnDuplicate)
-    ###menubar###
-    #channels
-    self.signals_add.triggered.connect(self.__onbtnChannelsAdd)
-    self.signals_remove.triggered.connect(self.__onbtnChannelsRemove)
-    #timescale
-    self.window1sec.triggered.connect(lambda: self.__windowResize(1))
-    self.window2sec.triggered.connect(lambda: self.__windowResize(2))
-    self.window5sec.triggered.connect(lambda: self.__windowResize(5))
-    self.window10sec.triggered.connect(lambda: self.__windowResize(10))
-    self.window20sec.triggered.connect(lambda: self.__windowResize(20))
-    self.window30sec.triggered.connect(lambda: self.__windowResize(30))
-    self.window60sec.triggered.connect(lambda: self.__windowResize(60))
-    #amplitude
-    self.amp5x.triggered.connect(lambda: self.__amplitudeResize(5))
-    self.amp2x.triggered.connect(lambda: self.__amplitudeResize(2))
-    self.amp1_5x.triggered.connect(lambda: self.__amplitudeResize(1.5))
-    self.amp1_2x.triggered.connect(lambda: self.__amplitudeResize(1.2))
-    self.amp1x.triggered.connect(lambda: self.__amplitudeResize(1))
-    self.amp0_8x.triggered.connect(lambda: self.__amplitudeResize(0.8))
-    self.amp0_5x.triggered.connect(lambda: self.__amplitudeResize(0.5))
-    self.amp0_3x.triggered.connect(lambda: self.__amplitudeResize(0.3))
-    self.amp0_1x.triggered.connect(lambda: self.__amplitudeResize(0.1))
+        # move buttons
+        self.btnFirst.clicked.connect(self.__onbtnFirstClicked)
+        self.btnLast.clicked.connect(self.__onbtnLastClicked)
+        self.btnPrevious.clicked.connect(self.__onbtnPreviousClicked)
+        self.btnNext.clicked.connect(self.__onbtnNextClicked)
+        self.btnPreviousSimilarY.clicked.connect(self.__onbtnPreviousSimilarYClicked)
+        self.btnNextSimilarY.clicked.connect(self.__onbtnNextSimilarYClicked)
+        #slider+spinbox
+        self.sldSampleIndex.valueChanged.connect(self.__onsldValueChanged)
+        self.nmrSampleIndex.valueChanged.connect(self.__onnmrValueChanged)
+        #checkboxes + duplicate&print buttons
+        self.chbNight.stateChanged.connect(self.__onchbNightStateChanged)        
+        self.chbFavorite.stateChanged.connect(self.__onchbFavoriteStateChanged)
+        self.chbFit.stateChanged.connect(self.__onchbFitStateChanged)
+        self.btnPrint.clicked.connect(self.__onbtnPrintClicked)
+        self.btnDuplicate.clicked.connect(self.__onbtnDuplicate)
+        ###menubar###
+        #channels
+        self.signals_add.triggered.connect(self.__onbtnChannelsAdd)
+        self.signals_remove.triggered.connect(self.__onbtnChannelsRemove)
+        #timescale
+        self.window1sec.triggered.connect(lambda: self.__windowResize(1))
+        self.window2sec.triggered.connect(lambda: self.__windowResize(2))
+        self.window5sec.triggered.connect(lambda: self.__windowResize(5))
+        self.window10sec.triggered.connect(lambda: self.__windowResize(10))
+        self.window20sec.triggered.connect(lambda: self.__windowResize(20))
+        self.window30sec.triggered.connect(lambda: self.__windowResize(30))
+        self.window60sec.triggered.connect(lambda: self.__windowResize(60))
+        #amplitude
+        self.amp5x.triggered.connect(lambda: self.__amplitudeResize(5))
+        self.amp2x.triggered.connect(lambda: self.__amplitudeResize(2))
+        self.amp1_5x.triggered.connect(lambda: self.__amplitudeResize(1.5))
+        self.amp1_2x.triggered.connect(lambda: self.__amplitudeResize(1.2))
+        self.amp1x.triggered.connect(lambda: self.__amplitudeResize(1))
+        self.amp0_8x.triggered.connect(lambda: self.__amplitudeResize(0.8))
+        self.amp0_5x.triggered.connect(lambda: self.__amplitudeResize(0.5))
+        self.amp0_3x.triggered.connect(lambda: self.__amplitudeResize(0.3))
+        self.amp0_1x.triggered.connect(lambda: self.__amplitudeResize(0.1))
 
     #move buttons
     def __onbtnFirstClicked(self):
@@ -347,41 +339,6 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.UpdateSampleIndex(self.sldSampleIndex.value(), True, self.sldSampleIndex)
     def __onnmrValueChanged(self):
         self.UpdateSampleIndex(self.nmrSampleIndex.value()*self.fs, True, self.nmrSampleIndex)
-
-    #amplitude+timescale buttons
-    def __increase_amplitude(self):
-        self.scale_factor = self.scale_factor*0.8
-        self.__UpdateAmplitude()
-        self.Plot()
-
-    def __decrease_amplitude(self):
-        self.scale_factor = self.scale_factor/0.8
-        self.__UpdateAmplitude()
-        self.Plot()
-
-    def __onbtnWindowUp(self):
-        if(self.window*2*self.recording.fs < self.recording.duration_samp):
-            self.window = self.window*2
-            self.T = int(int(self.recording.fs) * self.window)
-            self.__UpdateTotalNumberOfSamples()
-            self.window_scale = self.window_scale*2
-        else:
-            self.window = self.recording.duration_sec
-            self.T = int(int(self.recording.fs) * self.window)
-            self.__UpdateTotalNumberOfSamples()
-        self.Plot()
-
-    def __onbtnWindowDown(self):
-        self.window = self.window/2
-        self.T = int(int(self.recording.fs) * self.window)
-        self.__UpdateTotalNumberOfSamples()
-        self.window_scale = self.window_scale/2
-        if self.T > 2:
-            self.Plot()
-        else:
-            self.window = self.window*2
-            self.T = int(int(self.recording.fs) * self.window)
-            self.__UpdateTotalNumberOfSamples()
 
     #checkboxes + duplicate&print buttons
     def __onchbFavoriteStateChanged(self, state):
@@ -451,8 +408,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_window.show()
         all_channels = ['fp1','fp2','f3','f4','p3','p4','c3','c4','t1','t2','t3','t4','t5','t6','o1','o2','a1','a2','f7','f8','fz','cz','pz','ecg','emg','resp','sao2','eogl','eogr','pulse']
         self.ch_ui.channelsList.addItems(all_channels)
-        self.ch_ui.btnSignals.setText("Add channel(s)")
-        self.ch_ui.btnSignals.clicked.connect(self.addChannels)
+        self.ch_ui.btnChannels.setText("Add channel(s)")
+        self.ch_ui.btnChannels.clicked.connect(self.addChannels)
     
     def addChannels(self):
         channels = self.ch_ui.channelsList.selectedItems()
@@ -467,7 +424,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_ui.setupUi(self.ch_window)
         self.ch_window.show()
         self.ch_ui.channelsList.addItems(self.ChannelNames)
-        self.ch_ui.btnSignals.clicked.connect(self.removeChannels)
+        self.ch_ui.btnChannels.clicked.connect(self.removeChannels)
 
     def removeChannels(self):
         channels = self.ch_ui.channelsList.selectedItems()

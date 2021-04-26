@@ -39,9 +39,9 @@ class channel_UI(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
-        self.btnSignals = QtWidgets.QPushButton(self.centralwidget)
-        self.btnSignals.setObjectName("btnSignals")
-        self.horizontalLayout.addWidget(self.btnSignals)
+        self.btnChannels = QtWidgets.QPushButton(self.centralwidget)
+        self.btnChannels.setObjectName("btnChannels")
+        self.horizontalLayout.addWidget(self.btnChannels)
         self.verticalLayout.addLayout(self.horizontalLayout)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -59,7 +59,7 @@ class channel_UI(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.channelsList.setSortingEnabled(False)
-        self.btnSignals.setText(_translate("MainWindow", "remove signal(s)"))
+        self.btnChannels.setText(_translate("MainWindow", "remove channel(s)"))
 
 
 if __name__ == "__main__":

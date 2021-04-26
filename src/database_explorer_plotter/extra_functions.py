@@ -102,7 +102,7 @@ def plot_browser(recording, window=30, start=0, y=None, title=None,fs=1,sens=Non
 
 
 UserSettings.global_settings().loading_data_missing_channel_type = 'error'
-UserSettings.global_settings().loading_data_channels = ['fp1']
+UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
     
 
 root = 'C:\\db\\toyDB'
