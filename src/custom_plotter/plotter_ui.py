@@ -45,7 +45,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.sens = sens
         self.__UpdateTitleText(recording.subject_name + ': ' + recording.name)
         self.axis.showGrid(True,True)
-        self.ChannelNames = channelNames
+        self.channelNames = channelNames
         self.T = int(self.recording.fs) * self.window
         self.CH = recording.number_of_channels
         self.__UpdateFs(fs)
@@ -181,7 +181,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.UpdateSampleIndex(sampleIndex)
         overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
         self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex)
-        self.__UpdateChannelNames(self.ChannelNames,overlapping_events, True)
+        self.__UpdateChannelNames(self.channelNames,overlapping_events, True)
         self.vb.autoRange(padding = 0)
             
     def PlotLine(self, overlapping_events, recording, window, sampleIndex):
@@ -371,7 +371,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(self.verbose):                
             print('detaching...')
         MainWindow = QtWidgets.QMainWindow()
-        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, start = 0,y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.ChannelNames, callback=self.callback)
+        plotter = plotter_ui(MainWindow=MainWindow, recording=self.recording, window =self.window, start = 0,y=self.y, title=self.title, fs=self.fs, sens=self.sens, channelNames=self.channelNames, callback=self.callback)
         self.detachedWindows.append(plotter)
         MainWindow.show()
         MainWindow.resize(self.MainWindow.size())
@@ -410,11 +410,11 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_ui.channelsList.addItems(all_channels)
         self.ch_ui.btnChannels.setText("Add channel(s)")
         self.ch_ui.btnChannels.clicked.connect(self.addChannels)
-    
+
     def addChannels(self):
         channels = self.ch_ui.channelsList.selectedItems()
         for i in range(len(channels)):
-            self.ChannelNames.append(str(self.ch_ui.channelsList.selectedItems()[i].text()))
+            self.channelNames.append(str(self.ch_ui.channelsList.selectedItems()[i].text()))
         self.ch_window.close()
         self.Plot()
     
@@ -423,13 +423,13 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_window = QtWidgets.QMainWindow()
         self.ch_ui.setupUi(self.ch_window)
         self.ch_window.show()
-        self.ch_ui.channelsList.addItems(self.ChannelNames)
+        self.ch_ui.channelsList.addItems(self.channelNames)
         self.ch_ui.btnChannels.clicked.connect(self.removeChannels)
 
     def removeChannels(self):
         channels = self.ch_ui.channelsList.selectedItems()
         for i in range(len(channels)):
-            self.ChannelNames.remove(str(self.ch_ui.channelsList.selectedItems()[i].text()))
+            self.channelNames.remove(str(self.ch_ui.channelsList.selectedItems()[i].text()))
         self.ch_window.close()
         self.Plot()
 
