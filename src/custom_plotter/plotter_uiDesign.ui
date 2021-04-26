@@ -260,14 +260,14 @@
    </property>
    <widget class="QMenu" name="menusignals">
     <property name="title">
-     <string>signals</string>
+     <string>Channels</string>
     </property>
     <addaction name="signals_add"/>
     <addaction name="signals_remove"/>
    </widget>
    <widget class="QMenu" name="menutimescale">
     <property name="title">
-     <string>timescale</string>
+     <string>Timescale</string>
     </property>
     <addaction name="window1sec"/>
     <addaction name="window2sec"/>
@@ -279,7 +279,7 @@
    </widget>
    <widget class="QMenu" name="menuamplitude">
     <property name="title">
-     <string>amplitude</string>
+     <string>Amplitude</string>
     </property>
     <addaction name="amp5x"/>
     <addaction name="amp2x"/>
