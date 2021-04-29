@@ -292,7 +292,7 @@ class Ui_DB_explorer(object):
         self.label_9.setText(_translate("DB_explorer", "Find:"))
         self.groupBox.setTitle(_translate("DB_explorer", "Annotations"))
         self.groupBox_2.setTitle(_translate("DB_explorer", "Events"))
-        self.label.setText(_translate("DB_explorer", "label start-end (in seconds)"))
+        self.label.setText(_translate("DB_explorer", "label start-end [s]"))
         self.pushButton_8.setText(_translate("DB_explorer", "Temporal"))
 from qt_designer.additional_qtclasses import QLabel_Clickable, lineEdit_autocomplete, lineEdit_autocomplete2
 
