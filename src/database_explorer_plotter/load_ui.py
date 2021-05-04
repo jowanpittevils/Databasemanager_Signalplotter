@@ -106,6 +106,9 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
 
 
 if __name__ == "__main__":
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+                QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
         app = QtWidgets.QApplication(sys.argv)
         w = load_ui()
         sys.exit(app.exec_())

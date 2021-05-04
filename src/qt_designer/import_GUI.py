@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_LoadWindow(object):
     def setupUi(self, LoadWindow):
         LoadWindow.setObjectName("LoadWindow")
-        LoadWindow.resize(800, 543)
-        LoadWindow.setMinimumSize(QtCore.QSize(800, 500))
+        LoadWindow.resize(500, 400)
+        LoadWindow.setMinimumSize(QtCore.QSize(500, 400))
         self.centralwidget = QtWidgets.QWidget(LoadWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -73,7 +73,7 @@ class Ui_LoadWindow(object):
         self.verticalLayout.addWidget(self.dataset_list)
         LoadWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(LoadWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 25))
         self.menubar.setObjectName("menubar")
         LoadWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(LoadWindow)
@@ -85,7 +85,7 @@ class Ui_LoadWindow(object):
 
     def retranslateUi(self, LoadWindow):
         _translate = QtCore.QCoreApplication.translate
-        LoadWindow.setWindowTitle(_translate("LoadWindow", "MainWindow"))
+        LoadWindow.setWindowTitle(_translate("LoadWindow", "Load browser"))
         self.db_root.setText(_translate("LoadWindow", "Database root:"))
         self.browse1.setText(_translate("LoadWindow", "Browse"))
         self.ds_root.setText(_translate("LoadWindow", "Dataset folder:"))

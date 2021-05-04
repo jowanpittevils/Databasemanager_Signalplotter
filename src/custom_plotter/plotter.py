@@ -1,6 +1,6 @@
 from databasemanager import *
 from custom_plotter.plotter_ui import plotter_ui
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 import sys
 
 class plotter_countainer():
@@ -78,6 +78,9 @@ def agplot(recording, window, start=0, y=None, title=None,fs=1,sens=None,channel
             agplot([x1,x2,[x3 , x4]], y=y,title=[title1, None, title3], fs=[fs1,fs2,-1], channel_names=[chn1,None,None])
     '''
     if(UIObject == None):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+            QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
         app = QtWidgets.QApplication(sys.argv)
         recording_plotter_container = plotter_countainer()
         recording_plotter_container.add(recording, window, start, y,title,fs,sens,channel_names,callback, verbose)

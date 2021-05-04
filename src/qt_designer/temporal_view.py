@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TemporalView(object):
     def setupUi(self, TemporalView):
         TemporalView.setObjectName("TemporalView")
-        TemporalView.resize(1000, 800)
-        TemporalView.setMinimumSize(QtCore.QSize(1000, 800))
+        TemporalView.resize(650, 450)
+        TemporalView.setMinimumSize(QtCore.QSize(600, 400))
         self.centralwidget = QtWidgets.QWidget(TemporalView)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
@@ -67,7 +67,7 @@ class Ui_TemporalView(object):
         self.gridLayout.addWidget(self.TemporalPlot, 2, 0, 1, 1)
         TemporalView.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(TemporalView)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1000, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 650, 25))
         self.menubar.setObjectName("menubar")
         TemporalView.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(TemporalView)
@@ -79,7 +79,7 @@ class Ui_TemporalView(object):
 
     def retranslateUi(self, TemporalView):
         _translate = QtCore.QCoreApplication.translate
-        TemporalView.setWindowTitle(_translate("TemporalView", "MainWindow"))
+        TemporalView.setWindowTitle(_translate("TemporalView", "Temporal Profile"))
         self.StartLabel.setText(_translate("TemporalView", "Start:"))
         self.GapLabel.setText(_translate("TemporalView", "Recording gap:"))
         self.EventsCheckbox.setText(_translate("TemporalView", "Show Events"))

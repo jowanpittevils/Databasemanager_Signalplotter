@@ -220,6 +220,9 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
 
 
 if __name__ == "__main__":
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     app = QtWidgets.QApplication(sys.argv)
     w = database_ui()
     w.show()

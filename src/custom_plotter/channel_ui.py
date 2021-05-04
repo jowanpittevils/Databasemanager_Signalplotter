@@ -57,7 +57,7 @@ class channel_UI(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Channels"))
         self.channelsList.setSortingEnabled(False)
         self.btnChannels.setText(_translate("MainWindow", "remove channel(s)"))
 

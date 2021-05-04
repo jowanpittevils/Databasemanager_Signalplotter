@@ -14,8 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1500, 1000)
-        MainWindow.setMinimumSize(QtCore.QSize(1500, 1000))
+        MainWindow.resize(1100, 600)
+        MainWindow.setMinimumSize(QtCore.QSize(1000, 500))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -104,7 +104,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1500, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1100, 25))
         self.menubar.setObjectName("menubar")
         self.menusignals = QtWidgets.QMenu(self.menubar)
         self.menusignals.setObjectName("menusignals")
@@ -183,7 +183,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Plotter"))
         self.lblTitle.setText(_translate("MainWindow", "Title"))
         self.btnFirst.setToolTip(_translate("MainWindow", "Jump to the first segment"))
         self.btnFirst.setText(_translate("MainWindow", "<<"))
