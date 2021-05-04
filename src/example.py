@@ -1,7 +1,8 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from databasemanager import *
 from database_explorer_plotter.database_ui import database_ui
 import sys
+
 
 app = QtWidgets.QApplication(sys.argv)
 w = database_ui()

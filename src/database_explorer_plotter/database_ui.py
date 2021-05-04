@@ -185,7 +185,7 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
                     self.selected_annotation = self.selected_recording.annotations[i]
             self.event_list = {}
             for event in self.selected_annotation.events:
-                self.event_list[event.label + " " + str(int(event.start)) + "-" + str(int(event.end))] = event
+                self.event_list[event.label + " " + str(int(event.start)) + "-" + str(int(event.end)) + " s"] = event
             self.ui.events_list.clear()
             self.ui.events_list.addItems(self.event_list.keys())
     

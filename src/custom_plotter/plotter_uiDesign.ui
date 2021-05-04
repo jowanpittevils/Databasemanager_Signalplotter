@@ -40,6 +40,12 @@
     </item>
     <item>
      <widget class="QSlider" name="sldSampleIndex">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
@@ -159,7 +165,14 @@
      </layout>
     </item>
     <item>
-     <widget class="PlotWidget" name="axis"/>
+     <widget class="PlotWidget" name="axis">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -219,7 +232,11 @@
       <item>
        <widget class="QPushButton" name="btnPrint">
         <property name="text">
-         <string>Print</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>print-outline.svg</normaloff>print-outline.svg</iconset>
         </property>
        </widget>
       </item>
@@ -232,8 +249,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1100</width>
-     <height>25</height>
+     <width>1500</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menusignals">
