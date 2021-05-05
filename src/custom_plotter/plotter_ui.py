@@ -48,6 +48,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.channelNames = channelNames
         self.T = int(self.recording.fs) * self.window
         self.CH = recording.number_of_channels
+        self.CH_enabled = np.ones((self.CH,), dtype=int)
         self.__UpdateFs(fs)
         self.chbFit.setChecked(False)
         self.chbNight.setChecked(True)
@@ -110,11 +111,12 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.axis.setLabel('bottom', 'Sample')
             
     def __UpdateChannelNames(self, channelNames, overlapping_events, areChannelsVertical):
-        ttick=list()  
-        for i,t in enumerate(channelNames[::-1]):
+        ttick=list()
+        enabled_channelnames = [channelNames[i] for i in range(len(channelNames)) if self.CH_enabled[i] == 1]
+        for i,t in enumerate(enabled_channelnames[::-1]):
             ttick.append((i,  t))
         for i,event in enumerate(overlapping_events):
-            ttick.append((self.CH-0.1-i/8, event.label))
+            ttick.append((sum(self.CH_enabled)-0.1-i/8, event.label))
         left_ax=self.axis.getAxis('left') 
         left_ax.setTicks([ttick])
     
@@ -161,8 +163,11 @@ class plotter_ui(QObject, Ui_MainWindow):
     def __AddBias(self, x0):
         x = x0
         for xi in x:
+            i = 0
             for ch in range(self.CH):
-                xi[ch,:] += (self.CH-ch-1) - 0.5
+                if(self.CH_enabled[ch] == 1):
+                    xi[ch,:] += (sum(self.CH_enabled)-i-1) - 0.5
+                    i = i + 1
         return x
         
     def __iNormalize(self, x0, sens = None):
@@ -231,14 +236,15 @@ class plotter_ui(QObject, Ui_MainWindow):
             starts[event] = max(sampleIndex/self.fs, event.start)
             stops[event] = min((sampleIndex+self.T)/self.fs, event.stop)
             tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
-            ToPlot[event] = [self.CH-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
+            ToPlot[event] = [sum(self.CH_enabled)-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
         self.Clear()
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
-                if(self.night_mode == 1):
-                    self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
-                else:
-                    self.axis.plot(t,xxi[ch,:], pen=self.GetPen(21))
+                if(self.CH_enabled[ch] == 1):
+                    if(self.night_mode == 1):
+                        self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
+                    else:
+                        self.axis.plot(t,xxi[ch,:], pen=self.GetPen(21))
         for i, event in enumerate(overlapping_events):
             self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
         self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = sampleIndex/self.fs, xMax=t[-1])
@@ -406,24 +412,20 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_window = QtWidgets.QMainWindow()
         self.ch_ui.setupUi(self.ch_window)
         self.ch_window.show()
-        all_channels = ['fp1','fp2','f3','f4','p3','p4','c3','c4','t1','t2','t3','t4','t5','t6','o1','o2','a1','a2','f7','f8','fz','cz','pz','ecg','emg','resp','sao2','eogl','eogr','pulse']
-        for ch in self.channelNames:
-            if ch in all_channels:
-                all_channels.remove(ch)
+        all_channels = self.recording.channels
+        for i in range(self.CH):
+            if(self.CH_enabled[i] == 1):
+                all_channels.remove(self.recording.channels[i])
         self.ch_ui.channelsList.addItems(all_channels)
         self.ch_ui.btnChannels.setText("Add channel(s)")
         self.ch_ui.btnChannels.clicked.connect(self.addChannels)
 
     def addChannels(self):
         channels = self.ch_ui.channelsList.selectedItems()
+        indices = []
         for i in range(len(channels)):
-            self.channelNames.append(str(self.ch_ui.channelsList.selectedItems()[i].text()))
-        self.recording.chs = self.channelNames
-        self.recording.reordering_indeces = []
-        for ch in self.recording.chs:
-            if ch in self.recording._EDFRecording__edf.mne_raw.ch_names:
-                self.recording.reordering_indeces.append(self.recording._EDFRecording__edf.mne_raw.ch_names.index(ch)) 
-        self.CH = len(self.recording.reordering_indeces)
+            indices.append(self.recording.channels.index(channels[i].text()))
+            self.CH_enabled[self.recording.channels.index(channels[i].text())] = 1
         self.ch_window.close()
         self.Plot()
     
@@ -432,16 +434,17 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_window = QtWidgets.QMainWindow()
         self.ch_ui.setupUi(self.ch_window)
         self.ch_window.show()
-        self.ch_ui.channelsList.addItems(self.channelNames)
+        for i in range(self.CH):
+            if(self.CH_enabled[i] == 1):
+                self.ch_ui.channelsList.addItem(self.channelNames[i])
         self.ch_ui.btnChannels.clicked.connect(self.removeChannels)
 
     def removeChannels(self):
         channels = self.ch_ui.channelsList.selectedItems()
+        indices = []
         for i in range(len(channels)):
-            self.channelNames.remove(str(self.ch_ui.channelsList.selectedItems()[i].text()))
-        self.recording.chs = self.channelNames
-        self.recording.reordering_indeces = [self.recording._EDFRecording__edf.mne_raw.ch_names.index(ch) for ch in self.recording.chs]
-        self.CH = len(self.recording.reordering_indeces)
+            indices.append(self.recording.channels.index(channels[i].text()))
+            self.CH_enabled[self.recording.channels.index(channels[i].text())] = 0
         self.ch_window.close()
         self.Plot()
 
