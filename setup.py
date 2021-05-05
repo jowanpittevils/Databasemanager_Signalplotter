@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="signalploter-V2", # Replace with your own username
+    name="signalploterV2", # Replace with your own username
     version="0.0.1",
     author="Kwinten v. Meerbeek; Jowan Pittevils",
     author_email="jowan.pittevils@telenet.be",
