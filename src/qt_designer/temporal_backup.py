@@ -8,21 +8,32 @@ from datetime import datetime
 class temporal_ui(Ui_TemporalView):
     """
     Opens a temporal window of the given subjects from a certain database with a specified timescale.
-    The temporal window shows the recordings and events of the subjects shown in each year.
+    The temporal window shows the recordings and events of the subjects situated relative to each other in the specified timescale.
     
     Parameters:
     ----------
     Database:   from the class 'database' in the package 'databasemanager'
     subjects:   A list of strings of the names of the subjects to be shown in the temporal window. (Default is None which shows a temporal window 
                 of all the subjects in the given database) 
+    timescale:  A string which shows the recordings and events in that timescale situated from each other.
+                inputs can be: 'day', 'week', 'month and 'year' (Default is 'year')
 
-    e.g. temporal_browser(Database('C:\\db'), ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'])
+    e.g. temporal_browser(Database('C:\\db'), ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'day')
     """
-    def __init__(self, database:Database=None, subjects=None):
+    def __init__(self, database:Database=None, subjects=None, timescale = 'year'):
         self.temporalwindow = QtWidgets.QMainWindow()
         self.setupUi(self.temporalwindow)
         self.clicked_recording = None
         self.clicked_subject = None
+        self.timescale = timescale
+        if self.timescale == 'day':
+            self.timescale_int = 86400
+        if self.timescale == 'week':
+            self.timescale_int = 604800
+        if self.timescale == 'month':
+            self.timescale_int = 2629744
+        if self.timescale == 'year':
+            self.timescale_int = 31536000
         self.event_plots = {}
         self.subplots = {}
         self.rec_plots = {}
@@ -42,111 +53,100 @@ class temporal_ui(Ui_TemporalView):
         else:
             self.subjects = subjects
             self.subject_names = [s.name for s in self.subjects]
-        #self.partition_subjects()
+        self.partition_subjects()
         self.__updateValuesOfSlider()
-        self.drawTemporal(self.subjects, self.subject_names)
+        self.drawTemporal()
         self.Slider.valueChanged.connect(self.__onsldValueChanged)
         self.EventsCheckbox.toggled.connect(self.event_checked)
         self.EventsCheckbox.setChecked(True)
         self.TemporalPlot.canvas.mpl_connect('button_press_event', self.temporal_click)
         self.temporalwindow.show()
 
-    
     def partition_subjects(self):
         self.partitioned_recs = []
-        i = 0
+        max_recs = 0
         for sub in self.subjects:
             sub_recs = []
             temp_recs = []
             for rec in sub.recordings:
                 temp_recs.append(rec)
             while len(temp_recs) > 0:
-                recs = []
-                for rec in temp_recs:
-                    min_rec = rec
-                    min_stamp = datetime.timestamp(rec.start_of_recording)
-                    break
+                yearly_recs = []
+                min_rec = temp_recs[0]
+                min_start = datetime.timestamp(min_rec.start_of_recording)
                 for rec in temp_recs:
                     start = datetime.timestamp(rec.start_of_recording)
-                    if start < min_stamp:
+                    if start < min_start:
                         min_rec = rec
-                        min_stamp = start
-                recs.append(min_rec)
+                        min_start = start
+                yearly_recs.append(min_rec)
                 temp_recs.remove(min_rec)
                 for rec in temp_recs:
                     start = datetime.timestamp(rec.start_of_recording)
-                    if start < min_stamp + 31536000:
-                        recs.append(rec)
+                    if start < min_start + self.timescale_int:
+                        yearly_recs.append(rec)
                         temp_recs.remove(rec)
-                sub_recs.append(recs)
+                sub_recs.append(yearly_recs)
             self.partitioned_recs.append(sub_recs)
         for sub_recs in self.partitioned_recs:
-            if len(sub_recs) > i:
-                i = len(sub_recs)
+            if len(sub_recs) > max_recs:
+                max_recs = len(sub_recs)
         for sub_recs in self.partitioned_recs:
-            if len(sub_recs) < i:
-                for k in range(i-len(sub_recs)-1):
+            if len(sub_recs) < max_recs:
+                m = max_recs - len(sub_recs)
+                for i in range(m):
                     sub_recs.append([])
-        print(self.partitioned_recs)   
-
+                
     def __updateValuesOfSlider(self):
-        for sub in self.subjects:
-            for rec in sub.recordings:
-                self.min = datetime.timestamp(rec.start_of_recording)
-                self.max = rec.duration_sec + self.min
-                break
-        for sub in self.subjects:
-            for rec in sub.recordings: 
-                start = datetime.timestamp(rec.start_of_recording)
-                stop = rec.duration_sec + start
-                if start < self.min:
-                    self.min = start
-                if stop > self.max:
-                    self.max = stop
-        self.min = datetime.fromtimestamp(self.min).year
-        self.max = datetime.fromtimestamp(self.max).year
-        self.Slider.setMinimum(self.min)
-        self.Slider.setMaximum(self.max)
-        self.sliderValue.setText('year:' + str(self.min))
+        maximum = len(self.partitioned_recs[0])
+        self.Slider.setMinimum(0)
+        self.Slider.setMaximum(maximum-1)
+        self.sliderValue.setText("Timescale: " + self.timescale)
 
     def __onsldValueChanged(self):
-        self.sliderValue.setText('year:' + str(self.Slider.value()))
         self.EventsCheckbox.setChecked(True)
         self.event_plots.clear()
         for i in range(len(self.subplots)):
             self.subplots[i].clear()
+
+        #plotting the recordings
+        custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
         i = 0
-        for  idx, sub in enumerate(self.subjects):
-            #plotting the recordings
-            custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
-            self.subplots[idx].set_prop_cycle(custom_cycler)
-            for rec in sub.recordings:
+        for sub_recs in self.partitioned_recs:
+            self.subplots[i].set_prop_cycle(custom_cycler)
+            for rec in sub_recs[self.Slider.value()]: 
                 start = datetime.timestamp(rec.start_of_recording)
-                stop = rec.duration_sec + start
-                if self.Slider.value() == datetime.fromtimestamp(start).year:
-                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)
-            #plotting the events
-            custom_cycler = (cycler(color=['darkorange','gold']))
-            self.subplots[idx].set_prop_cycle(custom_cycler)
-            for rec in sub.recordings:
+                stop = rec.duration_sec + start      
+                self.subplots[i].plot([start, stop], [0, 0],linewidth=10) 
+            i += 1
+
+        #plotting the events
+        custom_cycler = (cycler(color=['darkorange','gold']))
+        i = 0
+        k = 0
+        for sub_recs in self.partitioned_recs:
+            self.subplots[i].set_prop_cycle(custom_cycler)
+            for rec in sub_recs[self.Slider.value()]:
                 start = datetime.timestamp(rec.start_of_recording)
-                if self.Slider.value() == datetime.fromtimestamp(start).year:
-                    for ann in rec.annotations:
-                        for event in ann.events:
-                            ev_start = event.start + start
-                            ev_stop = event.stop + start
-                            self.event_plots[i] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                            i += 1     
-            #ax[idx].axis('off')
-            self.subplots[idx].axes.set_ylim([-1,1])
-            self.subplots[idx].spines["top"].set_visible(False)
-            self.subplots[idx].spines["right"].set_visible(False)
-            self.subplots[idx].spines["bottom"].set_visible(False)
-            self.subplots[idx].spines["left"].set_visible(False)
-            self.subplots[idx].set_yticks([])
-            self.subplots[idx].set_xticks([])
-            self.subplots[idx].set_ylabel(self.subject_names[idx],rotation='horizontal', ha='right',va="center")
-            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
+                for ann in rec.annotations:
+                    for event in ann.events:
+                        ev_start = event.start + start
+                        ev_stop = event.stop + start
+                        self.event_plots[k] = self.subplots[i].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                        k += 1
+            i += 1
+
+        #ax[idx].axis('off')   
+        for i in range(len(self.subjects)):
+            self.subplots[i].axes.set_ylim([-1,1])
+            self.subplots[i].spines["top"].set_visible(False)
+            self.subplots[i].spines["right"].set_visible(False)
+            self.subplots[i].spines["bottom"].set_visible(False)
+            self.subplots[i].spines["left"].set_visible(False)
+            self.subplots[i].set_yticks([])
+            self.subplots[i].set_xticks([])
+            self.subplots[i].set_ylabel(self.subject_names[i],rotation='horizontal', ha='right',va="center")
+            self.subplots[i].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
         self.TemporalPlot.canvas.draw_idle()
 
     def openRecording_temporal(self, timestamp):
@@ -175,41 +175,48 @@ class temporal_ui(Ui_TemporalView):
             self.clicked_subject = self.subjects[index]
             self.openRecording_temporal(event.xdata)
 
-    def drawTemporal(self, subjects, names):
+    def drawTemporal(self):
         k = 0
-        for idx, sub in enumerate(subjects):
-            self.subplots[idx] = self.TemporalPlot.canvas.add(cols = 1)
-            #plotting the recordings
-            custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
-            self.subplots[idx].set_prop_cycle(custom_cycler)
-            for rec in sub.recordings:
+        for i in range(len(self.subjects)):
+            self.subplots[i] = self.TemporalPlot.canvas.add(cols = 1)
+        #plotting the recordings
+        custom_cycler = (cycler(color=['dodgerblue','mediumblue']))
+        i = 0
+        for sub_recs in self.partitioned_recs:
+            self.subplots[i].set_prop_cycle(custom_cycler)
+            for rec in sub_recs[self.Slider.value()]:
                 start = datetime.timestamp(rec.start_of_recording)
-                stop = rec.duration_sec + start
-                if self.min == datetime.fromtimestamp(start).year:
-                    self.subplots[idx].plot([start, stop], [0, 0],linewidth=10)      
-            #plotting the events
-            custom_cycler = (cycler(color=['darkorange','gold']))
-            self.subplots[idx].set_prop_cycle(custom_cycler)
-            for rec in sub.recordings:
+                stop = rec.duration_sec + start      
+                self.subplots[i].plot([start, stop], [0, 0],linewidth=10) 
+            i += 1
+ 
+        #plotting the events
+        custom_cycler = (cycler(color=['darkorange','gold']))
+        i = 0
+        for sub_recs in self.partitioned_recs:
+            self.subplots[i].set_prop_cycle(custom_cycler)
+            for rec in sub_recs[self.Slider.value()]:
                 start = datetime.timestamp(rec.start_of_recording)
-                if self.min == datetime.fromtimestamp(start).year:
-                    for ann in rec.annotations:
-                        for event in ann.events:
-                            ev_start = event.start + start
-                            ev_stop = event.stop + start
-                            self.event_plots[k] = self.subplots[idx].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
-                            k += 1         
-            #ax[idx].axis('off')
-            self.subplots[idx].axes.set_ylim([-1,1])
-            self.subplots[idx].spines["top"].set_visible(False)
-            self.subplots[idx].spines["right"].set_visible(False)
-            self.subplots[idx].spines["bottom"].set_visible(False)
-            self.subplots[idx].spines["left"].set_visible(False)
-            self.subplots[idx].set_yticks([])
-            self.subplots[idx].set_xticks([])
-            self.subplots[idx].set_ylabel(names[idx],rotation='horizontal', ha='right',va="center")
-            self.subplots[idx].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
-            
+                for ann in rec.annotations:
+                    for event in ann.events:
+                        ev_start = event.start + start
+                        ev_stop = event.stop + start
+                        self.event_plots[k] = self.subplots[i].plot([ev_start, ev_stop], [0, 0],linewidth=15, alpha = 0.5)
+                        k += 1
+            i += 1 
+        
+        #ax[idx].axis('off')    
+        for i in range(len(self.subjects)):
+            self.subplots[i].axes.set_ylim([-1,1])
+            self.subplots[i].spines["top"].set_visible(False)
+            self.subplots[i].spines["right"].set_visible(False)
+            self.subplots[i].spines["bottom"].set_visible(False)
+            self.subplots[i].spines["left"].set_visible(False)
+            self.subplots[i].set_yticks([])
+            self.subplots[i].set_xticks([])
+            self.subplots[i].set_ylabel(self.subject_names[i],rotation='horizontal', ha='right',va="center")
+            self.subplots[i].axhline(y=0, color="royalblue", alpha = 0.9,linestyle="--")
+    
     def event_checked(self, is_checked):
         if is_checked:
             for i in range(len(self.event_plots)):
