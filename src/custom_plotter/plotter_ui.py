@@ -49,6 +49,10 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.T = int(self.recording.fs) * self.window
         self.CH = recording.number_of_channels
         self.CH_enabled = np.ones((self.CH,), dtype=int)
+        if self.channelNames is not None:
+            for i in range(self.CH):
+                if(self.recording.channels[i] not in self.channelNames):
+                    self.CH_enabled[i] = 0 
         self.__UpdateFs(fs)
         self.chbFit.setChecked(False)
         self.chbNight.setChecked(True)
@@ -63,7 +67,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.__UpdateTotalNumberOfSamples()
         self.vb = self.axis.getViewBox()
         self.vb.setMouseEnabled(x=False, y=False)
-        plotSample = int(self.start*self.fs-10*self.fs)
+        plotSample = int(self.start*self.fs-window*self.fs)
         if plotSample < 0 :
             self.UpdateSampleIndex(0,True)
 
@@ -188,7 +192,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.UpdateSampleIndex(sampleIndex)
         overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
         self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex)
-        self.__UpdateChannelNames(self.channelNames,overlapping_events, True)
+        self.__UpdateChannelNames(self.recording.channels,overlapping_events, True)
         self.vb.autoRange(padding = 0)
             
     def PlotLine(self, overlapping_events, recording, window, sampleIndex):
@@ -224,6 +228,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             if(self.T > 9):
                 for i in range(0,int(self.T),int(math.floor(self.T/10))):
                     ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
+        ticks.pop(0)
         stringaxis = self.axis.getAxis('bottom')
         stringaxis.setTicks([ticks])
         t = t[0::window_scale]
@@ -247,7 +252,7 @@ class plotter_ui(QObject, Ui_MainWindow):
                         self.axis.plot(t,xxi[ch,:], pen=self.GetPen(21))
         for i, event in enumerate(overlapping_events):
             self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
-        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = sampleIndex/self.fs, xMax=t[-1])
+        self.vb.setLimits(yMin=-1, yMax=sum(self.CH_enabled), xMin = sampleIndex/self.fs, xMax=t[-1])
         self.__UpdateTitle()
 
     def GetColorString(self, colorIndex=0):
@@ -436,7 +441,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_window.show()
         for i in range(self.CH):
             if(self.CH_enabled[i] == 1):
-                self.ch_ui.channelsList.addItem(self.channelNames[i])
+                self.ch_ui.channelsList.addItem(self.recording.channels[i])
         self.ch_ui.btnChannels.clicked.connect(self.removeChannels)
 
     def removeChannels(self):

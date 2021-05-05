@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1100</width>
+    <width>1000</width>
     <height>600</height>
    </rect>
   </property>
@@ -18,6 +18,10 @@
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/signalplotter_icon</normaloff>:/icons/signalplotter_icon</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -66,7 +70,7 @@
       <item>
        <widget class="QPushButton" name="btnPreviousSimilarY">
         <property name="toolTip">
-         <string>Jump to the previous similar segment</string>
+         <string>Jump one window back in time</string>
         </property>
         <property name="text">
          <string>&lt;|</string>
@@ -76,7 +80,7 @@
       <item>
        <widget class="QPushButton" name="btnPrevious">
         <property name="toolTip">
-         <string>Go to the previous segment</string>
+         <string>Jump 0.3*window back in time</string>
         </property>
         <property name="text">
          <string>&lt;</string>
@@ -86,7 +90,7 @@
       <item>
        <widget class="QPushButton" name="btnNext">
         <property name="toolTip">
-         <string>Go to the next segment</string>
+         <string>Jump 0.3*window forward in time</string>
         </property>
         <property name="text">
          <string>&gt;</string>
@@ -96,7 +100,7 @@
       <item>
        <widget class="QPushButton" name="btnNextSimilarY">
         <property name="toolTip">
-         <string>Jump to the next similar segment</string>
+         <string>Jump one window forward in time</string>
         </property>
         <property name="text">
          <string>|&gt;</string>
@@ -143,6 +147,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="chbFit">
+        <property name="text">
+         <string>Fit to pane</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -177,13 +188,6 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QCheckBox" name="chbFit">
-        <property name="text">
-         <string>Fit to pane</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="chbNight">
         <property name="text">
          <string>Night mode</string>
@@ -191,12 +195,16 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="chbFavorite">
-        <property name="toolTip">
-         <string>Mark as favorite</string>
-        </property>
+       <widget class="QPushButton" name="btnPrint">
         <property name="text">
-         <string>Favorite</string>
+         <string>Print</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="x_coord_lbl">
+        <property name="text">
+         <string>TextLabel</string>
         </property>
        </widget>
       </item>
@@ -214,6 +222,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QCheckBox" name="chbFavorite">
+        <property name="toolTip">
+         <string>Mark as favorite</string>
+        </property>
+        <property name="text">
+         <string>Favorite</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnDuplicate">
         <property name="maximumSize">
          <size>
@@ -229,13 +247,6 @@
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QPushButton" name="btnPrint">
-        <property name="text">
-         <string>Print</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>
@@ -245,7 +256,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1500</width>
+     <width>1000</width>
      <height>21</height>
     </rect>
    </property>
