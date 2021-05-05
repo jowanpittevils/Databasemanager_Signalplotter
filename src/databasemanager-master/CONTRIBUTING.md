@@ -1,1 +1,0 @@
-Amir H. Ansari <amirans65.ai@gmail.com>
