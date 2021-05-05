@@ -57,7 +57,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.__AssignCallbacks()
         self.detachedWindows=[]
         self.assign_colors()
-        self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
+        self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here      
         self.norm.totalMaxX = 0.01
         self.norm.totalMinX = -0.01
         self.__UpdateTotalNumberOfSamples()
@@ -116,8 +116,11 @@ class plotter_ui(QObject, Ui_MainWindow):
         for i,t in enumerate(enabled_channelnames[::-1]):
             ttick.append((i,  t))
         for i,event in enumerate(overlapping_events):
-            ttick.append((sum(self.CH_enabled)-0.1-i/8, event.label))
+            ttick.append((sum(self.CH_enabled)-0.1-i/(len(overlapping_events)+1), event.label))
         left_ax=self.axis.getAxis('left') 
+        font=QtGui.QFont()
+        font.setPixelSize(15)
+        left_ax.setStyle(tickFont = font)
         left_ax.setTicks([ttick])
     
     def UpdateSampleIndex(self, sampleIndex, rePlot=False, callerObject=None, triggeredSignals = True):
@@ -150,7 +153,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.lblTotalSamples.setText("/ " + str(int(self.recording.duration_sec - int(self.window))) + " s")
         else:
             self.lblTotalSamples.setText("/ " + str(0) + " s")
-        print(self.T, 'T')
         self.sldSampleIndex.setMaximum(self.recording.duration_samp - self.T)
         self.nmrSampleIndex.setMaximum(self.recording.duration_sec -self.window)
         self.sldSampleIndex.setMinimum(0)
@@ -203,8 +205,6 @@ class plotter_ui(QObject, Ui_MainWindow):
             xx = [xx[0][0:,0::window_scale]]
         else:
             xx = np.zeros(shape=(1,self.CH,self.T))
-            print(sampleIndex, "sampleindex")
-            print(sampleIndex/self.fs)
             data = np.array([recording.get_data(start=sampleIndex/self.fs)])
             xx[:,:data.shape[1],:data.shape[2]] = data
             xx = [xx[0][0:,0::window_scale]]
@@ -236,7 +236,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             starts[event] = max(sampleIndex/self.fs, event.start)
             stops[event] = min((sampleIndex+self.T)/self.fs, event.stop)
             tEvent[event] = [item for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
-            ToPlot[event] = [sum(self.CH_enabled)-i/8-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
+            ToPlot[event] = [sum(self.CH_enabled)-i/(len(overlapping_events)+1)-0.1 for item in tEvent[event] if (item >= starts[event] and item <= stops[event])]
         self.Clear()
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
