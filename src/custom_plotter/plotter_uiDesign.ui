@@ -232,11 +232,7 @@
       <item>
        <widget class="QPushButton" name="btnPrint">
         <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>print-outline.svg</normaloff>print-outline.svg</iconset>
+         <string>Print</string>
         </property>
        </widget>
       </item>
