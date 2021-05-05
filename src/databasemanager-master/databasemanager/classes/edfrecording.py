@@ -75,8 +75,8 @@ class EDFRecording(Recording):
             missing_channel=loading_data_missing_channel_type)
         self.has_content = self.__edf.has_content
         #to be used in get_data
-        chs = self.channels
-        self.reordering_indeces = [self.__edf.mne_raw.ch_names.index(ch) for ch in chs]
+        self.chs = self.channels
+        self.reordering_indeces = [self.__edf.mne_raw.ch_names.index(ch) for ch in self.chs]
 
         
     @property
