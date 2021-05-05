@@ -22,6 +22,9 @@ def load_browser():
     Opens the load explorer which enables the user to browse through files to select a database and the corresponding datasets in case none are provided in the database.  
     After loading the database with datasets, the user is able to click on one of the datasets which leads to the second window, the database explorer.
     """
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     app = QtWidgets.QApplication(sys.argv)
     ui = load_ui()
     ui.show()
@@ -48,6 +51,9 @@ def database_browser(Database):
     2) db = Database(root = 'c:\\sleep')
     3) db = Database(root = None, data_path = 'c:\\sleep\\Data', datasets_path = 'c:\\sleep\\Datasets')
     """
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     app = QtWidgets.QApplication(sys.argv)
     ui = database_ui()
     ui.db = Database
@@ -71,6 +77,9 @@ def temporal_browser(Database, subjects=None, timescale = 'year'):
 
     e.g. temporal_browser(Database('C:\\db'), ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'day')
     """
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     app = QtWidgets.QApplication(sys.argv)
     ui3 = temporal_ui(Database, subjects, timescale)
     app.exec_()
@@ -104,17 +113,21 @@ def plot_browser(recording, window=30, start=0, y=None, title=None,fs=1,sens=Non
 UserSettings.global_settings().loading_data_missing_channel_type = 'error'
 UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
     
+load_browser()
 
 root = 'C:\\db\\toyDB'
 db = Database(root)
 ds = db.load_dataset('all')
+
+#database_browser(db)
 
 rec = ds.subjects[1].recordings[0]
 fs=int(rec.fs)
 channel_names=UserSettings.global_settings().loading_data_channels
 
 
-plot_browser(rec, fs=fs,channel_names=channel_names)
+
+#plot_browser(rec, fs=fs,channel_names=channel_names)
 
 #temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'month')
 

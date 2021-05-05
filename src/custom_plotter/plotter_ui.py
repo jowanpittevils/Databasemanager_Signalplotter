@@ -407,6 +407,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_ui.setupUi(self.ch_window)
         self.ch_window.show()
         all_channels = ['fp1','fp2','f3','f4','p3','p4','c3','c4','t1','t2','t3','t4','t5','t6','o1','o2','a1','a2','f7','f8','fz','cz','pz','ecg','emg','resp','sao2','eogl','eogr','pulse']
+        for ch in self.channelNames:
+            if ch in all_channels:
+                all_channels.remove(ch)
         self.ch_ui.channelsList.addItems(all_channels)
         self.ch_ui.btnChannels.setText("Add channel(s)")
         self.ch_ui.btnChannels.clicked.connect(self.addChannels)
@@ -415,6 +418,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         channels = self.ch_ui.channelsList.selectedItems()
         for i in range(len(channels)):
             self.channelNames.append(str(self.ch_ui.channelsList.selectedItems()[i].text()))
+        self.recording.chs = self.channelNames
+        self.recording.reordering_indeces = []
+        for ch in self.recording.chs:
+            if ch in self.recording._EDFRecording__edf.mne_raw.ch_names:
+                self.recording.reordering_indeces.append(self.recording._EDFRecording__edf.mne_raw.ch_names.index(ch)) 
+        self.CH = len(self.recording.reordering_indeces)
         self.ch_window.close()
         self.Plot()
     
@@ -430,6 +439,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         channels = self.ch_ui.channelsList.selectedItems()
         for i in range(len(channels)):
             self.channelNames.remove(str(self.ch_ui.channelsList.selectedItems()[i].text()))
+        self.recording.chs = self.channelNames
+        self.recording.reordering_indeces = [self.recording._EDFRecording__edf.mne_raw.ch_names.index(ch) for ch in self.recording.chs]
+        self.CH = len(self.recording.reordering_indeces)
         self.ch_window.close()
         self.Plot()
 

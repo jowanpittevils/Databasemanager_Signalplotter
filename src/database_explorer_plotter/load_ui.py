@@ -42,6 +42,10 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                                 self.import_error()
                         else:
                                 self.ui.ds_name.setText(self.ui1.root + '/Datasets')
+                                self.ui1.ds_root = self.ui1.root + '/Datasets'
+                                self.ui1.config.set('database','ds_root', self.ui1.ds_root)
+                                with open('config.ini', 'w') as f:
+                                        self.ui1.config.write(f)
                                 self.ui1.db = Database(self.ui1.root) 
                                 self.ui1.datasets = self.ui1.db.dataset_names
                                 self.ui.dataset_list.clear()
@@ -52,14 +56,20 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                         self.import_error()
                 else:
                         self.ui1.ds_root = QtWidgets.QFileDialog.getExistingDirectory(self,"select 'datasets' folder")
-                        self.ui1.db = Database(None, self.ui1.data_root, self.ui1.ds_root)
-                        self.ui1.datasets = self.ui1.db.dataset_names
-                        if len(self.ui1.datasets) == 0:
-                                self.import_error()
+                        if path.basename(self.ui1.ds_root) == 'Datasets':
+                                self.ui1.db = Database(None, self.ui1.data_root, self.ui1.ds_root)
+                                self.ui1.datasets = self.ui1.db.dataset_names
+                                if len(self.ui1.datasets) == 0:
+                                        self.import_error()
+                                else:
+                                        self.ui.ds_name.setText(self.ui1.ds_root)
+                                        self.ui.dataset_list.clear()
+                                        self.ui1.config.set('database','ds_root', self.ui1.ds_root)
+                                        with open('config.ini', 'w') as f:
+                                                self.ui1.config.write(f)
+                                        self.ui.dataset_list.addItems(self.ui1.datasets)
                         else:
-                                self.ui.ds_name.setText(self.ui1.ds_root)
-                                self.ui.dataset_list.clear()
-                                self.ui.dataset_list.addItems(self.ui1.datasets)
+                                self.import_error()
 
         def load_dataset(self):
                 self.ui1.ds = self.ui1.db.load_dataset(self.ui1.ds)
@@ -84,28 +94,44 @@ class load_ui(QtWidgets.QMainWindow,Ui_LoadWindow):
                 if path.exists(self.ui1.root + '/Data') == False:
                         if path.exists(self.ui1.root) == False:
                                 self.msg.setText("Select database folder first")
-                                self.browse.clicked.connect(self.browsefolder1)
-                                x = self.msg.exec_()
-
                         else:
                                 self.msg.setText("No 'Data' folder found")
-                                self.browse.clicked.connect(self.browsefolder1)
                                 self.ui.db_name.clear()
                                 self.ui.ds_name.clear()
                                 self.ui.dataset_list.clear()
-                                x = self.msg.exec_()
+                        self.browse.clicked.connect(self.browsefolder1)
+                        x = self.msg.exec_()
 
                 else:
-                        self.msg.setText("No 'Datasets' folder found")
-                        self.browse.clicked.connect(self.browsefolder2)
-                        self.ui.ds_name.clear()
-                        self.ui.dataset_list.clear()
-                        x = self.msg.exec_()
+                        if path.exists(self.ui1.root + '/Datasets') == False and self.ui1.ds_root == '':
+                                self.msg.setText("No 'Datasets' folder found")
+                                self.browse.clicked.connect(self.browsefolder2)
+                                self.ui.ds_name.clear()
+                                self.ui.dataset_list.clear()
+                                x = self.msg.exec_()
+                        else:
+                                if path.basename(self.ui1.ds_root) == 'Datasets':
+                                        if len(self.ui1.datasets) == 0:
+                                                self.msg.setText("No datasets found")
+                                                self.browse.clicked.connect(self.browsefolder2)
+                                                self.ui.ds_name.clear()
+                                                self.ui.dataset_list.clear()
+                                                x = self.msg.exec_()
+                                else:
+                                        self.msg.setText("This is no 'Datasets' folder")
+                                        self.browse.clicked.connect(self.browsefolder2)
+                                        self.ui.ds_name.clear()
+                                        self.ui.dataset_list.clear()
+                                        x = self.msg.exec_()
+
                      
 
 
 
 if __name__ == "__main__":
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+                QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
         app = QtWidgets.QApplication(sys.argv)
         w = load_ui()
         sys.exit(app.exec_())

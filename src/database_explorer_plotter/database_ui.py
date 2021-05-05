@@ -17,6 +17,7 @@ from datetime import datetime
 from cycler import cycler
 from custom_plotter.plotter import agplot
 from configparser import ConfigParser
+from os import path
 
 class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
     """
@@ -35,6 +36,8 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
         UserSettings.global_settings().loading_data_missing_channel_type = 'error'
         UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
         self.root = ''
+        self.data_root = ''
+        self.ds_root = ''
         self.db = Database(self.root)
         self.datasets = self.db.dataset_names
         self.dataset_name = ""
@@ -53,12 +56,19 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
         self.config.read('config.ini')
         if(self.config.has_section('database')):
             self.root = self.config.get('database', 'root')
-            self.db = Database(self.root)
+            if path.exists(self.root + '/Datasets'):
+                self.db = Database(self.root)
+            else:
+                self.data_root = self.root + '/Data'
+                self.ds_root = self.config.get('database', 'ds_root')
+                self.db = Database(None, self.data_root, self.ds_root)
             self.datasets = self.db.dataset_names
-            self.doubleclick_dataset(self.config.get('database', 'dataset'))
+            if self.config.get('database', 'dataset') != "":
+                self.doubleclick_dataset(self.config.get('database', 'dataset'))
         else:
             self.config.add_section('database')
             self.config.set('database', 'root', self.root)
+            self.config.set('database', 'ds_root', self.ds_root)
             self.config.set('database', 'dataset', self.dataset_name)
             with open('config.ini', 'w') as f:
                 self.config.write(f)
@@ -220,6 +230,9 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
 
 
 if __name__ == "__main__":
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     app = QtWidgets.QApplication(sys.argv)
     w = database_ui()
     w.show()

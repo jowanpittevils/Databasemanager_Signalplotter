@@ -14,13 +14,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_DB_explorer(object):
     def setupUi(self, DB_explorer):
         DB_explorer.setObjectName("DB_explorer")
-        DB_explorer.resize(1000, 500)
+        DB_explorer.resize(900, 450)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(DB_explorer.sizePolicy().hasHeightForWidth())
         DB_explorer.setSizePolicy(sizePolicy)
-        DB_explorer.setMinimumSize(QtCore.QSize(1000, 500))
+        DB_explorer.setMinimumSize(QtCore.QSize(900, 450))
         self.centralwidget = QtWidgets.QWidget(DB_explorer)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_8 = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -272,7 +272,7 @@ class Ui_DB_explorer(object):
         self.horizontalLayout_8.addLayout(self.verticalLayout_9)
         DB_explorer.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(DB_explorer)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1000, 25))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 900, 25))
         self.menubar.setObjectName("menubar")
         DB_explorer.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(DB_explorer)
@@ -284,7 +284,7 @@ class Ui_DB_explorer(object):
 
     def retranslateUi(self, DB_explorer):
         _translate = QtCore.QCoreApplication.translate
-        DB_explorer.setWindowTitle(_translate("DB_explorer", "Database_explorer"))
+        DB_explorer.setWindowTitle(_translate("DB_explorer", "Database explorer"))
         self.Dataset_label.setText(_translate("DB_explorer", "Dataset:"))
         self.groupBox_3.setTitle(_translate("DB_explorer", "Subject"))
         self.label_10.setText(_translate("DB_explorer", "Find:"))
@@ -293,7 +293,7 @@ class Ui_DB_explorer(object):
         self.groupBox.setTitle(_translate("DB_explorer", "Annotations"))
         self.groupBox_2.setTitle(_translate("DB_explorer", "Events"))
         self.label.setText(_translate("DB_explorer", "label start-end [s]"))
-        self.pushButton_8.setText(_translate("DB_explorer", "Temporal"))
+        self.pushButton_8.setText(_translate("DB_explorer", "Temporal Profile"))
 from qt_designer.additional_qtclasses import QLabel_Clickable, lineEdit_autocomplete, lineEdit_autocomplete2
 
 
