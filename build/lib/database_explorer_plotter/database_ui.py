@@ -7,7 +7,7 @@ import math
 import numbers
 import matplotlib.pyplot as plt
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qt_designer.base_GUI import base_UI
+from qt_designer.base_GUI import Ui_DB_explorer
 from qt_designer.temporal_ui import temporal_ui
 from PyQt5.uic import loadUi
 from databasemanager import *
@@ -17,8 +17,9 @@ from datetime import datetime
 from cycler import cycler
 from custom_plotter.plotter import agplot
 from configparser import ConfigParser
+from os import path
 
-class database_ui(QtWidgets.QMainWindow,base_UI):
+class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
     """
     This class is to orderly navigate through the database, showing all information (subjects, recordings, annotations and events). 
     The class does the following:
@@ -29,41 +30,45 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
     -   Search for specific subjects, recordings or events
     -   Have a summary button that displays the most important information regarding the currently selected dataset (sampling frequency, channels,...)
     """
-    
-    UserSettings.global_settings().loading_data_missing_channel_type = 'error'
-    UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
-    config = None
-    root = ''
-    data_root = None
-    ds_root = None
-    db = Database(root)
-    datasets = db.dataset_names
-    dataset_name = ""
-    selected_subject = []
-    selected_recording = []
-    selected_annotation = []
-    selected_subject_recordings = []
-    matching_subjects = []
-    matching_recordings = []
-    event_plots = {}
-
-    
     def __init__(self):
         plt.ion()
         super(database_ui, self).__init__()
+        UserSettings.global_settings().loading_data_missing_channel_type = 'error'
+        UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
+        self.root = ''
+        self.data_root = ''
+        self.ds_root = ''
+        self.db = Database(self.root)
+        self.datasets = self.db.dataset_names
+        self.dataset_name = ""
         self.myOtherWindow = QtWidgets.QMainWindow()
-        self.ui = base_UI()
+        self.selected_subject = []
+        self.selected_recording = []
+        self.selected_annotation = []
+        self.selected_subject_recordings = []
+        self.matching_subjects = []
+        self.matching_recordings = []
+        self.event_plots = {}
+        self.ui = Ui_DB_explorer()
         self.ui.setupUi(self)
+
         self.config = ConfigParser()
         self.config.read('config.ini')
         if(self.config.has_section('database')):
             self.root = self.config.get('database', 'root')
-            self.db = Database(self.root)
+            if path.exists(self.root + '/Datasets'):
+                self.db = Database(self.root)
+            else:
+                self.data_root = self.root + '/Data'
+                self.ds_root = self.config.get('database', 'ds_root')
+                self.db = Database(None, self.data_root, self.ds_root)
             self.datasets = self.db.dataset_names
-            self.doubleclick_dataset(self.config.get('database', 'dataset'))
+            if self.config.get('database', 'dataset') != "":
+                self.doubleclick_dataset(self.config.get('database', 'dataset'))
         else:
             self.config.add_section('database')
             self.config.set('database', 'root', self.root)
+            self.config.set('database', 'ds_root', self.ds_root)
             self.config.set('database', 'dataset', self.dataset_name)
             with open('config.ini', 'w') as f:
                 self.config.write(f)
@@ -106,7 +111,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
         verbose:bool = True
-        agplot(self,doubleclicked_recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
+        agplot(doubleclicked_recording, window, start, y, title, fs, sens, channel_names, callback, verbose, self)
     
     def openEventRecording(self,item):
         event = item.text()
@@ -122,7 +127,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
         channel_names=UserSettings.global_settings().loading_data_channels
         callback=None
         verbose:bool = True
-        agplot(self, self.selected_recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
+        agplot(self.selected_recording, window, start, y, title, fs, sens, channel_names, callback, verbose, self)
 
     def openTemporal(self):
         self.ui3 = temporal_ui(None,self.ds.subjects)
@@ -190,7 +195,7 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
                     self.selected_annotation = self.selected_recording.annotations[i]
             self.event_list = {}
             for event in self.selected_annotation.events:
-                self.event_list[event.label + " " + str(int(event.start)) + "-" + str(int(event.end))] = event
+                self.event_list[event.label + " " + str(int(event.start)) + "-" + str(int(event.end)) + " s"] = event
             self.ui.events_list.clear()
             self.ui.events_list.addItems(self.event_list.keys())
     
@@ -225,6 +230,9 @@ class database_ui(QtWidgets.QMainWindow,base_UI):
 
 
 if __name__ == "__main__":
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    if hasattr(QtWidgets.QStyleFactory, "AA_UseHighDpiPixmaps"):
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     app = QtWidgets.QApplication(sys.argv)
     w = database_ui()
     w.show()
