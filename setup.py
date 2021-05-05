@@ -24,6 +24,6 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    install_requires=["matplotlib","PyQt5","numpy","datetime","pyqtgraph"],
+    install_requires=["matplotlib","PyQt5","numpy","datetime","pyqtgraph","PyQtChart"],
     python_requires=">=3.6",
 )

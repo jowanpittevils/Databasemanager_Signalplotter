@@ -23,8 +23,15 @@ src/qt_designer/plotter_uiDesign.py
 src/qt_designer/temporal_backup.py
 src/qt_designer/temporal_ui.py
 src/qt_designer/temporal_view.py
+src/signalplotter/__init__.py
+src/signalplotter/plotter.py
 src/signalplotterV2.egg-info/PKG-INFO
 src/signalplotterV2.egg-info/SOURCES.txt
 src/signalplotterV2.egg-info/dependency_links.txt
 src/signalplotterV2.egg-info/requires.txt
 src/signalplotterV2.egg-info/top_level.txt
+src/signalplotter/qt/__init__.py
+src/signalplotter/qt/makePyUI.py
+src/signalplotter/qt/plotter_ui.py
+src/signalplotter/qt/plotter_uiDesign.py
+src/signalplotter/qt/plotter_ui_Thread.py
