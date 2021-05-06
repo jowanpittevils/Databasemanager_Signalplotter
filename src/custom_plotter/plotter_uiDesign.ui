@@ -147,13 +147,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="chbFit">
-        <property name="text">
-         <string>Fit to pane</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLabel" name="label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
@@ -173,6 +166,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="chbFit">
+        <property name="text">
+         <string>Fit to pane</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -188,9 +188,26 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QCheckBox" name="chbNight">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Night mode</string>
+         <string>Name:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="Data_Name">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnExport">
+        <property name="text">
+         <string>Export data</string>
         </property>
        </widget>
       </item>
@@ -202,16 +219,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="x_coord_lbl">
-        <property name="text">
-         <string>TextLabel</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -220,6 +233,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chbNight">
+        <property name="text">
+         <string>Night mode</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="chbFavorite">
