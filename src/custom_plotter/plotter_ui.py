@@ -188,8 +188,12 @@ class plotter_ui(QObject, Ui_MainWindow):
         return x
         
     def __iNormalize(self, x0, sens = None):
-        M = max([v.max() for v in x0]) #Scale factor for changing amplitude
-        m = min([v.min() for v in x0])
+        if(sens is None):
+            M = max([v.max() for v in x0]) #Scale factor for changing amplitude
+            m = min([v.min() for v in x0])
+        else:
+            M = sens
+            m = -sens
         x = [(v-self.scale_factor*m)/(self.scale_factor*M-self.scale_factor*m) for v in x0]
         self.range = M-m
         self.__UpdateAmplitude()
