@@ -38,7 +38,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.FavoriteList=list()
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
-        self.window_scale = 1
+        self.window_scale = int(np.floor(window/10)+1)
         self.callback = callback
         self.sens = sens
         self.__UpdateTitleText(recording.subject_name + ': ' + recording.name)
@@ -211,12 +211,14 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.vb.autoRange(padding = 0)
             
     def PlotLine(self, overlapping_events, recording, window, sampleIndex):
+        
         if(sampleIndex < 0):
             sampleIndex = 0
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
             window_scale = 1
+        print(window_scale)
         if(sampleIndex < self.recording.duration_samp - self.T):
             start=sampleIndex
             stop=sampleIndex+self.T
