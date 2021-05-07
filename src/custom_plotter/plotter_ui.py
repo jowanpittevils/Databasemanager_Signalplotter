@@ -32,7 +32,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.verbose = verbose
         self.range = 0
-        self.xcoord = pg.TextItem(text='test', color=(200, 200, 200), html=None, border=None, fill=None, angle=0, rotateAxis=None)
+        self.xcoord = pg.TextItem(text='', color=(200, 200, 200), html=None, border=None, fill=None, angle=0, rotateAxis=None)
         self.norm = plotter_ui.struct()
         self.ID = plotter_ui.__getNewID()
         self.y = y
@@ -68,7 +68,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.vb.setMouseEnabled(x=False, y=False)
 
         self.xcoord.setParentItem(self.vb)
-        self.xcoord.setPos(0, -0.3)
+        self.xcoord.setPos(0, -0.5)
 
         self.axis.scene().sigMouseMoved.connect(self.onMouseMoved)
         plotSample = int(self.start*self.fs-window*self.fs)
@@ -80,7 +80,7 @@ class plotter_ui(QObject, Ui_MainWindow):
 
     def onMouseMoved(self, point):
         p = self.vb.mapSceneToView(point)
-        self.xcoord.setText("time: "+str("{:.3f}".format(p.x())) + " s")
+        self.xcoord.setText(str("{:.3f}".format(p.x())) + " s")
 
     def save_data(self):
         name = self.Data_Name.text()
@@ -92,9 +92,6 @@ class plotter_ui(QObject, Ui_MainWindow):
 
         with open(name + ".pkl","wb") as f:
             pickle.dump(data, f)
-
-
-
 
     def assign_colors(self):
         #gives each event a different color in the plotter window
@@ -281,7 +278,8 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
         self.vb.setLimits(yMin=-1, yMax=sum(self.CH_enabled), xMin = sampleIndex/self.fs, xMax=t[-1])
         self.axis.addItem(self.xcoord, ignoreBounds=True) 
-        self.xcoord.setPos(t[0], -0.3)
+        self.xcoord.setText(str("{:.3f}".format(t[0]) + " s"))
+        self.xcoord.setPos(t[0], -0.5)
         self.__UpdateTitle()
 
     def GetColorString(self, colorIndex=0):
