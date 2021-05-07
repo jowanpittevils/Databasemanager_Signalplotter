@@ -32,7 +32,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.verbose = verbose
         self.range = 0
-        self.xcoord = pg.TextItem(text='', color=(200, 200, 200), html=None, border=None, fill=None, angle=0, rotateAxis=None)
+        self.xcoord = pg.TextItem(text='', color=(255, 255, 255), html=None, border=None, fill=None, angle=0, rotateAxis=None)
         self.norm = plotter_ui.struct()
         self.ID = plotter_ui.__getNewID()
         self.y = y
@@ -66,6 +66,9 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.__UpdateTotalNumberOfSamples()
         self.vb = self.axis.getViewBox()
         self.vb.setMouseEnabled(x=False, y=False)
+
+        self.axis.getAxis('bottom').setTextPen('w')
+        self.axis.getAxis('left').setTextPen('w')
 
         self.xcoord.setParentItem(self.vb)
         self.xcoord.setPos(0, -0.5)
@@ -398,10 +401,17 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(state):
             self.night_mode = 1
             self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
+            self.xcoord.setColor('w')
+            self.axis.getAxis('bottom').setTextPen('w')
+            self.axis.getAxis('left').setTextPen('w')
             self.Plot()
         else:
             self.night_mode = 0
             self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255, 255))) # set background color here
+            self.xcoord = pg.TextItem(text='', color=(255, 255, 255), html=None, border=None, fill=None, angle=0, rotateAxis=None)
+            self.xcoord.setColor([0,0,0,255])
+            self.axis.getAxis('bottom').setTextPen([0,0,0,255])
+            self.axis.getAxis('left').setTextPen([0,0,0,255])
             self.Plot() 
 
     def __onbtnDuplicate(self):
