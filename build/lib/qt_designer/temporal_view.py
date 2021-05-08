@@ -9,10 +9,14 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import os
 
 class Ui_TemporalView(object):
     def setupUi(self, TemporalView):
+        icon = QtGui.QIcon()
+        plg_dir = os.path.dirname(__file__)
+        icon.addPixmap(QtGui.QPixmap(plg_dir+"\\heartbeat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        TemporalView.setWindowIcon(icon)
         TemporalView.setObjectName("TemporalView")
         TemporalView.resize(650, 450)
         TemporalView.setMinimumSize(QtCore.QSize(600, 400))

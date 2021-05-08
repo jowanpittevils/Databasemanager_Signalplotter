@@ -1,6 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from  database_explorer_plotter.database_ui import database_ui
-from load_ui import load_ui
+from database_explorer_plotter.database_ui import database_ui
+from database_explorer_plotter.load_ui import load_ui
 from os import path
 from qt_designer.temporal_backup import temporal_ui
 from databasemanager import *
@@ -109,25 +109,27 @@ def plot_browser(recording, window=30, start=0, y=None, title=None,fs=1,sens=Non
     """
     agplot(recording, window, start, y, title, fs, sens, channel_names, callback, verbose)
 
-
-UserSettings.global_settings().loading_data_missing_channel_type = 'error'
-UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
-    
-#load_browser()
-
-root = 'C:\\db\\toyDB'
-db = Database(root)
-ds = db.load_dataset('all')
-
-#database_browser(db)
-
-rec = ds.subjects[1].recordings[0]
-fs=int(rec.fs)
-channel_names=UserSettings.global_settings().loading_data_channels
+if __name__ == "__main__":
 
 
+    UserSettings.global_settings().loading_data_missing_channel_type = 'error'
+    UserSettings.global_settings().loading_data_channels = ['fp1','fp2','t3','t4','o1','o2','c3','c4']
+        
+    #load_browser()
 
-#plot_browser(rec, fs=fs,channel_names=channel_names)
+    root = 'C:\\db\\toyDB'
+    db = Database(root)
+    ds = db.load_dataset('all')
 
-temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'month')
+    #database_browser(db)
+
+    rec = ds.subjects[1].recordings[0]
+    fs=int(rec.fs)
+    channel_names=UserSettings.global_settings().loading_data_channels
+
+
+
+    #plot_browser(rec, fs=fs,channel_names=channel_names)
+
+    temporal_browser(db, ['tr_ar_77', 'tr_ar_254', 'tr_ar_492'], 'month')
 

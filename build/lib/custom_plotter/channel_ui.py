@@ -9,10 +9,15 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import os
 
 class channel_UI(object):
     def setupUi(self, MainWindow):
+
+        icon = QtGui.QIcon()
+        plg_dir = os.path.dirname(__file__)
+        icon.addPixmap(QtGui.QPixmap(plg_dir+"\\heartbeat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(230, 350)
         MainWindow.setMinimumSize(QtCore.QSize(230, 350))

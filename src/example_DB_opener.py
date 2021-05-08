@@ -1,0 +1,3 @@
+from database_explorer_plotter.extra_functions import load_browser
+
+load_browser()

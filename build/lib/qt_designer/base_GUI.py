@@ -9,10 +9,14 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import os
 
 class Ui_DB_explorer(object):
     def setupUi(self, DB_explorer):
+        icon = QtGui.QIcon()
+        plg_dir = os.path.dirname(__file__)
+        icon.addPixmap(QtGui.QPixmap(plg_dir+"\\heartbeat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        DB_explorer.setWindowIcon(icon)
         DB_explorer.setObjectName("DB_explorer")
         DB_explorer.resize(900, 450)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)

@@ -7,11 +7,9 @@ from PyQt5 import QtChart, QtWidgets, QtGui, QtPrintSupport
 from PyQt5.QtWidgets import QFileDialog
 from databasemanager import *
 import math
-import datetime
 import time
-from threading import Thread
-import threading
 
+import pickle
 
 
 class plotter_ui(QObject, Ui_MainWindow):
@@ -34,13 +32,14 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.event_colors = ['#4363d8', '#800000', '#3cb44b', '#ffe119', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#aaffc3', '#808000', '#e6194b', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000']
         self.verbose = verbose
         self.range = 0
+        self.xcoord = pg.TextItem(text='', color=(255, 255, 255), html=None, border=None, fill=None, angle=0, rotateAxis=None)
         self.norm = plotter_ui.struct()
         self.ID = plotter_ui.__getNewID()
         self.y = y
         self.FavoriteList=list()
         self.setupUi(MainWindow)
         self.MainWindow = MainWindow
-        self.window_scale = 1
+        self.window_scale = int(np.floor(window/10)+1)
         self.callback = callback
         self.sens = sens
         self.__UpdateTitleText(recording.subject_name + ': ' + recording.name)
@@ -48,7 +47,11 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.channelNames = channelNames
         self.T = int(self.recording.fs) * self.window
         self.CH = recording.number_of_channels
-        self.CH_enabled = np.ones((self.CH,), dtype=int)
+        self.CH_enabled = np.ones((self.CH,), dtype=bool)
+        if self.channelNames is not None:
+            for i in range(self.CH):
+                if(self.recording.channels[i] not in self.channelNames):
+                    self.CH_enabled[i] = False
         self.__UpdateFs(fs)
         self.chbFit.setChecked(False)
         self.chbNight.setChecked(True)
@@ -63,13 +66,35 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.__UpdateTotalNumberOfSamples()
         self.vb = self.axis.getViewBox()
         self.vb.setMouseEnabled(x=False, y=False)
-        plotSample = int(self.start*self.fs-10*self.fs)
+
+        self.axis.getAxis('bottom').setTextPen('w')
+        self.axis.getAxis('left').setTextPen('w')
+
+        self.xcoord.setParentItem(self.vb)
+        self.xcoord.setPos(0, -0.5)
+
+        self.axis.scene().sigMouseMoved.connect(self.onMouseMoved)
+        plotSample = int(self.start*self.fs-window*self.fs)
         if plotSample < 0 :
             self.UpdateSampleIndex(0,True)
 
         else:
             self.UpdateSampleIndex(plotSample,True)
 
+    def onMouseMoved(self, point):
+        p = self.vb.mapSceneToView(point)
+        self.xcoord.setText(str("{:.3f}".format(p.x())) + " s")
+
+    def save_data(self):
+        name = self.Data_Name.text()
+        start= self.SampleIndex
+        stop= self.SampleIndex+self.T
+        data = self.recording._get_data_in_sample(start=int(start), stop=int(stop))
+
+        data = data[self.CH_enabled]
+
+        with open(name + ".pkl","wb") as f:
+            pickle.dump(data, f)
 
     def assign_colors(self):
         #gives each event a different color in the plotter window
@@ -112,7 +137,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             
     def __UpdateChannelNames(self, channelNames, overlapping_events, areChannelsVertical):
         ttick=list()
-        enabled_channelnames = [channelNames[i] for i in range(len(channelNames)) if self.CH_enabled[i] == 1]
+        enabled_channelnames = [channelNames[i] for i in range(len(channelNames)) if self.CH_enabled[i] == True]
         for i,t in enumerate(enabled_channelnames[::-1]):
             ttick.append((i,  t))
         for i,event in enumerate(overlapping_events):
@@ -167,14 +192,18 @@ class plotter_ui(QObject, Ui_MainWindow):
         for xi in x:
             i = 0
             for ch in range(self.CH):
-                if(self.CH_enabled[ch] == 1):
+                if(self.CH_enabled[ch] == True):
                     xi[ch,:] += (sum(self.CH_enabled)-i-1) - 0.5
                     i = i + 1
         return x
         
     def __iNormalize(self, x0, sens = None):
-        M = max([v.max() for v in x0]) #Scale factor for changing amplitude
-        m = min([v.min() for v in x0])
+        if(sens is None):
+            M = max([v.max() for v in x0]) #Scale factor for changing amplitude
+            m = min([v.min() for v in x0])
+        else:
+            M = sens
+            m = -sens
         x = [(v-self.scale_factor*m)/(self.scale_factor*M-self.scale_factor*m) for v in x0]
         self.range = M-m
         self.__UpdateAmplitude()
@@ -188,16 +217,18 @@ class plotter_ui(QObject, Ui_MainWindow):
             self.UpdateSampleIndex(sampleIndex)
         overlapping_events = self.__CheckAnnotationOverlap(self.SampleIndex)
         self.PlotLine(overlapping_events, self.recording,self.window, self.SampleIndex)
-        self.__UpdateChannelNames(self.channelNames,overlapping_events, True)
-        self.vb.autoRange(padding = 0)
+        self.__UpdateChannelNames(self.recording.channels,overlapping_events, True)
+        self.vb.autoRange(padding = 0.05)
             
     def PlotLine(self, overlapping_events, recording, window, sampleIndex):
+        
         if(sampleIndex < 0):
             sampleIndex = 0
         if(self.window_scale >= 1):
             window_scale = int(self.window_scale)
         else:
             window_scale = 1
+        print(window_scale)
         if(sampleIndex < self.recording.duration_samp - self.T):
             start=sampleIndex
             stop=sampleIndex+self.T
@@ -224,6 +255,7 @@ class plotter_ui(QObject, Ui_MainWindow):
             if(self.T > 9):
                 for i in range(0,int(self.T),int(math.floor(self.T/10))):
                     ticks.append((t[i],time.strftime('%H:%M:%S', time.gmtime(t[i]))))
+        ticks.pop(0)
         stringaxis = self.axis.getAxis('bottom')
         stringaxis.setTicks([ticks])
         t = t[0::window_scale]
@@ -240,14 +272,17 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.Clear()
         for i, xxi in enumerate(xx):
             for ch in range(self.CH):
-                if(self.CH_enabled[ch] == 1):
+                if(self.CH_enabled[ch] == True):
                     if(self.night_mode == 1):
                         self.axis.plot(t,xxi[ch,:], pen=self.GetPen(i))
                     else:
                         self.axis.plot(t,xxi[ch,:], pen=self.GetPen(21))
         for i, event in enumerate(overlapping_events):
             self.axis.plot(tEvent[event],ToPlot[event], pen=pg.mkPen(self.colors_ev[event],width=8))
-        self.vb.setLimits(yMin=-1, yMax=self.CH, xMin = sampleIndex/self.fs, xMax=t[-1])
+        self.vb.setLimits(yMin=-1, yMax=sum(self.CH_enabled), xMin = sampleIndex/self.fs, xMax=t[-1])
+        self.axis.addItem(self.xcoord, ignoreBounds=True) 
+        self.xcoord.setText(str("{:.3f}".format(t[0]) + " s"))
+        self.xcoord.setPos(t[0], -0.5)
         self.__UpdateTitle()
 
     def GetColorString(self, colorIndex=0):
@@ -291,6 +326,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.chbFit.stateChanged.connect(self.__onchbFitStateChanged)
         self.btnPrint.clicked.connect(self.__onbtnPrintClicked)
         self.btnDuplicate.clicked.connect(self.__onbtnDuplicate)
+
+        self.btnExport.clicked.connect(self.save_data)
         ###menubar###
         #channels
         self.signals_add.triggered.connect(self.__onbtnChannelsAdd)
@@ -364,10 +401,17 @@ class plotter_ui(QObject, Ui_MainWindow):
         if(state):
             self.night_mode = 1
             self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(0, 0, 0, 255))) # set background color here
+            self.xcoord.setColor('w')
+            self.axis.getAxis('bottom').setTextPen('w')
+            self.axis.getAxis('left').setTextPen('w')
             self.Plot()
         else:
             self.night_mode = 0
             self.axis.setBackgroundBrush(QtGui.QBrush(QtGui.QColor(255, 255, 255, 255))) # set background color here
+            self.xcoord = pg.TextItem(text='', color=(255, 255, 255), html=None, border=None, fill=None, angle=0, rotateAxis=None)
+            self.xcoord.setColor([0,0,0,255])
+            self.axis.getAxis('bottom').setTextPen([0,0,0,255])
+            self.axis.getAxis('left').setTextPen([0,0,0,255])
             self.Plot() 
 
     def __onbtnDuplicate(self):
@@ -414,7 +458,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_window.show()
         all_channels = self.recording.channels
         for i in range(self.CH):
-            if(self.CH_enabled[i] == 1):
+            if(self.CH_enabled[i] == True):
                 all_channels.remove(self.recording.channels[i])
         self.ch_ui.channelsList.addItems(all_channels)
         self.ch_ui.btnChannels.setText("Add channel(s)")
@@ -425,7 +469,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         indices = []
         for i in range(len(channels)):
             indices.append(self.recording.channels.index(channels[i].text()))
-            self.CH_enabled[self.recording.channels.index(channels[i].text())] = 1
+            self.CH_enabled[self.recording.channels.index(channels[i].text())] = True
         self.ch_window.close()
         self.Plot()
     
@@ -435,8 +479,8 @@ class plotter_ui(QObject, Ui_MainWindow):
         self.ch_ui.setupUi(self.ch_window)
         self.ch_window.show()
         for i in range(self.CH):
-            if(self.CH_enabled[i] == 1):
-                self.ch_ui.channelsList.addItem(self.channelNames[i])
+            if(self.CH_enabled[i] == True):
+                self.ch_ui.channelsList.addItem(self.recording.channels[i])
         self.ch_ui.btnChannels.clicked.connect(self.removeChannels)
 
     def removeChannels(self):
@@ -444,7 +488,7 @@ class plotter_ui(QObject, Ui_MainWindow):
         indices = []
         for i in range(len(channels)):
             indices.append(self.recording.channels.index(channels[i].text()))
-            self.CH_enabled[self.recording.channels.index(channels[i].text())] = 0
+            self.CH_enabled[self.recording.channels.index(channels[i].text())] = False
         self.ch_window.close()
         self.Plot()
 

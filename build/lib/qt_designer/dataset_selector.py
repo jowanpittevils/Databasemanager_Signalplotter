@@ -9,10 +9,14 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import os
 
 class Ui_dataset(object):
     def setupUi(self, dataset):
+        icon = QtGui.QIcon()
+        plg_dir = os.path.dirname(__file__)
+        icon.addPixmap(QtGui.QPixmap(plg_dir+"\\heartbeat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        dataset.setWindowIcon(icon)
         dataset.setObjectName("dataset")
         dataset.resize(190, 170)
         dataset.setMinimumSize(QtCore.QSize(190, 170))

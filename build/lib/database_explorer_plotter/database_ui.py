@@ -108,7 +108,7 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
         title=None
         fs=int(doubleclicked_recording.fs)
         sens=None
-        channel_names=UserSettings.global_settings().loading_data_channels
+        channel_names= None   
         callback=None
         verbose:bool = True
         agplot(doubleclicked_recording, window, start, y, title, fs, sens, channel_names, callback, verbose, self)
@@ -124,7 +124,7 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
         title=None
         fs=int(self.selected_recording.fs)
         sens=None
-        channel_names=UserSettings.global_settings().loading_data_channels
+        channel_names= None
         callback=None
         verbose:bool = True
         agplot(self.selected_recording, window, start, y, title, fs, sens, channel_names, callback, verbose, self)
@@ -147,6 +147,7 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
         subject_names = self.ds.subject_names
         self.clear_GUI()
         self.ui.subject_list.addItems(self.matching_subjects)
+        self.ui.recordings_list.addItems(self.matching_recordings)
         self.ui.label_11.setText(self.dataset_name)
         self.ui.lineEdit.start(subject_names)
         self.ui.lineEdit_2.start(self.matching_recordings)
