@@ -147,7 +147,7 @@ class database_ui(QtWidgets.QMainWindow,Ui_DB_explorer):
         subject_names = self.ds.subject_names
         self.clear_GUI()
         self.ui.subject_list.addItems(self.matching_subjects)
-        self.ui.recordings_list.addItems(self.matching_recordings)
+        #self.ui.recordings_list.addItems(self.matching_recordings)
         self.ui.label_11.setText(self.dataset_name)
         self.ui.lineEdit.start(subject_names)
         self.ui.lineEdit_2.start(self.matching_recordings)
